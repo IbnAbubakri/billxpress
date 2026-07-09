@@ -202,28 +202,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
         {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
-        {/* Mobile notification button */}
-        <div className="lg:hidden fixed top-4 right-4 z-30">
-          <button
-            aria-label="Notifications"
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-          </button>
-          {showNotifications && (
-            <div className="absolute top-12 right-0 w-72 bg-white dark:bg-dark-800 rounded-2xl shadow-2xl border dark:border-dark-700 overflow-hidden">
-              <div className="p-4 border-b dark:border-dark-700">
-                <h3 className="font-semibold text-black dark:text-white">Notifications</h3>
-              </div>
-              <div className="p-8 text-center text-black dark:text-white text-sm">
-                No new notifications
-              </div>
-            </div>
-          )}
-        </div>
         {/* Page content */}
-        <main className="flex-1 pb-20 lg:pb-8">{children}</main>
+        <main className="flex-1 pb-20 lg:pb-8">
+          <div className="lg:hidden flex justify-end px-4 pt-4 relative">
+            <button
+              aria-label="Notifications"
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+            </button>
+            {showNotifications && (
+              <div className="absolute top-14 right-4 w-72 bg-white dark:bg-dark-800 rounded-2xl shadow-2xl border dark:border-dark-700 overflow-hidden z-30">
+                <div className="p-4 border-b dark:border-dark-700">
+                  <h3 className="font-semibold text-black dark:text-white">Notifications</h3>
+                </div>
+                <div className="p-8 text-center text-black dark:text-white text-sm">
+                  No new notifications
+                </div>
+              </div>
+            )}
+          </div>
+          {children}
+        </main>
 
         {/* Mobile bottom navigation */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-800 border-t dark:border-dark-700 shadow-lg">
