@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: billxpress
+    runtime: node
+    repo: https://github.com/IbnAbubakri/billxpress
+    region: oregon
+    plan: free
+    buildCommand: npm install && cd server && npm install && cd .. && npm run build
+    startCommand: node server/src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        fromService:
+          name: billxpress
+          type: web
+          property: url
