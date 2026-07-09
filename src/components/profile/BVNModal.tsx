@@ -1,4 +1,3 @@
-import React from "react";
 import { Lock } from "lucide-react";
 
 interface BVNModalProps {
@@ -10,14 +9,14 @@ interface BVNModalProps {
   onVerify: () => void;
 }
 
-const BVNModal: React.FC<BVNModalProps> = ({
+const BVNModal = ({
   open,
   bvn,
   error,
   onClose,
   onBVNChange,
   onVerify,
-}) => {
+}: BVNModalProps) => {
   if (!open) return null;
 
   return (

@@ -156,4 +156,4 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
   );
 };
 
-export default React.memo(SetPinModal);
+export default SetPinModal;

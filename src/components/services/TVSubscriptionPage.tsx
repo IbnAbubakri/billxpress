@@ -5,6 +5,7 @@ import DashboardLayout from "../layout/DashboardLayout";
 import dstvIcon from "../../assets/icons/dstv.png";
 import gotvIcon from "../../assets/icons/gotv.png";
 import startimesIcon from "../../assets/icons/startimes.png";
+import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
@@ -78,13 +79,13 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
 
   const handleProviderChange = (providerId: string) => {
     setSelectedProvider(providerId);
-    setSelectedPackage(""); // Reset package when provider changes
+    setSelectedPackage("");
   };
 
   const handleSubmit = () => {
     const smartCardError = validateSmartCardNumber(smartCardNumber);
 
-    const newErrors: any = {};
+    const newErrors: Record<string, string | null> = {};
     if (!selectedProvider) newErrors.provider = "Please select a TV provider";
     if (smartCardError) newErrors.smartCardNumber = smartCardError;
     if (!selectedPackage) newErrors.package = "Please select a package";
@@ -97,9 +98,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
   };
 
   const handleConfirmPurchase = () => {
-    // Simulate purchase
     setShowConfirmModal(false);
-    // Show success message and redirect
     setTimeout(() => {
       navigate("/dashboard");
     }, 1000);
@@ -150,7 +149,6 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
         </div>
 
         <div className="max-w-md mx-auto">
-          {/* Provider Selection */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-black dark:text-white mb-2">
               TV Provider
@@ -180,7 +178,6 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
             )}
           </div>
 
-          {/* Smart Card Number Input */}
           <div className="mb-4">
             <label htmlFor="smartCardNumber" className="block text-sm font-medium text-black dark:text-white mb-2">
               Smart Card / IUC Number
@@ -204,7 +201,6 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
             )}
           </div>
 
-          {/* Package Selection */}
           {selectedProvider && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-black dark:text-white mb-2">
@@ -243,7 +239,6 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             onClick={handleSubmit}
             className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
@@ -252,106 +247,64 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
           </button>
         </div>
 
-        {/* Confirmation Modal */}
-        {showConfirmModal && selectedPackageDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-dark-900/80 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-dark-800 rounded-3xl p-4 w-full max-w-sm">
-              <div className="text-center mb-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
-                </div>
-                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
-                  Confirm Subscription
-                </h3>
-                <p className="text-black dark:text-white">
-                  Please review your TV subscription
-                </p>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Provider</span>
-                  <span className="font-medium">
-                    {providers.find((p) => p.id === selectedProvider)?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Smart Card</span>
-                  <span className="font-medium">{smartCardNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Package</span>
-                  <span className="font-medium">
-                    {selectedPackageDetails.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Duration</span>
-                  <span className="font-medium">
-                    {selectedPackageDetails.duration}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Amount</span>
-                  <span className="font-medium">
-                    ₦{selectedPackageDetails.price.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Charges</span>
-                  <span className="font-medium">₦0.00</span>
-                </div>
-                <hr />
-                <div className="flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>₦{selectedPackageDetails.price.toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmPurchase}
-                  className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-                >
-                  Confirm
-                </button>
-              </div>
+        <ConfirmModal
+          show={showConfirmModal}
+          title="Confirm Subscription"
+          message="Please review your TV subscription"
+          confirmLabel="Confirm"
+          onConfirm={handleConfirmPurchase}
+          onCancel={() => setShowConfirmModal(false)}
+          icon={
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
+            </div>
+          }
+        >
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-black dark:text-white">Provider</span>
+              <span className="font-medium">
+                {providers.find((p) => p.id === selectedProvider)?.name}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-black dark:text-white">Smart Card</span>
+              <span className="font-medium">{smartCardNumber}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-black dark:text-white">Package</span>
+              <span className="font-medium">
+                {selectedPackageDetails?.name}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-black dark:text-white">Duration</span>
+              <span className="font-medium">
+                {selectedPackageDetails?.duration}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-black dark:text-white">Amount</span>
+              <span className="font-medium">
+                ₦{selectedPackageDetails?.price.toLocaleString()}
+              </span>
+            </div>
+            <hr className="dark:border-dark-700" />
+            <div className="flex justify-between font-bold">
+              <span>Total</span>
+              <span>₦{selectedPackageDetails?.price.toLocaleString()}</span>
             </div>
           </div>
-        )}
-        {/* Logout Confirmation Modal */}
-        {showLogoutModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-            <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
-                Confirm Logout
-              </h2>
-              <p className="text-black dark:text-white mb-4 text-center">
-                Are you sure you want to logout?
-              </p>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleCancelLogout}
-                  className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmLogout}
-                  className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        </ConfirmModal>
+
+        <ConfirmModal
+          show={showLogoutModal}
+          title="Confirm Logout"
+          message="Are you sure you want to logout?"
+          confirmLabel="Logout"
+          onConfirm={handleConfirmLogout}
+          onCancel={handleCancelLogout}
+        />
       </div>
     </DashboardLayout>
   );

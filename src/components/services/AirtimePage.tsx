@@ -59,7 +59,7 @@ const AirtimePage: React.FC<AirtimePageProps> = ({ user, onLogout }) => {
     const phoneError = validatePhoneNumber(phoneNumber);
     const amount = customAmount || selectedAmount;
 
-    const newErrors: any = {};
+    const newErrors: Record<string, string | null> = {};
     if (phoneError) newErrors.phoneNumber = phoneError;
     if (!selectedNetwork) newErrors.network = "Please select a network";
     if (!amount) newErrors.amount = "Please select or enter an amount";

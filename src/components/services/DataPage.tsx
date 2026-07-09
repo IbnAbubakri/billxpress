@@ -92,7 +92,7 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
   const handleSubmit = () => {
     const phoneError = validatePhoneNumber(phoneNumber);
 
-    const newErrors: any = {};
+    const newErrors: Record<string, string | null> = {};
     if (phoneError) newErrors.phoneNumber = phoneError;
     if (!selectedNetwork) newErrors.network = "Please select a network";
     if (!selectedPlan) newErrors.plan = "Please select a data plan";

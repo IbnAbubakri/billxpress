@@ -1,4 +1,3 @@
-import React from "react";
 import { User } from "lucide-react";
 
 interface BankDetails {
@@ -16,14 +15,14 @@ interface BankDetailsModalProps {
   onSave: () => void;
 }
 
-const BankDetailsModal: React.FC<BankDetailsModalProps> = ({
+const BankDetailsModal = ({
   open,
   details,
   errors,
   onClose,
   onChange,
   onSave,
-}) => {
+}: BankDetailsModalProps) => {
   if (!open) return null;
 
   return (

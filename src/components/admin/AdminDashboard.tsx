@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { colors } from "../../constants/theme";
 import {
@@ -28,7 +27,7 @@ import {
   Cell,
 } from "recharts";
 
-const AdminDashboard: React.FC = () => {
+const AdminDashboard = () => {
   // Mock data - replace with actual API calls
   const stats = [
     {

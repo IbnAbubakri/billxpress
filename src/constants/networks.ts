@@ -8,6 +8,7 @@ export interface Network {
   name: string;
   icon: string;
   prefixes: string[];
+  cashRate?: number;
 }
 
 export const AIRTIME_NETWORKS: Network[] = [
@@ -20,6 +21,7 @@ export const AIRTIME_NETWORKS: Network[] = [
       "0813", "0816", "0810", "0814",
       "0903", "0906", "0913", "0916",
     ],
+    cashRate: 0.85,
   },
   {
     id: "airtel",
@@ -29,18 +31,21 @@ export const AIRTIME_NETWORKS: Network[] = [
       "0802", "0808", "0708", "0812",
       "0701", "0902", "0907", "0901", "0912",
     ],
+    cashRate: 0.82,
   },
   {
     id: "glo",
     name: "Glo",
     icon: gloIcon,
     prefixes: ["0805", "0807", "0705", "0815", "0811", "0905"],
+    cashRate: 0.8,
   },
   {
     id: "9mobile",
     name: "9mobile",
     icon: nineMobileIcon,
     prefixes: ["0809", "0817", "0818", "0909", "0908"],
+    cashRate: 0.78,
   },
 ];
 

@@ -58,7 +58,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
   const handleContinue = () => {
     const amountError = validateAmount(amount);
     
-    const newErrors: any = {};
+    const newErrors: Record<string, string | null> = {};
     if (amountError) newErrors.amount = amountError;
     if (!selectedMethod) newErrors.method = 'Please select a payment method';
 
@@ -255,4 +255,4 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
   );
 };
 
-export default React.memo(FundWalletModal);
+export default FundWalletModal;

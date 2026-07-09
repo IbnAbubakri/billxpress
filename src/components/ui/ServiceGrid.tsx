@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Phone,
@@ -10,7 +9,7 @@ import {
   Target,
 } from "lucide-react"
 
-const ServiceGrid: React.FC = () => {
+const ServiceGrid = () => {
   const navigate = useNavigate();
 
   const services = [
@@ -105,4 +104,4 @@ const ServiceGrid: React.FC = () => {
   );
 };
 
-export default React.memo(ServiceGrid);
+export default ServiceGrid;

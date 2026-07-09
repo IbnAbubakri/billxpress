@@ -1,8 +1,8 @@
-import React from 'react';
+import { useState } from 'react';
 import { Wifi, Phone, Zap, Tv, GraduationCap, MoreHorizontal } from 'lucide-react';
 
-const RecentTransactions: React.FC = () => {
-  const [showAll, setShowAll] = React.useState(false);
+const RecentTransactions = () => {
+  const [showAll, setShowAll] = useState(false);
 
   const allTransactions = [
     {
@@ -199,4 +199,4 @@ const RecentTransactions: React.FC = () => {
   );
 };
 
-export default React.memo(RecentTransactions);
+export default RecentTransactions;

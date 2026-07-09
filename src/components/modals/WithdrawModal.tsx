@@ -1,21 +1,35 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Banknote, Check } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+
+interface Errors {
+  amount?: string | null;
+  bankName?: string | null;
+  accountNumber?: string | null;
+  accountName?: string | null;
+}
 
 interface WithdrawModalProps {
   user: User | null;
   onClose: () => void;
 }
 
-const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
+const WithdrawModal = ({ user, onClose }: WithdrawModalProps) => {
   const containerRef = useFocusTrap(true, onClose);
   const [amount, setAmount] = useState('');
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
   const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Errors>({});
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   const banks = [
     'Access Bank', 'Citibank', 'Diamond Bank', 'Ecobank Nigeria', 'Fidelity Bank',
@@ -69,7 +83,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
     const amountError = validateAmount(amount);
     const accountError = validateAccountNumber(accountNumber);
     
-    const newErrors: any = {};
+    const newErrors: Errors = {};
     if (amountError) newErrors.amount = amountError;
     if (!bankName) newErrors.bankName = 'Please select a bank';
     if (accountError) newErrors.accountNumber = accountError;
@@ -83,9 +97,8 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
   };
 
   const handleWithdraw = () => {
-    // Simulate withdrawal processing
     setStep(3);
-    setTimeout(() => {
+    closeTimerRef.current = setTimeout(() => {
       onClose();
     }, 2000);
   };
@@ -297,4 +310,4 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
   );
 };
 
-export default React.memo(WithdrawModal);
+export default WithdrawModal;

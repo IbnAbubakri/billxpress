@@ -1,17 +1,17 @@
-import React from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import WalletCard from "../ui/WalletCard";
 import RecentTransactions from "../ui/RecentTransactions";
+import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
 interface WalletPageProps extends PageProps {}
 
-const WalletPage: React.FC<WalletPageProps> = ({ user, onLogout }) => {
+const WalletPage = ({ user, onLogout }: WalletPageProps) => {
   const navigate = useNavigate();
-  const [showLogoutModal, setShowLogoutModal] = React.useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -46,40 +46,18 @@ const WalletPage: React.FC<WalletPageProps> = ({ user, onLogout }) => {
         </div>
 
         <div className="space-y-4">
-          {/* Wallet Card */}
           <WalletCard user={user} />
-
-          {/* Recent Transactions */}
           <RecentTransactions />
         </div>
       </div>
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-          <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-            <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
-              Confirm Logout
-            </h2>
-            <p className="text-black dark:text-white mb-4 text-center">
-              Are you sure you want to logout?
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={handleCancelLogout}
-                className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        show={showLogoutModal}
+        title="Confirm Logout"
+        message="Are you sure you want to logout?"
+        confirmLabel="Logout"
+        onConfirm={handleConfirmLogout}
+        onCancel={handleCancelLogout}
+      />
     </DashboardLayout>
   );
 };

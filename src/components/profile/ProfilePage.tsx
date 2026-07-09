@@ -101,8 +101,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   };
 
   const handleProfileUpdate = async () => {
-    const newErrors: any = {};
-
+    const newErrors: Record<string, string | null> = {};
+    
     if (!formData.firstName.trim())
       newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
@@ -131,7 +131,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   };
 
   const handlePasswordChange = () => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string | null> = {};
 
     if (!formData.currentPassword)
       newErrors.currentPassword = "Current password is required";
@@ -158,7 +158,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   };
 
   const handlePinChange = () => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string | null> = {};
 
     if (!formData.transactionPin)
       newErrors.transactionPin = "Transaction PIN is required";
@@ -213,7 +213,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   };
 
   const handleBankDetailsSave = async () => {
-    const errors: any = {};
+    const errors: Record<string, string | null> = {};
     if (
       !bankDetails.accountNumber.trim() ||
       bankDetails.accountNumber.length !== 10 ||
@@ -263,7 +263,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   };
 
   const handleBasicInfoSave = async () => {
-    const errors: any = {};
+    const errors: Record<string, string | null> = {};
     if (!basicInfo.billingStreet.trim())
       errors.billingStreet = "Billing street required";
     if (!basicInfo.billingCity.trim())

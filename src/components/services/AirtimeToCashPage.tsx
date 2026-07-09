@@ -1,98 +1,50 @@
-import React, { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, RefreshCw, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
-import mtnIcon from "../../assets/icons/mtn.svg";
-import gloIcon from "../../assets/icons/glo.png";
-import airtelIcon from "../../assets/icons/airtel-logo1.png";
-import nineMobileIcon from "../../assets/icons/9mobile.png";
+import { AIRTIME_NETWORKS } from "../../constants/networks";
 import defaultIcon from "../../assets/icons/default.svg";
+import ConfirmModal from "../ui/ConfirmModal";
+import type { Network } from "../../constants/networks";
 
 import type { PageProps } from '../../types/page';
 
 interface AirtimeToCashPageProps extends PageProps {}
 
-const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
-  user,
-  onLogout,
-}) => {
+const AirtimeToCashPage = ({ user, onLogout }: AirtimeToCashPageProps) => {
   const navigate = useNavigate();
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const networks = [
-    {
-      id: "mtn",
-      name: "MTN",
-      icon: mtnIcon || defaultIcon,
-      rate: 0.85,
-      prefixes: [
-        "0803",
-        "0806",
-        "0813",
-        "0816",
-        "0903",
-        "0906",
-        "0913",
-        "0916",
-      ],
-    },
-    {
-      id: "glo",
-      name: "Glo",
-      icon: gloIcon || defaultIcon,
-      rate: 0.8,
-      prefixes: ["0805", "0807", "0815", "0811", "0905", "0915"],
-    },
-    {
-      id: "airtel",
-      name: "Airtel",
-      icon: airtelIcon || defaultIcon,
-      rate: 0.82,
-      prefixes: ["0802", "0808", "0812", "0901", "0902", "0907", "0912"],
-    },
-    {
-      id: "9mobile",
-      name: "9mobile",
-      icon: nineMobileIcon || defaultIcon,
-      rate: 0.78,
-      prefixes: ["0809", "0817", "0818", "0909", "0908"],
-    },
-  ];
+  useEffect(() => {
+    return () => {
+      if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current);
+    };
+  }, []);
+
+  const networks: Network[] = AIRTIME_NETWORKS;
 
   const validatePhoneNumber = (phone: string) => {
     if (!phone) return "Phone number is required";
     if (phone.length !== 11) return "Phone number must be 11 digits";
     if (!phone.startsWith("0")) return "Phone number must start with 0";
-
     const prefix = phone.substring(0, 4);
     const network = networks.find((n) => n.prefixes.includes(prefix));
     if (!network) return "Invalid network prefix";
-
     if (selectedNetwork && network.id !== selectedNetwork) {
-      return `This number belongs to ${network.name}, but you selected ${
-        networks.find((n) => n.id === selectedNetwork)?.name
-      }`;
+      return `This number belongs to ${network.name}, but you selected ${networks.find((n) => n.id === selectedNetwork)?.name}`;
     }
-
     return null;
   };
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
 
-  const handleConfirmLogout = () => {
-    setShowLogoutModal(false);
-    onLogout();
-  };
-
-  const handleCancelLogout = () => {
-    setShowLogoutModal(false);
-  };
+  const handleLogoutClick = () => setShowLogoutModal(true);
+  const handleConfirmLogout = () => { setShowLogoutModal(false); onLogout(); };
+  const handleCancelLogout = () => setShowLogoutModal(false);
 
   const validateAmount = (amt: string) => {
     if (!amt) return "Amount is required";
@@ -105,192 +57,108 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
   const handlePhoneChange = (value: string) => {
     const cleaned = value.replace(/\D/g, "").substring(0, 11);
     setPhoneNumber(cleaned);
-
     if (cleaned.length >= 4) {
       const prefix = cleaned.substring(0, 4);
       const detectedNetwork = networks.find((n) => n.prefixes.includes(prefix));
-      if (detectedNetwork && !selectedNetwork) {
-        setSelectedNetwork(detectedNetwork.id);
-      }
+      if (detectedNetwork && !selectedNetwork) setSelectedNetwork(detectedNetwork.id);
     }
-
     const error = validatePhoneNumber(cleaned);
-    setErrors((prev: typeof errors) => ({ ...prev, phoneNumber: error }));
+    setErrors((prev) => ({ ...prev, phoneNumber: error }));
   };
 
   const handleAmountChange = (value: string) => {
     const cleaned = value.replace(/\D/g, "");
     setAmount(cleaned);
-
     const error = validateAmount(cleaned);
-    setErrors((prev: typeof errors) => ({ ...prev, amount: error }));
+    setErrors((prev) => ({ ...prev, amount: error }));
   };
 
   const handleSubmit = () => {
     const phoneError = validatePhoneNumber(phoneNumber);
     const amountError = validateAmount(amount);
-
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
     if (phoneError) newErrors.phoneNumber = phoneError;
     if (!selectedNetwork) newErrors.network = "Please select a network";
     if (amountError) newErrors.amount = amountError;
-
     setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      setShowConfirmModal(true);
-    }
+    if (Object.keys(newErrors).length === 0) setShowConfirmModal(true);
   };
 
   const handleConfirmPurchase = () => {
-    // Simulate purchase
     setShowConfirmModal(false);
-    // Show success message and redirect
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1000);
+    navigateTimerRef.current = setTimeout(() => navigate("/dashboard"), 1000);
   };
 
   const selectedNetworkData = networks.find((n) => n.id === selectedNetwork);
-  const creditedAmount =
-    selectedNetworkData && amount
-      ? Math.floor(Number(amount) * selectedNetworkData.rate)
-      : 0;
+  const creditedAmount = selectedNetworkData && amount ? Math.floor(Number(amount) * (selectedNetworkData.cashRate ?? 0)) : 0;
 
   return (
-    <DashboardLayout user={user} onLogout={onLogout}>
+    <DashboardLayout user={user} onLogout={handleLogoutClick}>
       <div className="p-4">
         <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate("/dashboard")}
-            aria-label="Go back"
-            className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
-          >
+          <button onClick={() => navigate("/dashboard")} aria-label="Go back" className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
-          {/* Removed SVG sign out button for consistent header layout */}
           <div className="flex items-center">
             <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
               <RefreshCw className="w-5 h-5 text-green-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-black dark:text-white">
-                Airtime to Cash
-              </h1>
-              <p className="text-black dark:text-white">
-                Convert your airtime to cash instantly
-              </p>
+              <h1 className="text-xl font-bold text-black dark:text-white">Airtime to Cash</h1>
+              <p className="text-black dark:text-white">Convert your airtime to cash instantly</p>
             </div>
           </div>
         </div>
 
         <div className="max-w-md mx-auto">
-          {/* Phone Number Input */}
           <div className="mb-4">
-            <label htmlFor="airtimeToCashPhone" className="block text-sm font-medium text-black dark:text-white mb-2">
-              Phone Number
-            </label>
-            <input
-              id="airtimeToCashPhone"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => handlePhoneChange(e.target.value)}
-              placeholder="08012345678"
-              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.phoneNumber ? "border-red-500" : "border-gray-300"
-              }`}
-              aria-invalid={!!errors.phoneNumber}
-              aria-describedby={errors.phoneNumber ? 'airtimeToCashPhone-error' : undefined}
-            />
-            {errors.phoneNumber && (
-              <p id="airtimeToCashPhone-error" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-            )}
+            <label htmlFor="airtimeToCashPhone" className="block text-sm font-medium text-black dark:text-white mb-2">Phone Number</label>
+            <input id="airtimeToCashPhone" type="tel" value={phoneNumber} onChange={(e) => handlePhoneChange(e.target.value)} placeholder="08012345678"
+              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.phoneNumber ? "border-red-500" : "border-gray-300"}`}
+              aria-invalid={!!errors.phoneNumber} aria-describedby={errors.phoneNumber ? 'airtimeToCashPhone-error' : undefined} />
+            {errors.phoneNumber && <p id="airtimeToCashPhone-error" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
           </div>
 
-          {/* Network Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">
-              Network
-            </label>
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">Network</label>
             <div className="grid grid-cols-2 gap-3">
               {networks.map((network) => (
-                <button
-                  key={network.id}
-                  onClick={() => setSelectedNetwork(network.id)}
-                  className={`p-4 border-2 rounded-2xl transition-all flex flex-col items-center ${
-                    selectedNetwork === network.id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 dark:border-dark-700 hover:border-gray-300"
-                  }`}
-                >
-                  <img
-                    src={network.icon || defaultIcon}
-                    alt={network.name}
-                    className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow"
-                  />
+                <button key={network.id} onClick={() => setSelectedNetwork(network.id)}
+                  className={`p-4 border-2 rounded-2xl transition-all flex flex-col items-center ${selectedNetwork === network.id ? "border-blue-500 bg-blue-50" : "border-gray-200 dark:border-dark-700 hover:border-gray-300"}`}>
+                  <img src={network.icon || defaultIcon} loading="lazy" alt={network.name} className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow" />
                   <p className="font-medium text-sm">{network.name}</p>
-                  <p className="text-xs text-black dark:text-white">
-                    {(network.rate * 100).toFixed(0)}% rate
-                  </p>
+                  <p className="text-xs text-black dark:text-white">{(network.cashRate * 100).toFixed(0)}% rate</p>
                 </button>
               ))}
             </div>
-            {errors.network && (
-              <p className="text-red-500 text-sm mt-1">{errors.network}</p>
-            )}
+            {errors.network && <p className="text-red-500 text-sm mt-1">{errors.network}</p>}
           </div>
 
-          {/* Amount Input */}
           <div className="mb-4">
-            <label htmlFor="airtimeToCashAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
-              Airtime Amount (₦100 - ₦50,000)
-            </label>
-            <input
-              id="airtimeToCashAmount"
-              type="text"
-              value={amount}
-              onChange={(e) => handleAmountChange(e.target.value)}
-              placeholder="Enter airtime amount"
-              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.amount ? "border-red-500" : "border-gray-300"
-              }`}
-              aria-invalid={!!errors.amount}
-              aria-describedby={errors.amount ? 'airtimeToCashAmount-error' : undefined}
-            />
-            {errors.amount && (
-              <p id="airtimeToCashAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>
-            )}
+            <label htmlFor="airtimeToCashAmount" className="block text-sm font-medium text-black dark:text-white mb-2">Airtime Amount (₦100 - ₦50,000)</label>
+            <input id="airtimeToCashAmount" type="text" value={amount} onChange={(e) => handleAmountChange(e.target.value)} placeholder="Enter airtime amount"
+              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.amount ? "border-red-500" : "border-gray-300"}`}
+              aria-invalid={!!errors.amount} aria-describedby={errors.amount ? 'airtimeToCashAmount-error' : undefined} />
+            {errors.amount && <p id="airtimeToCashAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>}
           </div>
 
-          {/* Conversion Preview */}
           {selectedNetworkData && amount && !errors.amount && (
             <div className="mb-4 p-4 bg-green-50 rounded-2xl border border-green-200">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-black dark:text-white">You will receive:</p>
-                  <p className="text-xl font-bold text-green-600">
-                    ₦{creditedAmount.toLocaleString()}
-                  </p>
+                  <p className="text-xl font-bold text-green-600">₦{creditedAmount.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-black dark:text-white">Rate:</p>
-                  <p className="font-medium">
-                    {(selectedNetworkData.rate * 100).toFixed(0)}%
-                  </p>
+                  <p className="font-medium">{(selectedNetworkData.cashRate * 100).toFixed(0)}%</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Submit Button */}
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-          >
-            Continue
-          </button>
+          <button onClick={handleSubmit} className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors">Continue</button>
 
-          {/* Info */}
           <div className="mt-6 p-4 bg-blue-50 rounded-2xl">
             <h4 className="font-medium text-blue-900 mb-2">How it works:</h4>
             <ul className="text-sm text-blue-800 space-y-1">
@@ -302,116 +170,34 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
           </div>
         </div>
 
-        {/* Confirmation Modal */}
-        {showConfirmModal && selectedNetworkData && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-dark-900/80 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-dark-800 rounded-3xl p-4 w-full max-w-sm">
-              <div className="text-center mb-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
-                </div>
-                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
-                  Confirm Conversion
-                </h3>
-                <p className="text-black dark:text-white">
-                  Please review your airtime to cash conversion
-                </p>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Network</span>
-                  <span className="font-medium">
-                    {selectedNetworkData.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Phone Number</span>
-                  <span className="font-medium">{phoneNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Airtime Amount</span>
-                  <span className="font-medium">
-                    ₦{Number(amount).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-black dark:text-white">Conversion Rate</span>
-                  <span className="font-medium">
-                    {(selectedNetworkData.rate * 100).toFixed(0)}%
-                  </span>
-                </div>
-                <hr />
-                <div className="flex justify-between font-bold text-green-600">
-                  <span>You'll Receive</span>
-                  <span>₦{creditedAmount.toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmPurchase}
-                  className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
+        <ConfirmModal
+          show={showConfirmModal}
+          title="Confirm Conversion"
+          message="Please review your airtime to cash conversion"
+          confirmLabel="Confirm"
+          onConfirm={handleConfirmPurchase}
+          onCancel={() => setShowConfirmModal(false)}
+          icon={<div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"><Check className="w-8 h-8 text-green-600" aria-hidden="true" /></div>}
+        >
+          <div className="space-y-3">
+            <div className="flex justify-between"><span className="text-black dark:text-white">Network</span><span className="font-medium">{selectedNetworkData?.name}</span></div>
+            <div className="flex justify-between"><span className="text-black dark:text-white">Phone Number</span><span className="font-medium">{phoneNumber}</span></div>
+            <div className="flex justify-between"><span className="text-black dark:text-white">Airtime Amount</span><span className="font-medium">₦{Number(amount).toLocaleString()}</span></div>
+            <div className="flex justify-between"><span className="text-black dark:text-white">Conversion Rate</span><span className="font-medium">{(selectedNetworkData?.cashRate ?? 0) * 100}%</span></div>
+            <hr className="dark:border-dark-700" />
+            <div className="flex justify-between font-bold text-green-600"><span>You'll Receive</span><span>₦{creditedAmount.toLocaleString()}</span></div>
           </div>
-        )}
+        </ConfirmModal>
 
-        {/* Logout Confirmation Modal */}
-        {showLogoutModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-dark-900/80 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-secondary dark:text-white">Sign Out</h2>
-              </div>
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-8 h-8 text-red-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
-                    />
-                  </svg>
-                </div>
-                <p className="text-black dark:text-white">
-                  Are you sure you want to sign out?
-                </p>
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleCancelLogout}
-                  className="flex-1 bg-gray-100 dark:bg-dark-700 text-black dark:text-white py-3 px-4 rounded-2xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmLogout}
-                  className="flex-1 bg-red-500 text-white py-3 px-4 rounded-2xl font-medium hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmModal
+          show={showLogoutModal}
+          title="Sign Out"
+          message="Are you sure you want to sign out?"
+          confirmLabel="Sign Out"
+          confirmVariant="danger"
+          onConfirm={handleConfirmLogout}
+          onCancel={handleCancelLogout}
+        />
       </div>
     </DashboardLayout>
   );

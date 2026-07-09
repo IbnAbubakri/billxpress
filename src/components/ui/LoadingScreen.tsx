@@ -1,8 +1,6 @@
-import React from "react";
-
-const LoadingScreen: React.FC = () => {
+const LoadingScreen = () => {
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center">
+    <div className="min-h-screen bg-primary dark:bg-dark-900 flex items-center justify-center">
       <div className="text-center">
         <div className="relative mb-4 sm:mb-6">
           <div className="w-14 h-14 sm:w-20 sm:h-20 mx-auto bg-secondary rounded-2xl shadow-lg flex items-center justify-center animate-pulse">
@@ -17,4 +15,4 @@ const LoadingScreen: React.FC = () => {
   );
 };
 
-export default React.memo(LoadingScreen);
+export default LoadingScreen;

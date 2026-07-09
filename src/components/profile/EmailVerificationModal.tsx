@@ -1,4 +1,3 @@
-import React from "react";
 import { Mail } from "lucide-react";
 
 interface EmailVerificationModalProps {
@@ -8,12 +7,12 @@ interface EmailVerificationModalProps {
   onSend: () => void;
 }
 
-const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
+const EmailVerificationModal = ({
   open,
   emailSent,
   onClose,
   onSend,
-}) => {
+}: EmailVerificationModalProps) => {
   if (!open) return null;
 
   return (

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   AreaChart,
   Area,
@@ -38,7 +37,7 @@ const formatYAxis = (value: number) => {
   return `₦${value}`;
 };
 
-const SpendingChart: React.FC = () => {
+const SpendingChart = () => {
   const { isDark } = useDarkMode();
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
@@ -71,4 +70,4 @@ const SpendingChart: React.FC = () => {
   );
 };
 
-export default React.memo(SpendingChart);
+export default SpendingChart;

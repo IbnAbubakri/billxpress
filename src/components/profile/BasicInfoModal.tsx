@@ -1,4 +1,3 @@
-import React from "react";
 import { User } from "lucide-react";
 
 interface BasicInfo {
@@ -23,14 +22,14 @@ interface BasicInfoModalProps {
   onSave: () => void;
 }
 
-const BasicInfoModal: React.FC<BasicInfoModalProps> = ({
+const BasicInfoModal = ({
   open,
   info,
   errors,
   onClose,
   onChange,
   onSave,
-}) => {
+}: BasicInfoModalProps) => {
   if (!open) return null;
 
   return (

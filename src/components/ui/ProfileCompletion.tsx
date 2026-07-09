@@ -102,7 +102,7 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
   );
 }
 
-export default React.memo(ProfileCompletion);
+export default ProfileCompletion;
 
 function EmailVerifyModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState('');

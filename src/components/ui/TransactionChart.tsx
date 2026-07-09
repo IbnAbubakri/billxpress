@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BarChart,
   Bar,
@@ -38,7 +37,7 @@ const formatYAxis = (value: number) => {
   return `₦${value}`;
 };
 
-const TransactionChart: React.FC = () => {
+const TransactionChart = () => {
   const { isDark } = useDarkMode();
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
@@ -64,4 +63,4 @@ const TransactionChart: React.FC = () => {
   );
 };
 
-export default React.memo(TransactionChart);
+export default TransactionChart;
