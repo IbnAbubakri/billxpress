@@ -9,6 +9,7 @@ import {
   GraduationCap,
   ArrowRightLeft,
   Target,
+  Wallet,
   History,
   User,
   Menu,
