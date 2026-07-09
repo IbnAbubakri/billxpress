@@ -1,35 +1,37 @@
-import { useCallback } from 'react';
+import { useCallback, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
-import LoginPage from './components/auth/LoginPage';
-import RegisterPage from './components/auth/RegisterPage';
-import ResetPasswordPage from './components/auth/ResetPasswordPage';
-import Dashboard from './components/dashboard/Dashboard';
-import AirtimePage from './components/services/AirtimePage';
-import DataPage from './components/services/DataPage';
-import TVSubscriptionPage from './components/services/TVSubscriptionPage';
-import ElectricityPage from './components/services/ElectricityPage';
-import EducationPage from './components/services/EducationPage';
-import AirtimeToCashPage from './components/services/AirtimeToCashPage';
-import BettingPage from './components/services/BettingPage';
-import WalletPage from './components/wallet/WalletPage';
-import TransactionsPage from './components/transactions/TransactionsPage';
-import ProfilePage from './components/profile/ProfilePage';
 import LoadingScreen from './components/ui/LoadingScreen';
-
-import AdminLogin from './components/auth/AdminLogin';
-import AdminDashboard from './components/admin/AdminDashboard';
-import AdminLayout from './components/layout/AdminLayout';
-import Analytics from './components/admin/Analytics';
-import PricingControl from './components/admin/PricingControl';
-import UserManagement from './components/admin/UserManagement';
-import TransactionManagement from './components/admin/TransactionManagement';
-import AdminProfile from './components/admin/AdminProfile';
-
-import { useAuth } from './hooks/useAuth';
+import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider, useToast } from './hooks/useToast';
 import { ToastContainer } from './components/ui/ToastContainer';
+
+const LoginPage = lazy(() => import('./components/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./components/auth/RegisterPage'));
+const ResetPasswordPage = lazy(() => import('./components/auth/ResetPasswordPage'));
+const Dashboard = lazy(() => import('./components/dashboard/Dashboard'));
+const AirtimePage = lazy(() => import('./components/services/AirtimePage'));
+const DataPage = lazy(() => import('./components/services/DataPage'));
+const TVSubscriptionPage = lazy(() => import('./components/services/TVSubscriptionPage'));
+const ElectricityPage = lazy(() => import('./components/services/ElectricityPage'));
+const EducationPage = lazy(() => import('./components/services/EducationPage'));
+const AirtimeToCashPage = lazy(() => import('./components/services/AirtimeToCashPage'));
+const BettingPage = lazy(() => import('./components/services/BettingPage'));
+const WalletPage = lazy(() => import('./components/wallet/WalletPage'));
+const TransactionsPage = lazy(() => import('./components/transactions/TransactionsPage'));
+const ProfilePage = lazy(() => import('./components/profile/ProfilePage'));
+
+const AdminLogin = lazy(() => import('./components/auth/AdminLogin'));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
+const Analytics = lazy(() => import('./components/admin/Analytics'));
+const PricingControl = lazy(() => import('./components/admin/PricingControl'));
+const UserManagement = lazy(() => import('./components/admin/UserManagement'));
+const TransactionManagement = lazy(() => import('./components/admin/TransactionManagement'));
+const AdminProfile = lazy(() => import('./components/admin/AdminProfile'));
+
+import { useAuth } from './hooks/useAuth';
 
 function AppContent() {
   const {
@@ -84,7 +86,7 @@ function AppContent() {
   }
 
   return (
-    <>
+    <Suspense fallback={<LoadingScreen />}>
       <AnimatePresence mode="wait">
         <Routes>
           <Route
@@ -154,17 +156,19 @@ function AppContent() {
       </AnimatePresence>
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-    </>
+    </Suspense>
   );
 }
 
 function App() {
   return (
-    <ToastProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

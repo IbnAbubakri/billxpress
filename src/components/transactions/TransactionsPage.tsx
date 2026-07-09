@@ -139,6 +139,25 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     }
   };
 
+  const matchesDateFilter = (dateStr: string) => {
+    if (dateFilter === "all") return true;
+    const date = new Date(dateStr);
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    switch (dateFilter) {
+      case "today": return date >= startOfDay;
+      case "week": return date >= startOfWeek;
+      case "month": return date >= startOfMonth;
+      case "year": return date >= startOfYear;
+      default: return true;
+    }
+  };
+
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
       transaction.description
@@ -150,8 +169,9 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     const matchesStatus =
       statusFilter === "all" || transaction.status === statusFilter;
     const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+    const matchesDate = matchesDateFilter(transaction.date);
 
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesStatus && matchesType && matchesDate;
   });
 
   const formatDate = (dateString: string) => {
@@ -218,7 +238,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
             <button
               onClick={() => navigate("/dashboard")}
               aria-label="Go back"
-              className="mr-4 p-2 hover:bg-gray-100 dark:bg-dark-700 dark:hover:bg-dark-700 rounded-lg transition-colors"
+              className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -433,33 +453,6 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         </div>
       )}
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-          <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-            <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
-              Confirm Logout
-            </h2>
-            <p className="text-black dark:text-white mb-4 text-center">
-              Are you sure you want to logout?
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={handleCancelLogout}
-                className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   );
 };

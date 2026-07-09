@@ -58,8 +58,6 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
       setTimeout(() => document.getElementById("confirm-pin-0")?.focus(), 100);
       return;
     }
-    sessionStorage.setItem("isPinSet", "true");
-    sessionStorage.setItem("userPin", pinString);
     onSetPin(pinString);
   };
 

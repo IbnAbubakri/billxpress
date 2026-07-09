@@ -74,11 +74,7 @@
   }
 
   .sidebar-item {
-    @apply flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer;
-  }
-
-  .sidebar-item {
-    @apply hover:bg-primary-50 hover:text-primary-700;
+    @apply flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer hover:bg-primary-50 hover:text-primary-700;
   }
 
   .dark .sidebar-item {

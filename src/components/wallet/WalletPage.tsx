@@ -33,7 +33,7 @@ const WalletPage: React.FC<WalletPageProps> = ({ user, onLogout }) => {
           <button
             onClick={() => navigate("/dashboard")}
             aria-label="Go back"
-            className="mr-4 p-2 hover:bg-gray-100 dark:bg-dark-700 dark:hover:bg-dark-700 rounded-lg transition-colors"
+            className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -7,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useDarkMode } from "../../hooks/useDarkMode";
 
 const data = [
   { day: "Mon", amount: 12350 },
@@ -38,17 +39,7 @@ const formatYAxis = (value: number) => {
 };
 
 const TransactionChart: React.FC = () => {
-  const [isDark, setIsDark] = useState(
-    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
+  const { isDark } = useDarkMode();
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const total = data.reduce((sum, d) => sum + d.amount, 0);

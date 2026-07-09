@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Smartphone, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
-// Import network icons
-import mtnIcon from "../../assets/icons/mtn.svg";
-import gloIcon from "../../assets/icons/glo.png";
-import airtelIcon from "../../assets/icons/airtel-logo1.png";
-import nineMobileIcon from "../../assets/icons/9mobile.png";
+import { AIRTIME_NETWORKS } from "../../constants/networks";
 
 import type { PageProps } from '../../types/page';
 
@@ -21,55 +17,7 @@ const AirtimePage: React.FC<AirtimePageProps> = ({ user, onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [errors, setErrors] = useState<any>({});
 
-  const networks = [
-    {
-      id: "mtn",
-      name: "MTN",
-      icon: mtnIcon,
-      prefixes: [
-        "0803",
-        "0806",
-        "0703",
-        "0706",
-        "0813",
-        "0816",
-        "0810",
-        "0814",
-        "0903",
-        "0906",
-        "0913",
-        "0916",
-      ],
-    },
-    {
-      id: "airtel",
-      name: "Airtel",
-      icon: airtelIcon,
-      prefixes: [
-        "0802",
-        "0808",
-        "0708",
-        "0812",
-        "0701",
-        "0902",
-        "0907",
-        "0901",
-        "0912",
-      ],
-    },
-    {
-      id: "glo",
-      name: "Glo",
-      icon: gloIcon,
-      prefixes: ["0805", "0807", "0705", "0815", "0811", "0905"],
-    },
-    {
-      id: "9mobile",
-      name: "9mobile",
-      icon: nineMobileIcon,
-      prefixes: ["0809", "0817", "0818", "0909", "0908"],
-    },
-  ];
+  const networks = AIRTIME_NETWORKS;
 
   const quickAmounts = ["100", "200", "500", "1000", "2000", "5000"];
 
@@ -142,7 +90,7 @@ const AirtimePage: React.FC<AirtimePageProps> = ({ user, onLogout }) => {
             <button
               onClick={() => navigate("/dashboard")}
               aria-label="Go back"
-              className="mr-4 p-2 hover:bg-gray-100 dark:bg-dark-700 dark:hover:bg-dark-700 rounded-lg transition-colors"
+              className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -289,7 +237,7 @@ const AirtimePage: React.FC<AirtimePageProps> = ({ user, onLogout }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-black dark:text-white">Phone Number</span>
-                  <span className="font-n">{phoneNumber}</span>
+                  <span className="font-medium">{phoneNumber}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-black dark:text-white">Amount</span>

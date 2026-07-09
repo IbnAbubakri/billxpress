@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   AreaChart,
   Area,
@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useDarkMode } from "../../hooks/useDarkMode";
 
 const data = [
   { month: "Jan", spending: 32000 },
@@ -38,17 +39,7 @@ const formatYAxis = (value: number) => {
 };
 
 const SpendingChart: React.FC = () => {
-  const [isDark, setIsDark] = useState(
-    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
+  const { isDark } = useDarkMode();
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const gridColor = isDark ? "#334155" : "#e2e8f0";

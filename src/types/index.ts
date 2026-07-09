@@ -5,7 +5,6 @@ export interface User {
   phone?: string;
   balance: number;
   hasTransactionPin: boolean;
-  transactionPin?: string;
   emailVerified?: boolean;
   bvn?: string;
   accountNumber?: string;

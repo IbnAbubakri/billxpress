@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import {
-  ArrowLeft,
-  User,
-  Mail,
-  Phone,
-  Lock,
-  Camera,
-  Check,
-} from "lucide-react";
+import { ArrowLeft, User, Lock, Check, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 
 import type { PageProps } from '../../types/page';
+import EmailVerificationModal from "./EmailVerificationModal";
+import BVNModal from "./BVNModal";
+import BankDetailsModal from "./BankDetailsModal";
+import BasicInfoModal from "./BasicInfoModal";
 
 interface ProfilePageProps extends PageProps {}
 
@@ -19,14 +15,19 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   const fullName = (user?.name || '').split(' ');
   const defaultFirstName = fullName[0] || '';
   const defaultLastName = fullName.slice(1).join(' ') || '';
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("profile");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Modal states for other progress items
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [showBVNModal, setShowBVNModal] = useState(false);
-  const [showBankModal, setShowBankModal] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+
+  const [showBVNModal, setShowBVNModal] = useState(false);
   const [bvn, setBVN] = useState(user?.bvn || "");
   const [bvnError, setBVNError] = useState("");
+
+  const [showBankModal, setShowBankModal] = useState(false);
   const [bankDetails, setBankDetails] = useState({
     accountNumber: user?.accountNumber || "",
     bankName: user?.bankName || "",
@@ -34,7 +35,147 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
   });
   const [bankErrors, setBankErrors] = useState<any>({});
 
-  // Handlers for modals
+  const [showBasicInfoModal, setShowBasicInfoModal] = useState(false);
+  const [basicInfo, setBasicInfo] = useState({
+    billingStreet: user?.billingStreet || "",
+    billingCity: user?.billingCity || "",
+    billingState: user?.billingState || "",
+    billingCountry: user?.billingCountry || "",
+    homeStreet: user?.homeStreet || "",
+    homeCity: user?.homeCity || "",
+    homeState: user?.homeState || "",
+    homeZip: user?.homeZip || "",
+    avatar: null as File | null,
+    avatarPreview: "",
+  });
+  const [basicInfoErrors, setBasicInfoErrors] = useState<any>({});
+
+  const [formData, setFormData] = useState({
+    firstName: defaultFirstName,
+    lastName: defaultLastName,
+    email: user?.email || "",
+    phone: (user?.phone || "").replace(/^\+234/, "0"),
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    transactionPin: "",
+  });
+  const [errors, setErrors] = useState<any>({});
+
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    onLogout();
+  };
+
+  const profileCompletion = (() => {
+    let filled = 0;
+    const total = 8;
+    if (user?.name) filled++;
+    if (user?.phone) filled++;
+    if (user?.accountNumber) filled++;
+    if (user?.bvn) filled++;
+    if (user?.billingStreet) filled++;
+    if (user?.homeStreet) filled++;
+    if (user?.emailVerified) filled++;
+    if (user?.hasTransactionPin) filled++;
+    return Math.round((filled / total) * 100);
+  })();
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev: Record<string, string | null>) => ({
+        ...prev,
+        [field]: null,
+      }));
+    }
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    return phone.length === 11 && phone.startsWith("0");
+  };
+
+  const handleProfileUpdate = async () => {
+    const newErrors: any = {};
+
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!validateEmail(formData.email))
+      newErrors.email = "Please enter a valid email";
+    if (!validatePhone(formData.phone))
+      newErrors.phone = "Please enter a valid phone number";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const name = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+        const phone = formData.phone.startsWith("0")
+          ? "+234" + formData.phone.slice(1)
+          : formData.phone;
+        if (onUpdateProfile) {
+          await onUpdateProfile({ name, phone });
+        }
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } catch {
+        setErrors({ phone: "Failed to update profile. Try again." });
+      }
+    }
+  };
+
+  const handlePasswordChange = () => {
+    const newErrors: any = {};
+
+    if (!formData.currentPassword)
+      newErrors.currentPassword = "Current password is required";
+    if (!formData.newPassword)
+      newErrors.newPassword = "New password is required";
+    if (formData.newPassword.length < 6)
+      newErrors.newPassword = "Password must be at least 6 characters";
+    if (formData.newPassword !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setShowSuccess(true);
+      setFormData((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+      setTimeout(() => setShowSuccess(false), 3000);
+    }
+  };
+
+  const handlePinChange = () => {
+    const newErrors: any = {};
+
+    if (!formData.transactionPin)
+      newErrors.transactionPin = "Transaction PIN is required";
+    if (formData.transactionPin.length !== 4)
+      newErrors.transactionPin = "PIN must be 4 digits";
+    if (!/^\d+$/.test(formData.transactionPin))
+      newErrors.transactionPin = "PIN must contain only numbers";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setShowSuccess(true);
+      setFormData((prev) => ({ ...prev, transactionPin: "" }));
+      setTimeout(() => setShowSuccess(false), 3000);
+    }
+  };
+
   const handleSendEmail = () => {
     setEmailSent(true);
     setTimeout(() => {
@@ -100,26 +241,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
       }
     }
   };
-  // Modal state for Basic Info
-  const [showBasicInfoModal, setShowBasicInfoModal] = useState(false);
-  const [basicInfo, setBasicInfo] = useState({
-    billingStreet: user?.billingStreet || "",
-    billingCity: user?.billingCity || "",
-    billingState: user?.billingState || "",
-    billingCountry: user?.billingCountry || "",
-    homeStreet: user?.homeStreet || "",
-    homeCity: user?.homeCity || "",
-    homeState: user?.homeState || "",
-    homeZip: user?.homeZip || "",
-    avatar: null,
-    avatarPreview: "",
-  });
-  const [basicInfoErrors, setBasicInfoErrors] = useState<any>({});
 
-  const handleBasicInfoChange = (
-    field: string,
-    value: string | File | null
-  ) => {
+  const handleBasicInfoChange = (field: string, value: string | File | null) => {
     setBasicInfo((prev) => ({ ...prev, [field]: value }));
     if (basicInfoErrors[field]) {
       setBasicInfoErrors((prev: Record<string, string | null>) => ({
@@ -127,7 +250,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
         [field]: null,
       }));
     }
-    // Avatar preview
     if (field === "avatar" && value instanceof File) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -178,141 +300,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
       }
     }
   };
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profile");
-  const [formData, setFormData] = useState({
-    firstName: defaultFirstName,
-    lastName: defaultLastName,
-    email: user?.email || "",
-    phone: (user?.phone || "").replace(/^\+234/, "0"),
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    transactionPin: "",
-  });
-  const [errors, setErrors] = useState<any>({});
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const handleConfirmLogout = () => {
-    setShowLogoutModal(false);
-    onLogout();
-  };
-
-  const handleCancelLogout = () => {
-    setShowLogoutModal(false);
-  };
-
-  const profileCompletion = (() => {
-    let filled = 0;
-    const total = 8;
-    if (user?.name) filled++;
-    if (user?.phone) filled++;
-    if (user?.accountNumber) filled++;
-    if (user?.bvn) filled++;
-    if (user?.billingStreet) filled++;
-    if (user?.homeStreet) filled++;
-    if (user?.emailVerified) filled++;
-    if (user?.hasTransactionPin) filled++;
-    return Math.round((filled / total) * 100);
-  })();
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev: Record<string, string | null>) => ({
-        ...prev,
-        [field]: null,
-      }));
-    }
-  };
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone: string) => {
-    return phone.length === 11 && phone.startsWith("0");
-  };
-
-  const handleProfileUpdate = async () => {
-    const newErrors: any = {};
-
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!validateEmail(formData.email))
-      newErrors.email = "Please enter a valid email";
-    if (!validatePhone(formData.phone))
-      newErrors.phone = "Please enter a valid phone number";
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      try {
-        const name = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
-        const phone = formData.phone.startsWith("0")
-          ? "+234" + formData.phone.slice(1)
-          : formData.phone;
-        if (onUpdateProfile) {
-          await onUpdateProfile({ name, phone });
-        }
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-      } catch {
-        setErrors({ phone: "Failed to update profile. Try again." });
-      }
-    }
-  };
-
-  const handlePasswordChange = () => {
-    const newErrors: any = {};
-
-    if (!formData.currentPassword)
-      newErrors.currentPassword = "Current password is required";
-    if (!formData.newPassword)
-      newErrors.newPassword = "New password is required";
-    if (formData.newPassword.length < 6)
-      newErrors.newPassword = "Password must be at least 6 characters";
-    if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      // Simulate API call
-      setShowSuccess(true);
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-      setTimeout(() => setShowSuccess(false), 3000);
-    }
-  };
-
-  const handlePinChange = () => {
-    const newErrors: any = {};
-
-    if (!formData.transactionPin)
-      newErrors.transactionPin = "Transaction PIN is required";
-    if (formData.transactionPin.length !== 4)
-      newErrors.transactionPin = "PIN must be 4 digits";
-    if (!/^\d+$/.test(formData.transactionPin))
-      newErrors.transactionPin = "PIN must contain only numbers";
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      // Simulate API call
-      setShowSuccess(true);
-      setFormData((prev) => ({ ...prev, transactionPin: "" }));
-      setTimeout(() => setShowSuccess(false), 3000);
-    }
-  };
 
   return (
     <DashboardLayout user={user} onLogout={onLogout}>
@@ -321,7 +308,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
           <button
             onClick={() => navigate("/dashboard")}
             aria-label="Go back"
-            className="mr-4 p-2 hover:bg-gray-100 dark:bg-dark-700 dark:hover:bg-dark-700 rounded-lg transition-colors"
+            className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -335,7 +322,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
           </div>
         </div>
 
-        {/* Success Message */}
         {showSuccess && (
           <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-center">
             <Check className="w-5 h-5 text-green-600 mr-3" aria-hidden="true" />
@@ -363,11 +349,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                     style={{ width: `${profileCompletion}%` }}
                   ></div>
                 </div>
-                {/* Progress actions */}
-                <div
-                  className="flex flex-wrap gap-2 mt-3"
-                  style={{ pointerEvents: "auto" }}
-                >
+                <div className="flex flex-wrap gap-2 mt-3" style={{ pointerEvents: "auto" }}>
                   <button
                     type="button"
                     onClick={() => setShowEmailModal(true)}
@@ -401,221 +383,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                     Add Bank Details
                   </button>
                 </div>
-                {/* Email Verification Modal */}
-                {showEmailModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-                    <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-sm w-full mx-4">
-                      <div className="text-center mb-4">
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Mail className="w-8 h-8 text-blue-600" aria-hidden="true" />
-                        </div>
-                        <h2 className="text-lg font-bold text-black dark:text-white mb-2">
-                          Verify Your Email
-                        </h2>
-                        <p className="text-black dark:text-white mb-4">
-                          We'll send a verification link to your email address.
-                        </p>
-                      </div>
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setShowEmailModal(false)}
-                          className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleSendEmail}
-                          className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors"
-                        >
-                          Send Verification Email
-                        </button>
-                      </div>
-                      {emailSent && (
-                        <p className="text-green-600 text-center mt-4">
-                          Verification email sent!
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {/* BVN Modal */}
-                {showBVNModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-                    <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-sm w-full mx-4">
-                      <div className="text-center mb-4">
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Lock className="w-8 h-8 text-blue-600" aria-hidden="true" />
-                        </div>
-                        <h2 className="text-lg font-bold text-black dark:text-white mb-2">
-                          Link Your BVN
-                        </h2>
-                        <p className="text-black dark:text-white mb-4">
-                          Enter your BVN to verify your identity.
-                        </p>
-                      </div>
-                      <div className="mb-4">
-                        <input
-                          id="bvnInput"
-                          type="text"
-                          value={bvn}
-                          onChange={(e) =>
-                            setBVN(
-                              e.target.value.replace(/\D/g, "").substring(0, 11)
-                            )
-                          }
-                          placeholder="Enter 11-digit BVN"
-                          className={`w-full px-4 py-3 border rounded-2xl ${
-                            bvnError ? "border-red-500" : "border-gray-300"
-                          }`}
-                          aria-invalid={!!bvnError}
-                          aria-describedby={bvnError ? 'bvnInput-error' : undefined}
-                        />
-                        {bvnError && (
-                          <p id="bvnInput-error" className="text-red-500 text-xs mt-1">
-                            {bvnError}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setShowBVNModal(false)}
-                          className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleBVNVerify}
-                          className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors"
-                        >
-                          Verify BVN
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Bank Details Modal */}
-                {showBankModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-                    <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-sm w-full mx-4">
-                      <div className="text-center mb-4">
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <User className="w-8 h-8 text-blue-600" aria-hidden="true" />
-                        </div>
-                        <h2 className="text-lg font-bold text-black dark:text-white mb-2">
-                          Add Bank Details
-                        </h2>
-                        <p className="text-black dark:text-white mb-4">
-                          Provide your bank account information to receive
-                          payments.
-                        </p>
-                      </div>
-                      <form className="space-y-3">
-                        <div>
-                          <label htmlFor="bankAccountNumber" className="block text-sm font-medium text-black dark:text-white mb-1">
-                            Account Number
-                          </label>
-                          <input
-                            id="bankAccountNumber"
-                            type="text"
-                            value={bankDetails.accountNumber}
-                            onChange={(e) =>
-                              handleBankDetailsChange(
-                                "accountNumber",
-                                e.target.value
-                                  .replace(/\D/g, "")
-                                  .substring(0, 10)
-                              )
-                            }
-                            className={`w-full px-4 py-2 border rounded-xl ${
-                              bankErrors.accountNumber
-                                ? "border-red-500"
-                                : "border-gray-300"
-                            }`}
-                            aria-invalid={!!bankErrors.accountNumber}
-                            aria-describedby={bankErrors.accountNumber ? 'bankAccountNumber-error' : undefined}
-                          />
-                          {bankErrors.accountNumber && (
-                            <p id="bankAccountNumber-error" className="text-red-500 text-xs mt-1">
-                              {bankErrors.accountNumber}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label htmlFor="bankName" className="block text-sm font-medium text-black dark:text-white mb-1">
-                            Bank Name
-                          </label>
-                          <input
-                            id="bankName"
-                            type="text"
-                            value={bankDetails.bankName}
-                            onChange={(e) =>
-                              handleBankDetailsChange(
-                                "bankName",
-                                e.target.value
-                              )
-                            }
-                            className={`w-full px-4 py-2 border rounded-xl ${
-                              bankErrors.bankName
-                                ? "border-red-500"
-                                : "border-gray-300"
-                            }`}
-                            aria-invalid={!!bankErrors.bankName}
-                            aria-describedby={bankErrors.bankName ? 'bankName-error' : undefined}
-                          />
-                          {bankErrors.bankName && (
-                            <p id="bankName-error" className="text-red-500 text-xs mt-1">
-                              {bankErrors.bankName}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label htmlFor="bankAccountName" className="block text-sm font-medium text-black dark:text-white mb-1">
-                            Account Name
-                          </label>
-                          <input
-                            id="bankAccountName"
-                            type="text"
-                            value={bankDetails.accountName}
-                            onChange={(e) =>
-                              handleBankDetailsChange(
-                                "accountName",
-                                e.target.value
-                              )
-                            }
-                            className={`w-full px-4 py-2 border rounded-xl ${
-                              bankErrors.accountName
-                                ? "border-red-500"
-                                : "border-gray-300"
-                            }`}
-                            aria-invalid={!!bankErrors.accountName}
-                            aria-describedby={bankErrors.accountName ? 'bankAccountName-error' : undefined}
-                          />
-                          {bankErrors.accountName && (
-                            <p id="bankAccountName-error" className="text-red-500 text-xs mt-1">
-                              {bankErrors.accountName}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-3 mt-4">
-                          <button
-                            type="button"
-                            onClick={() => setShowBankModal(false)}
-                            className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleBankDetailsSave}
-                            className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors"
-                          >
-                            Save Bank Details
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Navigation */}
@@ -689,13 +456,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         id="profileFirstName"
                         type="text"
                         value={formData.firstName}
-                        onChange={(e) =>
-                          handleInputChange("firstName", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("firstName", e.target.value)}
                         className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.firstName
-                            ? "border-red-500"
-                            : "border-gray-300"
+                          errors.firstName ? "border-red-500" : "border-gray-300"
                         }`}
                         aria-invalid={!!errors.firstName}
                         aria-describedby={errors.firstName ? 'profileFirstName-error' : undefined}
@@ -715,9 +478,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         id="profileLastName"
                         type="text"
                         value={formData.lastName}
-                        onChange={(e) =>
-                          handleInputChange("lastName", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("lastName", e.target.value)}
                         className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           errors.lastName ? "border-red-500" : "border-gray-300"
                         }`}
@@ -739,9 +500,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         id="profileEmail"
                         type="email"
                         value={formData.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("email", e.target.value)}
                         className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           errors.email ? "border-red-500" : "border-gray-300"
                         }`}
@@ -763,12 +522,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         id="profilePhone"
                         type="tel"
                         value={formData.phone}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "phone",
-                            e.target.value.replace(/\D/g, "").substring(0, 11)
-                          )
-                        }
+                        onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").substring(0, 11))}
                         className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           errors.phone ? "border-red-500" : "border-gray-300"
                         }`}
@@ -812,13 +566,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           id="currentPassword"
                           type="password"
                           value={formData.currentPassword}
-                          onChange={(e) =>
-                            handleInputChange("currentPassword", e.target.value)
-                          }
+                          onChange={(e) => handleInputChange("currentPassword", e.target.value)}
                           className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.currentPassword
-                              ? "border-red-500"
-                              : "border-gray-300"
+                            errors.currentPassword ? "border-red-500" : "border-gray-300"
                           }`}
                           aria-invalid={!!errors.currentPassword}
                           aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
@@ -838,13 +588,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           id="newPassword"
                           type="password"
                           value={formData.newPassword}
-                          onChange={(e) =>
-                            handleInputChange("newPassword", e.target.value)
-                          }
+                          onChange={(e) => handleInputChange("newPassword", e.target.value)}
                           className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.newPassword
-                              ? "border-red-500"
-                              : "border-gray-300"
+                            errors.newPassword ? "border-red-500" : "border-gray-300"
                           }`}
                           aria-invalid={!!errors.newPassword}
                           aria-describedby={errors.newPassword ? 'newPassword-error' : undefined}
@@ -864,13 +610,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           id="profileConfirmPassword"
                           type="password"
                           value={formData.confirmPassword}
-                          onChange={(e) =>
-                            handleInputChange("confirmPassword", e.target.value)
-                          }
+                          onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                           className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.confirmPassword
-                              ? "border-red-500"
-                              : "border-gray-300"
+                            errors.confirmPassword ? "border-red-500" : "border-gray-300"
                           }`}
                           aria-invalid={!!errors.confirmPassword}
                           aria-describedby={errors.confirmPassword ? 'profileConfirmPassword-error' : undefined}
@@ -907,16 +649,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           maxLength={4}
                           value={formData.transactionPin}
                           onChange={(e) =>
-                            handleInputChange(
-                              "transactionPin",
-                              e.target.value.replace(/\D/g, "").substring(0, 4)
-                            )
+                            handleInputChange("transactionPin", e.target.value.replace(/\D/g, "").substring(0, 4))
                           }
                           placeholder="Enter 4-digit PIN"
                           className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.transactionPin
-                              ? "border-red-500"
-                              : "border-gray-300"
+                            errors.transactionPin ? "border-red-500" : "border-gray-300"
                           }`}
                           aria-invalid={!!errors.transactionPin}
                           aria-describedby={errors.transactionPin ? 'transactionPin-error' : undefined}
@@ -942,273 +679,41 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
           </div>
         </div>
       </div>
-      {/* Basic Info Modal */}
-      {showBasicInfoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-lg w-full mx-4">
-            <div className="text-center mb-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-8 h-8 text-blue-600" aria-hidden="true" />
-              </div>
-              <h2 className="text-lg font-bold text-black dark:text-white mb-2">
-                Complete Your Basic Information
-              </h2>
-              <p className="text-black dark:text-white mb-4">
-                Add your billing info, home address, and upload an avatar to
-                complete your profile.
-              </p>
-            </div>
-            <form className="space-y-3">
-              {/* Avatar Upload */}
-              <div className="flex flex-col items-center mb-4">
-                <label htmlFor="avatar" className="block text-sm font-medium text-black dark:text-white mb-2">
-                  Avatar
-                </label>
-                <input
-                  id="avatar"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      handleBasicInfoChange("avatar", e.target.files[0]);
-                    }
-                  }}
-                  className="mb-2"
-                />
-                {basicInfo.avatarPreview && (
-                  <img
-                    src={basicInfo.avatarPreview}
-                    alt="Avatar Preview"
-                    className="w-16 h-16 rounded-full object-cover border"
-                  />
-                )}
-              </div>
-              {/* Billing Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="billingStreet" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Billing Street
-                  </label>
-                  <input
-                    id="billingStreet"
-                    type="text"
-                    value={basicInfo.billingStreet}
-                    onChange={(e) =>
-                      handleBasicInfoChange("billingStreet", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.billingStreet
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.billingStreet}
-                    aria-describedby={basicInfoErrors.billingStreet ? 'billingStreet-error' : undefined}
-                  />
-                  {basicInfoErrors.billingStreet && (
-                    <p id="billingStreet-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.billingStreet}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="billingCity" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Billing City
-                  </label>
-                  <input
-                    id="billingCity"
-                    type="text"
-                    value={basicInfo.billingCity}
-                    onChange={(e) =>
-                      handleBasicInfoChange("billingCity", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.billingCity
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.billingCity}
-                    aria-describedby={basicInfoErrors.billingCity ? 'billingCity-error' : undefined}
-                  />
-                  {basicInfoErrors.billingCity && (
-                    <p id="billingCity-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.billingCity}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="billingState" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Billing State
-                  </label>
-                  <input
-                    id="billingState"
-                    type="text"
-                    value={basicInfo.billingState}
-                    onChange={(e) =>
-                      handleBasicInfoChange("billingState", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.billingState
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.billingState}
-                    aria-describedby={basicInfoErrors.billingState ? 'billingState-error' : undefined}
-                  />
-                  {basicInfoErrors.billingState && (
-                    <p id="billingState-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.billingState}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="billingCountry" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Billing Country
-                  </label>
-                  <input
-                    id="billingCountry"
-                    type="text"
-                    value={basicInfo.billingCountry}
-                    onChange={(e) =>
-                      handleBasicInfoChange("billingCountry", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.billingCountry
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.billingCountry}
-                    aria-describedby={basicInfoErrors.billingCountry ? 'billingCountry-error' : undefined}
-                  />
-                  {basicInfoErrors.billingCountry && (
-                    <p id="billingCountry-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.billingCountry}
-                    </p>
-                  )}
-                </div>
-              </div>
-              {/* Home Address */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="homeStreet" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Home Street
-                  </label>
-                  <input
-                    id="homeStreet"
-                    type="text"
-                    value={basicInfo.homeStreet}
-                    onChange={(e) =>
-                      handleBasicInfoChange("homeStreet", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.homeStreet
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.homeStreet}
-                    aria-describedby={basicInfoErrors.homeStreet ? 'homeStreet-error' : undefined}
-                  />
-                  {basicInfoErrors.homeStreet && (
-                    <p id="homeStreet-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.homeStreet}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="homeCity" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Home City
-                  </label>
-                  <input
-                    id="homeCity"
-                    type="text"
-                    value={basicInfo.homeCity}
-                    onChange={(e) =>
-                      handleBasicInfoChange("homeCity", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.homeCity
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.homeCity}
-                    aria-describedby={basicInfoErrors.homeCity ? 'homeCity-error' : undefined}
-                  />
-                  {basicInfoErrors.homeCity && (
-                    <p id="homeCity-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.homeCity}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="homeState" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Home State
-                  </label>
-                  <input
-                    id="homeState"
-                    type="text"
-                    value={basicInfo.homeState}
-                    onChange={(e) =>
-                      handleBasicInfoChange("homeState", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.homeState
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.homeState}
-                    aria-describedby={basicInfoErrors.homeState ? 'homeState-error' : undefined}
-                  />
-                  {basicInfoErrors.homeState && (
-                    <p id="homeState-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.homeState}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="homeZip" className="block text-sm font-medium text-black dark:text-white mb-1">
-                    Home Zip/Postal Code
-                  </label>
-                  <input
-                    id="homeZip"
-                    type="text"
-                    value={basicInfo.homeZip}
-                    onChange={(e) =>
-                      handleBasicInfoChange("homeZip", e.target.value)
-                    }
-                    className={`w-full px-4 py-2 border rounded-xl ${
-                      basicInfoErrors.homeZip
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    aria-invalid={!!basicInfoErrors.homeZip}
-                    aria-describedby={basicInfoErrors.homeZip ? 'homeZip-error' : undefined}
-                  />
-                  {basicInfoErrors.homeZip && (
-                    <p id="homeZip-error" className="text-red-500 text-xs mt-1">
-                      {basicInfoErrors.homeZip}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowBasicInfoModal(false)}
-                  className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBasicInfoSave}
-                  className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+      <EmailVerificationModal
+        open={showEmailModal}
+        emailSent={emailSent}
+        onClose={() => setShowEmailModal(false)}
+        onSend={handleSendEmail}
+      />
+
+      <BVNModal
+        open={showBVNModal}
+        bvn={bvn}
+        error={bvnError}
+        onClose={() => setShowBVNModal(false)}
+        onBVNChange={setBVN}
+        onVerify={handleBVNVerify}
+      />
+
+      <BankDetailsModal
+        open={showBankModal}
+        details={bankDetails}
+        errors={bankErrors}
+        onClose={() => setShowBankModal(false)}
+        onChange={handleBankDetailsChange}
+        onSave={handleBankDetailsSave}
+      />
+
+      <BasicInfoModal
+        open={showBasicInfoModal}
+        info={basicInfo}
+        errors={basicInfoErrors}
+        onClose={() => setShowBasicInfoModal(false)}
+        onChange={handleBasicInfoChange}
+        onSave={handleBasicInfoSave}
+      />
+
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
@@ -1226,7 +731,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
             </div>
             <div className="flex gap-3">
               <button
-                onClick={handleCancelLogout}
+                onClick={() => setShowLogoutModal(false)}
                 className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
               >
                 Cancel

@@ -32,7 +32,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/refresh')) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/refresh') &&
+      !originalRequest.url?.includes('/csrf-token')
+    ) {
       originalRequest._retry = true;
       try {
         const csrf = await getCSRFToken();
