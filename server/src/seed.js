@@ -23,7 +23,7 @@ export default async function seed() {
     password: hashedPassword,
     role: 'user',
     name: 'Abubakri Faaruq',
-    phone: '+2348012345678',
+    phone: '09061345507',
     balance: 250000.50,
     hasTransactionPin: true,
     bvn: '22334455667',
