@@ -16,6 +16,7 @@ import {
   Sun,
   Moon,
   Bell,
+  Menu,
 } from "lucide-react";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { Logo } from '../ui/Logo';
@@ -204,6 +205,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
         {/* Page content */}
         <main className="flex-1 pb-20 lg:pb-8 relative">
+          <div className="lg:hidden absolute top-4 left-4 z-30">
+            <button
+              aria-label="Open sidebar"
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
+            >
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
           {location.pathname === '/dashboard' && (
             <div className="lg:hidden absolute top-4 right-4 z-30">
               <button
