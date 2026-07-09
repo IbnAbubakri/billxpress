@@ -70,7 +70,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     <div className="min-h-screen bg-primary">
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex min-h-0 flex-1 flex-col bg-white shadow-xl">
+        <div className="flex min-h-0 flex-1 flex-col bg-white dark:bg-black shadow-xl">
           <div className="flex h-16 flex-shrink-0 items-center px-4 border-b dark:border-dark-700">
             <Logo />
           </div>
@@ -137,7 +137,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           onClick={() => setSidebarOpen(false)}
         />
         <div
-          className={`relative flex-1 flex flex-col max-w-xs w-full bg-white shadow-xl transform transition-transform ${
+          className={`relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-black shadow-xl transform transition-transform ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -239,7 +239,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <main className="flex-1 pb-20 lg:pb-8">{children}</main>
 
         {/* Mobile bottom navigation */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t dark:border-dark-700 shadow-lg">
           <div className="flex">
             {mobileNavigationItems.map((item) => {
               const Icon = item.icon;
