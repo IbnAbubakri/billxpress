@@ -92,42 +92,36 @@ const RecentTransactions: React.FC = () => {
         const Icon = transaction.icon;
         return (
           <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className={`w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center ${transaction.color}`}>
-                  <Icon className="w-5 h-5" aria-hidden="true" />
-                </div>
-                
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center space-x-2">
-                    <h4 className="font-medium text-gray-900 dark:text-neutral-100 truncate">
-                      {transaction.type}
-                    </h4>
-                    <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(transaction.status)}`}>
-                      <span className="mr-1">{getStatusIcon(transaction.status)}</span>
-                      {transaction.status}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    <span>{transaction.date}</span>
-                    <span className="hidden sm:inline">•</span>
-                    <span className="hidden sm:inline">{transaction.time}</span>
-                    <span className="hidden md:inline">•</span>
-                    <span className="hidden md:inline font-mono">{transaction.transactionId}</span>
-                  </div>
-                </div>
+            <div className="flex items-start sm:items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0 ${transaction.color}`}>
+                <Icon className="w-5 h-5" aria-hidden="true" />
               </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="text-right">
-                  <div className="font-semibold text-gray-900 dark:text-neutral-100">
-                    ₦{transaction.amount.toLocaleString()}
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="font-medium text-gray-900 dark:text-neutral-100 truncate">
+                    {transaction.type}
+                  </h4>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="font-semibold text-gray-900 dark:text-neutral-100 text-sm sm:text-base">
+                      ₦{transaction.amount.toLocaleString()}
+                    </span>
+                    <button aria-label="More options" className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
+                      <MoreHorizontal className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                    </button>
                   </div>
                 </div>
-                
-                <button aria-label="More options" className="p-2 hover:bg-gray-100 dark:bg-dark-700 dark:hover:bg-dark-700 rounded-lg transition-colors">
-                  <MoreHorizontal className="w-4 h-4 text-gray-400" aria-hidden="true" />
-                </button>
+                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                  <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
+                    <span className="mr-1">{getStatusIcon(transaction.status)}</span>
+                    {transaction.status}
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{transaction.date}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">•</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{transaction.time}</span>
+                  <span className="hidden md:inline text-xs text-gray-400 dark:text-gray-500">•</span>
+                  <span className="hidden md:inline font-mono text-xs text-gray-500 dark:text-gray-400">{transaction.transactionId}</span>
+                </div>
               </div>
             </div>
           </div>
