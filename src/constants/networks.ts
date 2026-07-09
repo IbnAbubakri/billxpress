@@ -1,7 +1,7 @@
-import mtnIcon from "../../assets/icons/mtn.svg";
-import gloIcon from "../../assets/icons/glo.png";
-import airtelIcon from "../../assets/icons/airtel-logo1.png";
-import nineMobileIcon from "../../assets/icons/9mobile.png";
+import mtnIcon from "../assets/icons/mtn.svg";
+import gloIcon from "../assets/icons/glo.png";
+import airtelIcon from "../assets/icons/airtel-logo1.png";
+import nineMobileIcon from "../assets/icons/9mobile.png";
 
 export interface Network {
   id: string;
