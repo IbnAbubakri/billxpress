@@ -12,9 +12,7 @@ import {
   Wallet,
   History,
   User,
-  Menu,
   X,
-  Bell,
   LogOut,
   Sun,
   Moon,
@@ -211,30 +209,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
         {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
-        {/* Top bar */}
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow-sm lg:hidden">
-          <button
-            aria-label="Open sidebar"
-            className="px-4 border-r border-gray-200 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-secondary lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" aria-hidden="true" />
-          </button>
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex items-center">
-              <h1 className="text-base font-semibold text-secondary dark:text-white">
-                {navigationItems.find((item) => item.path === location.pathname)
-                  ?.label || "Dashboard"}
-              </h1>
-            </div>
-            <div className="flex items-center">
-              <button aria-label="Notifications" className="p-2 rounded-full text-black dark:text-white hover:text-secondary hover:bg-gray-100">
-                <Bell className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Page content */}
         <main className="flex-1 pb-20 lg:pb-8">{children}</main>
 
