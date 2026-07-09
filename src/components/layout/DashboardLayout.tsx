@@ -210,7 +210,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
 
         {/* Main content */}
-      <div className="lg:pl-64 flex flex-col min-h-screen overflow-x-hidden">
+      <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
         {/* Top bar */}
         <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow-sm lg:hidden">
           <button

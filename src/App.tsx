@@ -84,7 +84,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-primary-50/30 to-accent-50/20 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
+    <>
       <AnimatePresence mode="wait">
         <Routes>
           <Route
@@ -154,7 +154,7 @@ function AppContent() {
       </AnimatePresence>
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-    </div>
+    </>
   );
 }
 
