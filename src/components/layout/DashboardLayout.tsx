@@ -203,8 +203,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
         {/* Page content */}
-        <main className="flex-1 pb-20 lg:pb-8">
-          <div className="lg:hidden flex justify-end px-4 pt-4 relative">
+        <main className="flex-1 pb-20 lg:pb-8 relative">
+          <div className="lg:hidden absolute top-4 right-4 z-30">
             <button
               aria-label="Notifications"
               onClick={() => setShowNotifications(!showNotifications)}
@@ -213,7 +213,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <Bell className="h-5 w-5" aria-hidden="true" />
             </button>
             {showNotifications && (
-              <div className="absolute top-14 right-4 w-72 bg-white dark:bg-dark-800 rounded-2xl shadow-2xl border dark:border-dark-700 overflow-hidden z-30">
+              <div className="absolute top-12 right-0 w-72 bg-white dark:bg-dark-800 rounded-2xl shadow-2xl border dark:border-dark-700 overflow-hidden">
                 <div className="p-4 border-b dark:border-dark-700">
                   <h3 className="font-semibold text-black dark:text-white">Notifications</h3>
                 </div>
