@@ -17,6 +17,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
   const [typeFilter, setTypeFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const transactions = [
     {
@@ -177,6 +178,38 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     setShowLogoutModal(false);
   };
 
+  const downloadCSV = () => {
+    const headers = ['ID', 'Description', 'Amount', 'Status', 'Date', 'Recipient'];
+    const rows = transactions.map(tx => [
+      tx.id,
+      tx.description,
+      tx.amount.toString(),
+      tx.status,
+      new Date(tx.date).toLocaleDateString(),
+      tx.recipient,
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'transactions.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportModal(false);
+  };
+
+  const emailExport = () => {
+    const subject = 'BillXpress Transaction History';
+    const headers = ['ID', 'Description', 'Amount', 'Status', 'Date', 'Recipient'];
+    const rows = transactions.map(tx =>
+      [tx.id, tx.description, `₦${tx.amount}`, tx.status, new Date(tx.date).toLocaleDateString(), tx.recipient].join(' | ')
+    );
+    const body = 'Transaction History\n\n' + headers.join(' | ') + '\n' + rows.join('\n');
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setShowExportModal(false);
+  };
+
   return (
     <DashboardLayout user={user} onLogout={handleLogoutClick}>
       <div className="p-4">
@@ -197,7 +230,10 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
             </div>
           </div>
 
-          <button className="flex items-center px-4 py-2 bg-secondary text-white rounded-2xl hover:bg-opacity-90 transition-colors">
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="flex items-center px-4 py-2 bg-secondary text-white rounded-2xl hover:bg-opacity-90 transition-colors"
+          >
             <Download className="w-4 h-4 mr-2" aria-hidden="true" />
             Export
           </button>
@@ -366,6 +402,37 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
           </div>
         )}
       </div>
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
+          <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
+            <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
+              Export Transactions
+            </h2>
+            <div className="space-y-3">
+              <button
+                onClick={downloadCSV}
+                className="w-full py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+              >
+                Download as CSV
+              </button>
+              <button
+                onClick={emailExport}
+                className="w-full py-3 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors text-black dark:text-white"
+              >
+                Send to Email
+              </button>
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="w-full py-3 text-sm text-black dark:text-white hover:underline"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
