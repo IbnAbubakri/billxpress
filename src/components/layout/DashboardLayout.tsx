@@ -12,7 +12,6 @@ import {
   Wallet,
   History,
   User,
-  X,
   LogOut,
   Sun,
   Moon,
@@ -139,15 +138,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              aria-label="Close sidebar"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-6 w-6 text-white" aria-hidden="true" />
-            </button>
-          </div>
+
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
             <div className="flex-shrink-0 flex items-center px-4 mb-4">
               <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center mr-3">
