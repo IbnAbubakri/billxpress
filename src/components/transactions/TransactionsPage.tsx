@@ -190,8 +190,8 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
               <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">Transactions</h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h1 className="text-xl font-bold text-black dark:text-white">Transactions</h1>
+              <p className="text-black dark:text-white">
                 View and manage your transaction history
               </p>
             </div>
@@ -208,7 +208,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" aria-hidden="true" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black dark:text-whitew-4 h-4" aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search transactions..."
@@ -265,7 +265,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         {/* Transactions List */}
         <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-dark-700">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">
+            <h3 className="text-base font-semibold text-black dark:text-white">
               Transaction History ({filteredTransactions.length})
             </h3>
           </div>
@@ -283,17 +283,17 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                         {getTransactionIcon(transaction.type)}
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-neutral-100">
+                        <h4 className="font-medium text-black dark:text-white">
                           {transaction.description}
                         </h4>
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-                          <span className="text-xs md:text-sm text-gray-600 dark:text-gray-300">
+                          <span className="text-xs md:text-sm text-black dark:text-white">
                             ID: {transaction.id}
                           </span>
-                          <span className="text-xs md:text-sm text-gray-600 dark:text-gray-300 truncate max-w-[100px] md:max-w-[160px]">
+                          <span className="text-xs md:text-sm text-black dark:text-white truncate max-w-[100px] md:max-w-[160px]">
                             To: {transaction.recipient}
                           </span>
-                          <span className="text-xs md:text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                          <span className="text-xs md:text-sm text-black dark:text-white whitespace-nowrap">
                             {formatDate(transaction.date)}
                           </span>
                         </div>
@@ -305,7 +305,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                         className={`text-base font-semibold ${
                           transaction.amount > 0
                             ? "text-green-600"
-                            : "text-gray-900 dark:text-neutral-100"
+                            : "text-black dark:text-white"
                         }`}
                       >
                         {transaction.amount > 0 ? "+" : ""}₦
@@ -326,12 +326,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
             ) : (
               <div className="p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-gray-400" aria-hidden="true" />
+                  <Search className="w-8 h-8 text-black dark:text-white" aria-hidden="true" />
                 </div>
-                <h3 className="text-base font-medium text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-base font-medium text-black dark:text-white mb-2">
                   No transactions found
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Try adjusting your search or filter criteria
                 </p>
               </div>
@@ -342,10 +342,10 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+              <p className="text-black dark:text-white mb-4 text-center">
                 Are you sure you want to logout?
               </p>
               <div className="flex space-x-3">
@@ -370,10 +370,10 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+            <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
               Confirm Logout
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+            <p className="text-black dark:text-white mb-4 text-center">
               Are you sure you want to logout?
             </p>
             <div className="flex space-x-3">

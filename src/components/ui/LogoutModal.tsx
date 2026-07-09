@@ -20,8 +20,8 @@ const LogoutModal = ({ show = true, onConfirm, onCancel }: LogoutModalProps) => 
         aria-modal="true"
         className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4"
       >
-        <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">Confirm Logout</h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">Are you sure you want to logout?</p>
+        <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">Confirm Logout</h2>
+        <p className="text-black dark:text-white mb-4 text-center">Are you sure you want to logout?</p>
         <div className="flex space-x-3">
           <button
             onClick={onCancel}

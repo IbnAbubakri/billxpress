@@ -34,10 +34,10 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
             {(user?.name || user?.email || '?').charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-base font-bold text-gray-900 dark:text-neutral-100">
+            <h1 className="text-base font-bold text-black dark:text-white">
               Welcome back, {user?.name?.split(' ')[0] || 'User'}
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-300">{user?.email || ''}</p>
+            <p className="text-xs text-black dark:text-white">{user?.email || ''}</p>
           </div>
         </div>
         {!profileComplete && <ProfileCompletion user={user} />}

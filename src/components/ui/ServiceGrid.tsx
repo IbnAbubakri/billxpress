@@ -97,7 +97,7 @@ const ServiceGrid: React.FC = () => {
             <h3 className="font-semibold text-secondary text-sm sm:text-base mb-1">
               {service.title}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-tight sm:leading-normal">{service.description}</p>
+            <p className="text-xs sm:text-sm text-black dark:text-white leading-tight sm:leading-normal">{service.description}</p>
           </button>
         );
       })}

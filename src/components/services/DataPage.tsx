@@ -200,8 +200,8 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
               <Wifi className="w-5 h-5 text-blue-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">Buy Data</h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h1 className="text-xl font-bold text-black dark:text-white">Buy Data</h1>
+              <p className="text-black dark:text-white">
                 Purchase data bundles for your device
               </p>
             </div>
@@ -211,7 +211,7 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
         <div className="max-w-md mx-auto">
           {/* Phone Number Input */}
           <div className="mb-4">
-            <label htmlFor="dataPhone" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="dataPhone" className="block text-sm font-medium text-black dark:text-white mb-2">
               Phone Number
             </label>
             <input
@@ -233,7 +233,7 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
 
           {/* Network Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Network
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -264,7 +264,7 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
           {/* Data Plan Selection */}
           {selectedNetwork && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-black dark:text-white mb-2">
                 Select Data Plan
               </label>
               <div className="space-y-3">
@@ -282,7 +282,7 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-medium">{plan.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                          <p className="text-sm text-black dark:text-white">
                             {plan.validity}
                           </p>
                         </div>
@@ -315,45 +315,45 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
                   Confirm Purchase
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Please review your data purchase
                 </p>
               </div>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Network</span>
+                  <span className="text-black dark:text-white">Network</span>
                   <span className="font-medium">
                     {networks.find((n) => n.id === selectedNetwork)?.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Phone Number</span>
+                  <span className="text-black dark:text-white">Phone Number</span>
                   <span className="font-medium">{phoneNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Data Plan</span>
+                  <span className="text-black dark:text-white">Data Plan</span>
                   <span className="font-medium">
                     {selectedPlanDetails.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Validity</span>
+                  <span className="text-black dark:text-white">Validity</span>
                   <span className="font-medium">
                     {selectedPlanDetails.validity}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                  <span className="text-black dark:text-white">Amount</span>
                   <span className="font-medium">
                     ₦{selectedPlanDetails.price}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Charges</span>
+                  <span className="text-black dark:text-white">Charges</span>
                   <span className="font-medium">₦0.00</span>
                 </div>
                 <hr />
@@ -384,10 +384,10 @@ const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+              <p className="text-black dark:text-white mb-4 text-center">
                 Are you sure you want to logout?
               </p>
               <div className="flex space-x-3">

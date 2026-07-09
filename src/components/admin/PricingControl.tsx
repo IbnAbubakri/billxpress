@@ -153,20 +153,20 @@ const PricingControl: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">Pricing Control</h1>
-          <p className="text-neutral-600 dark:text-gray-300 mt-1">Manage service prices and profit margins</p>
+          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">Pricing Control</h1>
+          <p className="text-black dark:text-white mt-1">Manage service prices and profit margins</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
             onClick={importPricing}
-            className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 dark:bg-dark-700 text-neutral-700 dark:text-gray-200 rounded-xl hover:bg-neutral-200 dark:hover:bg-dark-600 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 dark:bg-dark-700 text-black dark:text-white rounded-xl hover:bg-neutral-200 dark:hover:bg-dark-600 transition-colors"
           >
             <Upload className="w-4 h-4" aria-hidden="true" />
             <span>Import CSV</span>
           </button>
           <button
             onClick={exportPricing}
-            className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 dark:bg-dark-700 text-neutral-700 dark:text-gray-200 rounded-xl hover:bg-neutral-200 dark:hover:bg-dark-600 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 dark:bg-dark-700 text-black dark:text-white rounded-xl hover:bg-neutral-200 dark:hover:bg-dark-600 transition-colors"
           >
             <Download className="w-4 h-4" aria-hidden="true" />
             <span>Export CSV</span>
@@ -215,12 +215,12 @@ const PricingControl: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Service</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Cost Price</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Selling Price</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Profit Margin</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Service</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Cost Price</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Selling Price</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Profit Margin</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -237,8 +237,8 @@ const PricingControl: React.FC = () => {
                         <item.icon className="w-5 h-5" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="font-medium text-neutral-900 dark:text-neutral-100">{item.service}</p>
-                        <p className="text-sm text-neutral-500 dark:text-gray-300">{item.provider}</p>
+                        <p className="font-medium text-black dark:text-white">{item.service}</p>
+                        <p className="text-sm text-black dark:text-white">{item.provider}</p>
                       </div>
                     </div>
                   </td>
@@ -252,7 +252,7 @@ const PricingControl: React.FC = () => {
                         step="0.01"
                       />
                     ) : (
-                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">₦{item.cost_price}</span>
+                      <span className="text-sm font-medium text-black dark:text-white">₦{item.cost_price}</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -265,7 +265,7 @@ const PricingControl: React.FC = () => {
                         step="0.01"
                       />
                     ) : (
-                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">₦{item.selling_price}</span>
+                      <span className="text-sm font-medium text-black dark:text-white">₦{item.selling_price}</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -280,7 +280,7 @@ const PricingControl: React.FC = () => {
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                       item.status === 'active' 
                         ? 'bg-success-100 dark:bg-success-900/30 text-success-700' 
-                        : 'bg-neutral-100 dark:bg-dark-700 text-neutral-700 dark:text-gray-200'
+                        : 'bg-neutral-100 dark:bg-dark-700 text-black dark:text-white'
                     }`}>
                       {item.status}
                     </span>
@@ -332,8 +332,8 @@ const PricingControl: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">Average Profit Margin</p>
-              <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">2.8%</p>
+              <p className="text-sm font-medium text-black dark:text-white">Average Profit Margin</p>
+              <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">2.8%</p>
             </div>
             <div className="w-12 h-12 bg-success-500 rounded-2xl flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-white" aria-hidden="true" />
@@ -349,8 +349,8 @@ const PricingControl: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">Active Services</p>
-              <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
+              <p className="text-sm font-medium text-black dark:text-white">Active Services</p>
+              <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
             </div>
             <div className="w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center">
               <Smartphone className="w-6 h-6 text-white" aria-hidden="true" />
@@ -366,8 +366,8 @@ const PricingControl: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">Total Services</p>
-              <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{pricingData.length}</p>
+              <p className="text-sm font-medium text-black dark:text-white">Total Services</p>
+              <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{pricingData.length}</p>
             </div>
             <div className="w-12 h-12 bg-accent-500 rounded-2xl flex items-center justify-center">
               <Wifi className="w-6 h-6 text-white" aria-hidden="true" />

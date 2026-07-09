@@ -95,7 +95,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             {step === 1 ? "Set Transaction PIN" : "Confirm PIN"}
           </h2>
           <button onClick={onClose} aria-label="Close modal" className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-colors">
-            <X className="w-5 h-5 text-gray-500 dark:text-gray-300" aria-hidden="true" />
+            <X className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
           </button>
         </div>
 
@@ -103,7 +103,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-secondary" aria-hidden="true" />
           </div>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-black dark:text-white">
             {step === 1 ? "Create a 4-digit PIN to secure your transactions" : "Re-enter your PIN to confirm"}
           </p>
         </div>
@@ -135,7 +135,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             <div className="flex space-x-3">
               <button
                 onClick={() => { setStep(1); setConfirmPin(["", "", "", ""]); setErrors(""); }}
-                className="flex-1 bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-200 py-4 px-4 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-dark-600 transition-all"
+                className="flex-1 bg-gray-100 dark:bg-dark-700 text-black dark:text-white py-4 px-4 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-dark-600 transition-all"
               >
                 Back
               </button>
@@ -151,7 +151,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
         )}
 
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-300">Keep your PIN secure and don't share it with anyone</p>
+          <p className="text-xs text-black dark:text-white">Keep your PIN secure and don't share it with anyone</p>
         </div>
       </div>
     </div>

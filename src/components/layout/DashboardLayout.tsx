@@ -85,14 +85,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
                       isActive(item.path)
                         ? "bg-primary text-secondary shadow-sm"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
+                        : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
                     }`}
                   >
                     <Icon
                       className={`mr-3 h-5 w-5 flex-shrink-0 ${
                         isActive(item.path)
                           ? "text-secondary"
-                          : "text-gray-400 dark:text-gray-300 group-hover:text-secondary"
+                          : "text-black dark:text-white group-hover:text-secondary"
                       }`}
                       aria-hidden="true"
                     />
@@ -170,14 +170,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
                       isActive(item.path)
                         ? "bg-primary text-secondary shadow-sm"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
+                        : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
                     }`}
                   >
                     <Icon
                       className={`mr-3 h-5 w-5 flex-shrink-0 ${
                         isActive(item.path)
                           ? "text-secondary"
-                          : "text-gray-400 dark:text-gray-300 group-hover:text-secondary"
+                          : "text-black dark:text-white group-hover:text-secondary"
                       }`}
                       aria-hidden="true"
                     />
@@ -215,7 +215,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow-sm lg:hidden">
           <button
             aria-label="Open sidebar"
-            className="px-4 border-r border-gray-200 text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-secondary lg:hidden"
+            className="px-4 border-r border-gray-200 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-secondary lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" aria-hidden="true" />
@@ -228,7 +228,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </h1>
             </div>
             <div className="flex items-center">
-              <button aria-label="Notifications" className="p-2 rounded-full text-gray-400 hover:text-secondary hover:bg-gray-100">
+              <button aria-label="Notifications" className="p-2 rounded-full text-black dark:text-white hover:text-secondary hover:bg-gray-100">
                 <Bell className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
@@ -248,12 +248,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={`flex-1 flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
-                    isActive(item.path) ? "text-secondary" : "text-gray-500"
+                    isActive(item.path) ? "text-secondary" : "text-black dark:text-white"
                   }`}
                 >
                   <Icon
                     className={`h-5 w-5 mb-1 ${
-                      isActive(item.path) ? "text-secondary" : "text-gray-400"
+                      isActive(item.path) ? "text-secondary" : "text-black dark:text-white"
                     }`}
                     aria-hidden="true"
                   />

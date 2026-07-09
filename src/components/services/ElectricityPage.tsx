@@ -137,10 +137,10 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
               <Zap className="w-5 h-5 text-yellow-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-black dark:text-white">
                 Electricity Bills
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-black dark:text-white">
                 Pay your electricity bills instantly
               </p>
             </div>
@@ -150,7 +150,7 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
         <div className="max-w-md mx-auto">
           {/* Distribution Company Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Distribution Company
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -180,7 +180,7 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
 
           {/* Meter Type Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Meter Type
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -195,7 +195,7 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
                   }`}
                 >
                   <p className="font-medium">{type.name}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{type.description}</p>
+                  <p className="text-sm text-black dark:text-white">{type.description}</p>
                 </button>
               ))}
             </div>
@@ -206,7 +206,7 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
 
           {/* Meter Number Input */}
           <div className="mb-4">
-            <label htmlFor="meterNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="meterNumber" className="block text-sm font-medium text-black dark:text-white mb-2">
               Meter Number
             </label>
             <input
@@ -228,7 +228,7 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
 
           {/* Amount Input */}
           <div className="mb-4">
-            <label htmlFor="electricityAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="electricityAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
               Amount (₦500 - ₦100,000)
             </label>
             <input
@@ -265,37 +265,37 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
                   Confirm Payment
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Please review your electricity bill payment
                 </p>
               </div>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Distribution Company</span>
+                  <span className="text-black dark:text-white">Distribution Company</span>
                   <span className="font-medium">
                     {discos.find((d) => d.id === selectedDisco)?.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Meter Type</span>
+                  <span className="text-black dark:text-white">Meter Type</span>
                   <span className="font-medium capitalize">{meterType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Meter Number</span>
+                  <span className="text-black dark:text-white">Meter Number</span>
                   <span className="font-medium">{meterNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                  <span className="text-black dark:text-white">Amount</span>
                   <span className="font-medium">
                     ₦{Number(amount).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Charges</span>
+                  <span className="text-black dark:text-white">Charges</span>
                   <span className="font-medium">₦0.00</span>
                 </div>
                 <hr />
@@ -326,10 +326,10 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+              <p className="text-black dark:text-white mb-4 text-center">
                 Are you sure you want to logout?
               </p>
               <div className="flex space-x-3">

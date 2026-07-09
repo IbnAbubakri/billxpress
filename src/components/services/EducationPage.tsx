@@ -192,10 +192,10 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
               <GraduationCap className="w-5 h-5 text-indigo-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-black dark:text-white">
                 Education Payments
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-black dark:text-white">
                 Pay for examination fees and services
               </p>
             </div>
@@ -205,7 +205,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
         <div className="max-w-md mx-auto">
           {/* Education Service Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Education Service
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -225,7 +225,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
                     className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow"
                   />
                   <p className="font-medium text-sm">{service.name}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">{service.description}</p>
+                  <p className="text-xs text-black dark:text-white">{service.description}</p>
                 </button>
               ))}
             </div>
@@ -236,7 +236,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
 
           {/* Exam Number Input */}
           <div className="mb-4">
-            <label htmlFor="examNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="examNumber" className="block text-sm font-medium text-black dark:text-white mb-2">
               Exam/Registration Number
             </label>
             <input
@@ -259,7 +259,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
           {/* Package Selection */}
           {selectedService && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-black dark:text-white mb-2">
                 Select Service
               </label>
               <div className="space-y-3">
@@ -277,7 +277,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-medium">{pkg.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                          <p className="text-sm text-black dark:text-white mt-1">
                             {pkg.description}
                           </p>
                         </div>
@@ -312,17 +312,17 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
                   Confirm Payment
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Please review your education payment
                 </p>
               </div>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Service</span>
+                  <span className="text-black dark:text-white">Service</span>
                   <span className="font-medium">
                     {
                       educationServices.find((s) => s.id === selectedService)
@@ -331,23 +331,23 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Exam Number</span>
+                  <span className="text-black dark:text-white">Exam Number</span>
                   <span className="font-medium">{examNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Package</span>
+                  <span className="text-black dark:text-white">Package</span>
                   <span className="font-medium">
                     {selectedPackageDetails.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                  <span className="text-black dark:text-white">Amount</span>
                   <span className="font-medium">
                     ₦{selectedPackageDetails.price.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Charges</span>
+                  <span className="text-black dark:text-white">Charges</span>
                   <span className="font-medium">₦0.00</span>
                 </div>
                 <hr />
@@ -378,10 +378,10 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+              <p className="text-black dark:text-white mb-4 text-center">
                 Are you sure you want to logout?
               </p>
               <div className="flex space-x-3">

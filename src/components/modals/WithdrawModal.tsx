@@ -103,7 +103,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100">Withdraw Money</h2>
+          <h2 className="text-lg font-bold text-black dark:text-white">Withdraw Money</h2>
           <button
             onClick={onClose}
             aria-label="Close modal"
@@ -123,7 +123,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
 
             {/* Amount Input */}
             <div className="mb-4">
-              <label htmlFor="withdrawAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label htmlFor="withdrawAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
                 Withdrawal Amount
               </label>
               <input
@@ -145,7 +145,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
 
             {/* Bank Selection */}
             <div className="mb-4">
-              <label htmlFor="selectBank" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label htmlFor="selectBank" className="block text-sm font-medium text-black dark:text-white mb-2">
                 Select Bank
               </label>
               <select
@@ -170,7 +170,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
 
             {/* Account Number */}
             <div className="mb-4">
-              <label htmlFor="withdrawAccountNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label htmlFor="withdrawAccountNumber" className="block text-sm font-medium text-black dark:text-white mb-2">
                 Account Number
               </label>
               <input
@@ -228,29 +228,29 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Banknote className="w-8 h-8 text-blue-600" aria-hidden="true" />
               </div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-neutral-100 mb-2">Confirm Withdrawal</h3>
-              <p className="text-gray-600 dark:text-gray-300">Review your withdrawal details</p>
+              <h3 className="text-base font-bold text-black dark:text-white mb-2">Confirm Withdrawal</h3>
+              <p className="text-black dark:text-white">Review your withdrawal details</p>
             </div>
 
             <div className="space-y-3 mb-4">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                <span className="text-black dark:text-white">Amount</span>
                 <span className="font-medium">₦{Number(amount).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Bank</span>
+                <span className="text-black dark:text-white">Bank</span>
                 <span className="font-medium">{bankName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Account Number</span>
+                <span className="text-black dark:text-white">Account Number</span>
                 <span className="font-medium">{accountNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Account Name</span>
+                <span className="text-black dark:text-white">Account Name</span>
                 <span className="font-medium">{accountName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Processing Fee</span>
+                <span className="text-black dark:text-white">Processing Fee</span>
                 <span className="font-medium">₦{withdrawalFee.toLocaleString()}</span>
               </div>
               <hr className="dark:border-dark-700" />
@@ -282,11 +282,11 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ user, onClose }) => {
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
-            <h3 className="text-base font-bold text-gray-900 dark:text-neutral-100 mb-2">Withdrawal Initiated!</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <h3 className="text-base font-bold text-black dark:text-white mb-2">Withdrawal Initiated!</h3>
+            <p className="text-black dark:text-white mb-4">
               Your withdrawal of ₦{Number(amount).toLocaleString()} is being processed
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300 mb-4">
+            <p className="text-sm text-black dark:text-white mb-4">
               Funds will be credited to your account within 24 hours
             </p>
             <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>

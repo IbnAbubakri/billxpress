@@ -150,10 +150,10 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
               <Target className="w-5 h-5 text-orange-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-black dark:text-white">
                 Betting Payments
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-black dark:text-white">
                 Fund your betting account instantly
               </p>
             </div>
@@ -163,7 +163,7 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
         <div className="max-w-md mx-auto">
           {/* Platform Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Betting Platform
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -183,7 +183,7 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
                     className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow"
                   />
                   <p className="font-medium text-sm">{platform.name}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">
+                  <p className="text-xs text-black dark:text-white">
                     {platform.description}
                   </p>
                 </button>
@@ -196,7 +196,7 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
 
           {/* User ID Input */}
           <div className="mb-4">
-            <label htmlFor="bettingUserId" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="bettingUserId" className="block text-sm font-medium text-black dark:text-white mb-2">
               User ID / Account Number
             </label>
             <input
@@ -218,7 +218,7 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
 
           {/* Amount Input */}
           <div className="mb-4">
-            <label htmlFor="bettingAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="bettingAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
               Amount (₦100 - ₦100,000)
             </label>
             <input
@@ -268,33 +268,33 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
                   Confirm Payment
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Please review your betting account funding
                 </p>
               </div>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Platform</span>
+                  <span className="text-black dark:text-white">Platform</span>
                   <span className="font-medium">
                     {selectedPlatformData.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">User ID</span>
+                  <span className="text-black dark:text-white">User ID</span>
                   <span className="font-medium">{userId}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                  <span className="text-black dark:text-white">Amount</span>
                   <span className="font-medium">
                     ₦{Number(amount).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Charges</span>
+                  <span className="text-black dark:text-white">Charges</span>
                   <span className="font-medium">₦0.00</span>
                 </div>
                 <hr />
@@ -325,10 +325,10 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+              <p className="text-black dark:text-white mb-4 text-center">
                 Are you sure you want to logout?
               </p>
               <div className="flex space-x-3">

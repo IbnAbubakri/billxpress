@@ -94,7 +94,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
               <Wallet className="w-8 h-8 text-white" aria-hidden="true" />
             </div>
             <h2 className="text-xl font-bold text-secondary">Create Account</h2>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">Join BillXpress today</p>
+            <p className="text-black dark:text-white mt-2">Join BillXpress today</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -104,44 +104,44 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+                <label htmlFor="firstName" className="block text-sm font-medium text-black dark:text-white mb-2">First Name</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                   <input id="firstName" type="text" value={formData.firstName} onChange={(e) => handleChange('firstName', e.target.value)} className={inputClass('firstName')} placeholder="First name" aria-invalid={!!errors.firstName} aria-describedby={errors.firstName ? 'firstName-error' : undefined} />
                 </div>
                 {errors.firstName && <p id="firstName-error" className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+                <label htmlFor="lastName" className="block text-sm font-medium text-black dark:text-white mb-2">Last Name</label>
                 <input id="lastName" type="text" value={formData.lastName} onChange={(e) => handleChange('lastName', e.target.value)} className={`w-full px-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.lastName ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Last name" aria-invalid={!!errors.lastName} aria-describedby={errors.lastName ? 'lastName-error' : undefined} />
                 {errors.lastName && <p id="lastName-error" className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
             </div>
 
             <div>
-              <label htmlFor="registerEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+              <label htmlFor="registerEmail" className="block text-sm font-medium text-black dark:text-white mb-2">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <input id="registerEmail" type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} className={inputClass('email')} placeholder="Enter your email" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'registerEmail-error' : undefined} />
               </div>
               {errors.email && <p id="registerEmail-error" className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+              <label htmlFor="phone" className="block text-sm font-medium text-black dark:text-white mb-2">Phone Number</label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <input id="phone" type="tel" value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)} className={inputClass('phone')} placeholder="08012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
               </div>
               {errors.phone && <p id="phone-error" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
             </div>
 
             <div>
-              <label htmlFor="registerPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+              <label htmlFor="registerPassword" className="block text-sm font-medium text-black dark:text-white mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <input id="registerPassword" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => handleChange('password', e.target.value)} className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.password ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Create a strong password (min 12 chars)" aria-invalid={!!errors.password} aria-describedby={errors.password ? 'registerPassword-error' : undefined} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-300">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white hover:text-black dark:text-white dark:hover:text-gray-300">
                   {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                 </button>
               </div>
@@ -149,11 +149,11 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-black dark:text-white mb-2">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={(e) => handleChange('confirmPassword', e.target.value)} className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.confirmPassword ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Confirm your password" aria-invalid={!!errors.confirmPassword} aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined} />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-300">
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white hover:text-black dark:text-white dark:hover:text-gray-300">
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                 </button>
               </div>
@@ -175,7 +175,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-black dark:text-white">
               Already have an account?{' '}
               <Link to="/login" className="text-secondary hover:underline font-medium">Sign in</Link>
             </p>

@@ -140,8 +140,8 @@ const UserManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">User Management</h1>
-          <p className="text-neutral-600 dark:text-gray-300 mt-1">Manage and monitor user accounts</p>
+          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">User Management</h1>
+          <p className="text-black dark:text-white mt-1">Manage and monitor user accounts</p>
         </div>
       </div>
 
@@ -162,8 +162,8 @@ const UserManagement: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">{stat.title}</p>
-                <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{stat.value}</p>
+                <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>
+                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                 stat.color === 'primary' ? 'bg-primary-500' :
@@ -180,7 +180,7 @@ const UserManagement: React.FC = () => {
       {/* Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" aria-hidden="true" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black dark:text-white w-5 h-5" aria-hidden="true" />
           <input
             type="text"
             placeholder="Search users by name, email, or phone..."
@@ -211,13 +211,13 @@ const UserManagement: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Contact</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Balance</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Total Spent</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Transactions</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">User</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Contact</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Balance</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Total Spent</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Transactions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -238,35 +238,35 @@ const UserManagement: React.FC = () => {
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
-                          <p className="text-sm text-neutral-500 dark:text-gray-300">ID: {user.id}</p>
+                          <p className="font-medium text-black dark:text-white">{user.name}</p>
+                          <p className="text-sm text-black dark:text-white">ID: {user.id}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
-                        <div className="flex items-center space-x-2 text-sm text-neutral-900 dark:text-neutral-100">
-                          <Mail className="w-4 h-4 text-neutral-400" aria-hidden="true" />
+                        <div className="flex items-center space-x-2 text-sm text-black dark:text-white">
+                          <Mail className="w-4 h-4 text-black dark:text-white" aria-hidden="true" />
                           <span>{user.email}</span>
                         </div>
-                        <div className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-gray-300">
-                          <Phone className="w-4 h-4 text-neutral-400" aria-hidden="true" />
+                        <div className="flex items-center space-x-2 text-sm text-black dark:text-white">
+                          <Phone className="w-4 h-4 text-black dark:text-white" aria-hidden="true" />
                           <span>{user.phone}</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      <span className="text-sm font-medium text-black dark:text-white">
                         ₦{user.balance.toLocaleString()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      <span className="text-sm font-medium text-black dark:text-white">
                         ₦{user.total_spent.toLocaleString()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-neutral-900 dark:text-neutral-100">{user.transactions}</span>
+                      <span className="text-sm text-black dark:text-white">{user.transactions}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
@@ -324,11 +324,11 @@ const UserManagement: React.FC = () => {
           >
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-ginto font-semibold text-neutral-900 dark:text-neutral-100">User Details</h3>
+                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white">User Details</h3>
                 <button
                   onClick={() => setShowUserModal(false)}
                   aria-label="Close modal"
-                  className="p-2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300 rounded-lg transition-colors"
+                  className="p-2 text-black dark:text-white hover:text-black dark:hover:text-white rounded-lg transition-colors"
                 >
                   <XCircle className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -343,9 +343,9 @@ const UserManagement: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{selectedUser.name}</h4>
-                  <p className="text-neutral-600 dark:text-gray-300">{selectedUser.email}</p>
-                  <p className="text-neutral-600 dark:text-gray-300">{selectedUser.phone}</p>
+                  <h4 className="text-base font-semibold text-black dark:text-white">{selectedUser.name}</h4>
+                  <p className="text-black dark:text-white">{selectedUser.email}</p>
+                  <p className="text-black dark:text-white">{selectedUser.phone}</p>
                 </div>
               </div>
 
@@ -354,41 +354,41 @@ const UserManagement: React.FC = () => {
                 <div className="bg-neutral-50 dark:bg-dark-800 rounded-xl p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <DollarSign className="w-5 h-5 text-success-500" aria-hidden="true" />
-                    <span className="text-sm font-medium text-neutral-600 dark:text-gray-300">Current Balance</span>
+                    <span className="text-sm font-medium text-black dark:text-white">Current Balance</span>
                   </div>
-                  <p className="text-lg font-bold text-neutral-900 dark:text-neutral-100">₦{selectedUser.balance.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-black dark:text-white">₦{selectedUser.balance.toLocaleString()}</p>
                 </div>
                 <div className="bg-neutral-50 dark:bg-dark-800 rounded-xl p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <DollarSign className="w-5 h-5 text-primary-500" aria-hidden="true" />
-                    <span className="text-sm font-medium text-neutral-600 dark:text-gray-300">Total Spent</span>
+                    <span className="text-sm font-medium text-black dark:text-white">Total Spent</span>
                   </div>
-                  <p className="text-lg font-bold text-neutral-900 dark:text-neutral-100">₦{selectedUser.total_spent.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-black dark:text-white">₦{selectedUser.total_spent.toLocaleString()}</p>
                 </div>
               </div>
 
               {/* Additional Info */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                  <span className="text-neutral-600 dark:text-gray-300">Total Transactions</span>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">{selectedUser.transactions}</span>
+                  <span className="text-black dark:text-white">Total Transactions</span>
+                  <span className="font-medium text-black dark:text-white">{selectedUser.transactions}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                  <span className="text-neutral-600 dark:text-gray-300">Account Status</span>
+                  <span className="text-black dark:text-white">Account Status</span>
                   <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedUser.status)}`}>
                     {React.createElement(getStatusIcon(selectedUser.status), { className: "w-3 h-3" })}
                     <span>{selectedUser.status}</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                  <span className="text-neutral-600 dark:text-gray-300">Joined Date</span>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                  <span className="text-black dark:text-white">Joined Date</span>
+                  <span className="font-medium text-black dark:text-white">
                     {new Date(selectedUser.joined_date).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-neutral-600 dark:text-gray-300">Last Login</span>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">{selectedUser.last_login}</span>
+                  <span className="text-black dark:text-white">Last Login</span>
+                  <span className="font-medium text-black dark:text-white">{selectedUser.last_login}</span>
                 </div>
               </div>
             </div>

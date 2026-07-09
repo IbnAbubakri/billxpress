@@ -150,10 +150,10 @@ const AdminDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">
             Dashboard Overview
           </h1>
-          <p className="text-neutral-600 dark:text-gray-300 mt-1">
+          <p className="text-black dark:text-white mt-1">
             Monitor your VTU platform performance
           </p>
         </div>
@@ -178,10 +178,10 @@ const AdminDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">
+                <p className="text-sm font-medium text-black dark:text-white">
                   {stat.title}
                 </p>
-                <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">
+                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">
                   {stat.value}
                 </p>
                 <div className="flex items-center mt-2">
@@ -223,17 +223,17 @@ const AdminDashboard: React.FC = () => {
           className="lg:col-span-2 chart-container"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100">
+            <h3 className="text-base font-ginto font-semibold text-black dark:text-white">
               Revenue Trend
             </h3>
             <div className="flex items-center space-x-4 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-primary-500 rounded-full"></div>
-                <span className="text-neutral-600 dark:text-gray-300">Revenue</span>
+                <span className="text-black dark:text-white">Revenue</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-accent-500 rounded-full"></div>
-                <span className="text-neutral-600 dark:text-gray-300">Transactions</span>
+                <span className="text-black dark:text-white">Transactions</span>
               </div>
             </div>
           </div>
@@ -281,7 +281,7 @@ const AdminDashboard: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="chart-container"
         >
-          <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">
             Service Distribution
           </h3>
           <ResponsiveContainer width="100%" height={200}>
@@ -313,9 +313,9 @@ const AdminDashboard: React.FC = () => {
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: service.color }}
                   ></div>
-                  <span className="text-neutral-600 dark:text-gray-300">{service.name}</span>
+                  <span className="text-black dark:text-white">{service.name}</span>
                 </div>
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                <span className="font-medium text-black dark:text-white">
                   {service.value}%
                 </span>
               </div>
@@ -333,7 +333,7 @@ const AdminDashboard: React.FC = () => {
       >
         <div className="p-4 border-b border-neutral-100 dark:border-dark-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100">
+            <h3 className="text-base font-ginto font-semibold text-black dark:text-white">
               Recent Transactions
             </h3>
             <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
@@ -345,19 +345,19 @@ const AdminDashboard: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
                   Service
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
                   Time
                 </th>
               </tr>
@@ -376,7 +376,7 @@ const AdminDashboard: React.FC = () => {
                         </span>
                       </div>
                       <div className="ml-3">
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                        <p className="text-sm font-medium text-black dark:text-white">
                           {transaction.user}
                         </p>
                       </div>
@@ -396,12 +396,12 @@ const AdminDashboard: React.FC = () => {
                       {transaction.service.includes("DSTV") && (
                         <Activity className="w-4 h-4 text-info-500" aria-hidden="true" />
                       )}
-                      <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                      <span className="text-sm text-black dark:text-white">
                         {transaction.service}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black dark:text-white">
                     ₦{transaction.amount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -413,7 +413,7 @@ const AdminDashboard: React.FC = () => {
                       {transaction.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black dark:text-white">
                     {transaction.time}
                   </td>
                 </tr>

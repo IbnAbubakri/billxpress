@@ -99,15 +99,15 @@ const RecentTransactions: React.FC = () => {
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-medium text-gray-900 dark:text-neutral-100 truncate">
+                  <h4 className="font-medium text-black dark:text-white truncate">
                     {transaction.type}
                   </h4>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="font-semibold text-gray-900 dark:text-neutral-100 text-sm sm:text-base">
+                    <span className="font-semibold text-black dark:text-white text-sm sm:text-base">
                       ₦{transaction.amount.toLocaleString()}
                     </span>
                     <button aria-label="More options" className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
-                      <MoreHorizontal className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                      <MoreHorizontal className="w-4 h-4 text-black dark:text-white" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -116,11 +116,11 @@ const RecentTransactions: React.FC = () => {
                     <span className="mr-1">{getStatusIcon(transaction.status)}</span>
                     {transaction.status}
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-300">{transaction.date}</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-400">•</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-300">{transaction.time}</span>
-                  <span className="hidden md:inline text-xs text-gray-400 dark:text-gray-400">•</span>
-                  <span className="hidden md:inline font-mono text-xs text-gray-500 dark:text-gray-300">{transaction.transactionId}</span>
+                  <span className="text-xs text-black dark:text-white">{transaction.date}</span>
+                  <span className="text-xs text-black dark:text-white">•</span>
+                  <span className="text-xs text-black dark:text-white">{transaction.time}</span>
+                  <span className="hidden md:inline text-xs text-black dark:text-white">•</span>
+                  <span className="hidden md:inline font-mono text-xs text-black dark:text-white">{transaction.transactionId}</span>
                 </div>
               </div>
             </div>

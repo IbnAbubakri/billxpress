@@ -141,10 +141,10 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
               <Tv className="w-5 h-5 text-purple-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-black dark:text-white">
                 TV Subscription
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">Renew your cable TV subscription</p>
+              <p className="text-black dark:text-white">Renew your cable TV subscription</p>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
         <div className="max-w-md mx-auto">
           {/* Provider Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               TV Provider
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -182,7 +182,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
 
           {/* Smart Card Number Input */}
           <div className="mb-4">
-            <label htmlFor="smartCardNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="smartCardNumber" className="block text-sm font-medium text-black dark:text-white mb-2">
               Smart Card / IUC Number
             </label>
             <input
@@ -207,7 +207,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
           {/* Package Selection */}
           {selectedProvider && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-black dark:text-white mb-2">
                 Select Package
               </label>
               <div className="space-y-3">
@@ -225,7 +225,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-medium">{pkg.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                          <p className="text-sm text-black dark:text-white">
                             {pkg.duration}
                           </p>
                         </div>
@@ -260,45 +260,45 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
                   Confirm Subscription
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Please review your TV subscription
                 </p>
               </div>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Provider</span>
+                  <span className="text-black dark:text-white">Provider</span>
                   <span className="font-medium">
                     {providers.find((p) => p.id === selectedProvider)?.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Smart Card</span>
+                  <span className="text-black dark:text-white">Smart Card</span>
                   <span className="font-medium">{smartCardNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Package</span>
+                  <span className="text-black dark:text-white">Package</span>
                   <span className="font-medium">
                     {selectedPackageDetails.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Duration</span>
+                  <span className="text-black dark:text-white">Duration</span>
                   <span className="font-medium">
                     {selectedPackageDetails.duration}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                  <span className="text-black dark:text-white">Amount</span>
                   <span className="font-medium">
                     ₦{selectedPackageDetails.price.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Charges</span>
+                  <span className="text-black dark:text-white">Charges</span>
                   <span className="font-medium">₦0.00</span>
                 </div>
                 <hr />
@@ -329,10 +329,10 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-4 text-center">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">
+              <p className="text-black dark:text-white mb-4 text-center">
                 Are you sure you want to logout?
               </p>
               <div className="flex space-x-3">

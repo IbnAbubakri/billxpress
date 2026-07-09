@@ -98,10 +98,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
                 <User className="w-5 h-5 text-white" aria-hidden="true" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-neutral-900 truncate">
+                <p className="text-sm font-medium text-black dark:text-white truncate">
                   {user?.email || 'Admin'}
                 </p>
-                <p className="text-xs text-neutral-500 truncate">
+                <p className="text-xs text-black dark:text-white truncate">
                   Administrator
                 </p>
               </div>
@@ -137,7 +137,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
                 <Menu className="w-5 h-5" aria-hidden="true" />
               </button>
               <div className="hidden md:flex items-center space-x-2 bg-neutral-50 rounded-2xl px-4 py-2 w-96">
-                <Search className="w-5 h-5 text-neutral-400" aria-hidden="true" />
+                <Search className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <input
                   type="text"
                   placeholder="Search transactions, users..."
@@ -147,7 +147,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             </div>
             <div className="flex items-center space-x-4">
               <button aria-label="Notifications" className="relative p-2 rounded-xl hover:bg-neutral-100 transition-colors">
-                <Bell className="w-5 h-5 text-neutral-600" aria-hidden="true" />
+                <Bell className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-error-500 rounded-full"></span>
               </button>
             </div>

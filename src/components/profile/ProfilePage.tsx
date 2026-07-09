@@ -326,10 +326,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+            <h1 className="text-xl font-bold text-black dark:text-white">
               Profile Settings
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-black dark:text-white">
               Manage your account information and security
             </p>
           </div>
@@ -350,7 +350,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
               {/* Profile Completion */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  <span className="text-sm font-medium text-black dark:text-white">
                     Profile Completion
                   </span>
                   <span className="text-sm font-medium text-blue-600">
@@ -409,17 +409,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                           <Mail className="w-8 h-8 text-blue-600" aria-hidden="true" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                        <h2 className="text-lg font-bold text-black dark:text-white mb-2">
                           Verify Your Email
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        <p className="text-black dark:text-white mb-4">
                           We'll send a verification link to your email address.
                         </p>
                       </div>
                       <div className="flex gap-3">
                         <button
                           onClick={() => setShowEmailModal(false)}
-                          className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+                          className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
                         >
                           Cancel
                         </button>
@@ -446,10 +446,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                           <Lock className="w-8 h-8 text-blue-600" aria-hidden="true" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                        <h2 className="text-lg font-bold text-black dark:text-white mb-2">
                           Link Your BVN
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        <p className="text-black dark:text-white mb-4">
                           Enter your BVN to verify your identity.
                         </p>
                       </div>
@@ -479,7 +479,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                       <div className="flex gap-3">
                         <button
                           onClick={() => setShowBVNModal(false)}
-                          className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+                          className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
                         >
                           Cancel
                         </button>
@@ -501,17 +501,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                           <User className="w-8 h-8 text-blue-600" aria-hidden="true" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                        <h2 className="text-lg font-bold text-black dark:text-white mb-2">
                           Add Bank Details
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        <p className="text-black dark:text-white mb-4">
                           Provide your bank account information to receive
                           payments.
                         </p>
                       </div>
                       <form className="space-y-3">
                         <div>
-                          <label htmlFor="bankAccountNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                          <label htmlFor="bankAccountNumber" className="block text-sm font-medium text-black dark:text-white mb-1">
                             Account Number
                           </label>
                           <input
@@ -541,7 +541,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           )}
                         </div>
                         <div>
-                          <label htmlFor="bankName" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                          <label htmlFor="bankName" className="block text-sm font-medium text-black dark:text-white mb-1">
                             Bank Name
                           </label>
                           <input
@@ -569,7 +569,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           )}
                         </div>
                         <div>
-                          <label htmlFor="bankAccountName" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                          <label htmlFor="bankAccountName" className="block text-sm font-medium text-black dark:text-white mb-1">
                             Account Name
                           </label>
                           <input
@@ -600,7 +600,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                           <button
                             type="button"
                             onClick={() => setShowBankModal(false)}
-                            className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+                            className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
                           >
                             Cancel
                           </button>
@@ -625,7 +625,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
                     activeTab === "profile"
                       ? "bg-blue-50 text-blue-600 font-medium"
-                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700"
+                      : "text-black dark:text-white hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700"
                   }`}
                 >
                   <User className="w-4 h-4 inline mr-3" aria-hidden="true" />
@@ -636,7 +636,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
                     activeTab === "security"
                       ? "bg-blue-50 text-blue-600 font-medium"
-                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700"
+                      : "text-black dark:text-white hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700"
                   }`}
                 >
                   <Lock className="w-4 h-4 inline mr-3" aria-hidden="true" />
@@ -657,7 +657,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
             <div className="bg-white dark:bg-dark-800 rounded-2xl p-4 shadow-sm">
               {activeTab === "profile" && (
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
+                  <h2 className="text-lg font-semibold text-black dark:text-white mb-4">
                     Profile Information
                   </h2>
 
@@ -668,10 +668,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                       {formData.lastName.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-neutral-100">
+                      <h3 className="font-medium text-black dark:text-white">
                         {formData.firstName} {formData.lastName}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-2">{formData.email}</p>
+                      <p className="text-black dark:text-white mb-2">{formData.email}</p>
                       <button className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium">
                         <Camera className="w-4 h-4 mr-1" aria-hidden="true" />
                         Change Photo
@@ -682,7 +682,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   {/* Form Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
-                      <label htmlFor="profileFirstName" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      <label htmlFor="profileFirstName" className="block text-sm font-medium text-black dark:text-white mb-2">
                         First Name
                       </label>
                       <input
@@ -708,7 +708,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                     </div>
 
                     <div>
-                      <label htmlFor="profileLastName" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      <label htmlFor="profileLastName" className="block text-sm font-medium text-black dark:text-white mb-2">
                         Last Name
                       </label>
                       <input
@@ -732,7 +732,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                     </div>
 
                     <div>
-                      <label htmlFor="profileEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      <label htmlFor="profileEmail" className="block text-sm font-medium text-black dark:text-white mb-2">
                         Email Address
                       </label>
                       <input
@@ -756,7 +756,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                     </div>
 
                     <div>
-                      <label htmlFor="profilePhone" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      <label htmlFor="profilePhone" className="block text-sm font-medium text-black dark:text-white mb-2">
                         Phone Number
                       </label>
                       <input
@@ -794,18 +794,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
 
               {activeTab === "security" && (
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
+                  <h2 className="text-lg font-semibold text-black dark:text-white mb-4">
                     Security Settings
                   </h2>
 
                   {/* Change Password */}
                   <div className="mb-6">
-                    <h3 className="text-base font-medium text-gray-900 dark:text-neutral-100 mb-4">
+                    <h3 className="text-base font-medium text-black dark:text-white mb-4">
                       Change Password
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        <label htmlFor="currentPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
                           Current Password
                         </label>
                         <input
@@ -831,7 +831,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                       </div>
 
                       <div>
-                        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        <label htmlFor="newPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
                           New Password
                         </label>
                         <input
@@ -857,7 +857,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                       </div>
 
                       <div>
-                        <label htmlFor="profileConfirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        <label htmlFor="profileConfirmPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
                           Confirm New Password
                         </label>
                         <input
@@ -893,12 +893,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
 
                   {/* Change Transaction PIN */}
                   <div>
-                    <h3 className="text-base font-medium text-gray-900 dark:text-neutral-100 mb-4">
+                    <h3 className="text-base font-medium text-black dark:text-white mb-4">
                       Change Transaction PIN
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label htmlFor="transactionPin" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        <label htmlFor="transactionPin" className="block text-sm font-medium text-black dark:text-white mb-2">
                           New Transaction PIN
                         </label>
                         <input
@@ -950,10 +950,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="w-8 h-8 text-blue-600" aria-hidden="true" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-2">
                 Complete Your Basic Information
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
+              <p className="text-black dark:text-white mb-4">
                 Add your billing info, home address, and upload an avatar to
                 complete your profile.
               </p>
@@ -961,7 +961,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
             <form className="space-y-3">
               {/* Avatar Upload */}
               <div className="flex flex-col items-center mb-4">
-                <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <label htmlFor="avatar" className="block text-sm font-medium text-black dark:text-white mb-2">
                   Avatar
                 </label>
                 <input
@@ -986,7 +986,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
               {/* Billing Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="billingStreet" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="billingStreet" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Billing Street
                   </label>
                   <input
@@ -1011,7 +1011,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   )}
                 </div>
                 <div>
-                  <label htmlFor="billingCity" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="billingCity" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Billing City
                   </label>
                   <input
@@ -1036,7 +1036,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   )}
                 </div>
                 <div>
-                  <label htmlFor="billingState" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="billingState" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Billing State
                   </label>
                   <input
@@ -1061,7 +1061,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   )}
                 </div>
                 <div>
-                  <label htmlFor="billingCountry" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="billingCountry" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Billing Country
                   </label>
                   <input
@@ -1089,7 +1089,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
               {/* Home Address */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="homeStreet" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="homeStreet" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Home Street
                   </label>
                   <input
@@ -1114,7 +1114,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   )}
                 </div>
                 <div>
-                  <label htmlFor="homeCity" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="homeCity" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Home City
                   </label>
                   <input
@@ -1139,7 +1139,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   )}
                 </div>
                 <div>
-                  <label htmlFor="homeState" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="homeState" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Home State
                   </label>
                   <input
@@ -1164,7 +1164,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                   )}
                 </div>
                 <div>
-                  <label htmlFor="homeZip" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label htmlFor="homeZip" className="block text-sm font-medium text-black dark:text-white mb-1">
                     Home Zip/Postal Code
                   </label>
                   <input
@@ -1193,7 +1193,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
                 <button
                   type="button"
                   onClick={() => setShowBasicInfoModal(false)}
-                  className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+                  className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1217,17 +1217,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-8 h-8 text-red-600" aria-hidden="true" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+              <h2 className="text-lg font-bold text-black dark:text-white mb-2">
                 Confirm Logout
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
+              <p className="text-black dark:text-white mb-4">
                 Are you sure you want to logout?
               </p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleCancelLogout}
-                className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+                className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </button>

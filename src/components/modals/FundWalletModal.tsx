@@ -87,7 +87,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100">Fund Wallet</h2>
+          <h2 className="text-lg font-bold text-black dark:text-white">Fund Wallet</h2>
           <button
             onClick={onClose}
             aria-label="Close modal"
@@ -101,7 +101,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
           <div className="p-4">
             {/* Amount Input */}
             <div className="mb-4">
-              <label htmlFor="fundAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label htmlFor="fundAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
                 Enter Amount
               </label>
               <input
@@ -123,7 +123,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
 
             {/* Quick Amount Buttons */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-black dark:text-white mb-2">
                 Quick Select
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
@@ -145,7 +145,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
 
             {/* Payment Methods */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-sm font-medium text-black dark:text-white mb-2">
                 Payment Method
               </label>
               <div className="space-y-3">
@@ -166,8 +166,8 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
                           <IconComponent className="w-6 h-6" aria-hidden="true" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-neutral-100">{method.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">{method.description}</p>
+                          <p className="font-medium text-black dark:text-white">{method.name}</p>
+                          <p className="text-sm text-black dark:text-white">{method.description}</p>
                         </div>
                       </div>
                     </button>
@@ -195,23 +195,23 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CreditCard className="w-8 h-8 text-blue-600" aria-hidden="true" />
               </div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-neutral-100 mb-2">Confirm Payment</h3>
-              <p className="text-gray-600 dark:text-gray-300">Review your funding details</p>
+              <h3 className="text-base font-bold text-black dark:text-white mb-2">Confirm Payment</h3>
+              <p className="text-black dark:text-white">Review your funding details</p>
             </div>
 
             <div className="space-y-3 mb-4">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Amount</span>
+                <span className="text-black dark:text-white">Amount</span>
                 <span className="font-medium">₦{Number(amount).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Payment Method</span>
+                <span className="text-black dark:text-white">Payment Method</span>
                 <span className="font-medium">
                   {paymentMethods.find(m => m.id === selectedMethod)?.name}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Processing Fee</span>
+                <span className="text-black dark:text-white">Processing Fee</span>
                 <span className="font-medium">₦0.00</span>
               </div>
               <hr className="dark:border-dark-700" />
@@ -243,8 +243,8 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
-            <h3 className="text-base font-bold text-gray-900 dark:text-neutral-100 mb-2">Payment Successful!</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <h3 className="text-base font-bold text-black dark:text-white mb-2">Payment Successful!</h3>
+            <p className="text-black dark:text-white mb-4">
               Your wallet has been funded with ₦{Number(amount).toLocaleString()}
             </p>
             <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>

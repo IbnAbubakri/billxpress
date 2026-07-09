@@ -169,8 +169,8 @@ const TransactionManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">Transaction Management</h1>
-          <p className="text-neutral-600 dark:text-gray-300 mt-1">Monitor and manage all platform transactions</p>
+          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">Transaction Management</h1>
+          <p className="text-black dark:text-white mt-1">Monitor and manage all platform transactions</p>
         </div>
         <div className="flex items-center space-x-3">
           <select
@@ -209,8 +209,8 @@ const TransactionManagement: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">{stat.title}</p>
-                <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{stat.value}</p>
+                <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>
+                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                 stat.color === 'primary' ? 'bg-primary-500' :
@@ -227,7 +227,7 @@ const TransactionManagement: React.FC = () => {
       {/* Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" aria-hidden="true" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black dark:text-white w-5 h-5" aria-hidden="true" />
           <input
             type="text"
             placeholder="Search by user, service, or reference..."
@@ -270,13 +270,13 @@ const TransactionManagement: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Transaction</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Service</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Transaction</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">User</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Service</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Date</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -292,24 +292,24 @@ const TransactionManagement: React.FC = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <p className="font-medium text-neutral-900 dark:text-neutral-100">{transaction.id}</p>
-                        <p className="text-sm text-neutral-500 dark:text-gray-300">{transaction.reference}</p>
+                        <p className="font-medium text-black dark:text-white">{transaction.id}</p>
+                        <p className="text-sm text-black dark:text-white">{transaction.reference}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <p className="font-medium text-neutral-900 dark:text-neutral-100">{transaction.user_name}</p>
-                        <p className="text-sm text-neutral-500 dark:text-gray-300">{transaction.user_email}</p>
+                        <p className="font-medium text-black dark:text-white">{transaction.user_name}</p>
+                        <p className="text-sm text-black dark:text-white">{transaction.user_email}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <ServiceIcon className={`w-5 h-5 ${getServiceColor(transaction.service_type)}`} aria-hidden="true" />
-                        <span className="text-sm text-neutral-900 dark:text-neutral-100">{transaction.service}</span>
+                        <span className="text-sm text-black dark:text-white">{transaction.service}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      <span className="text-sm font-medium text-black dark:text-white">
                         ₦{transaction.amount.toLocaleString()}
                       </span>
                     </td>
@@ -321,10 +321,10 @@ const TransactionManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <p className="text-sm text-neutral-900 dark:text-neutral-100">
+                        <p className="text-sm text-black dark:text-white">
                           {new Date(transaction.created_at).toLocaleDateString()}
                         </p>
-                        <p className="text-xs text-neutral-500 dark:text-gray-300">
+                        <p className="text-xs text-black dark:text-white">
                           {new Date(transaction.created_at).toLocaleTimeString()}
                         </p>
                       </div>
@@ -358,11 +358,11 @@ const TransactionManagement: React.FC = () => {
           >
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-ginto font-semibold text-neutral-900 dark:text-neutral-100">Transaction Details</h3>
+                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white">Transaction Details</h3>
                 <button
                   onClick={() => setShowTransactionModal(false)}
                   aria-label="Close modal"
-                  className="p-2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300 rounded-lg transition-colors"
+                  className="p-2 text-black dark:text-white hover:text-black dark:hover:text-white rounded-lg transition-colors"
                 >
                   <XCircle className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -377,8 +377,8 @@ const TransactionManagement: React.FC = () => {
                     'aria-hidden': 'true'
                   })}
                   <div>
-                    <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{selectedTransaction.service}</h4>
-                    <p className="text-neutral-600 dark:text-gray-300">{selectedTransaction.id}</p>
+                    <h4 className="text-base font-semibold text-black dark:text-white">{selectedTransaction.service}</h4>
+                    <p className="text-black dark:text-white">{selectedTransaction.id}</p>
                   </div>
                 </div>
                 <span className={`inline-flex items-center space-x-1 px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(selectedTransaction.status)}`}>
@@ -389,8 +389,8 @@ const TransactionManagement: React.FC = () => {
 
               {/* Amount */}
               <div className="bg-neutral-50 dark:bg-dark-800 rounded-xl p-4">
-                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300 mb-1">Transaction Amount</p>
-                <p className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">
+                <p className="text-sm font-medium text-black dark:text-white mb-1">Transaction Amount</p>
+                <p className="text-2xl font-ginto font-bold text-black dark:text-white">
                   ₦{selectedTransaction.amount.toLocaleString()}
                 </p>
               </div>
@@ -399,26 +399,26 @@ const TransactionManagement: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-neutral-600 dark:text-gray-300 mb-1">User Information</p>
-                    <p className="text-neutral-900 dark:text-neutral-100">{selectedTransaction.user_name}</p>
-                    <p className="text-sm text-neutral-600 dark:text-gray-300">{selectedTransaction.user_email}</p>
+                    <p className="text-sm font-medium text-black dark:text-white mb-1">User Information</p>
+                    <p className="text-black dark:text-white">{selectedTransaction.user_name}</p>
+                    <p className="text-sm text-black dark:text-white">{selectedTransaction.user_email}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-neutral-600 dark:text-gray-300 mb-1">Reference</p>
-                    <p className="text-neutral-900 dark:text-neutral-100 font-mono text-sm">{selectedTransaction.reference}</p>
+                    <p className="text-sm font-medium text-black dark:text-white mb-1">Reference</p>
+                    <p className="text-black dark:text-white font-mono text-sm">{selectedTransaction.reference}</p>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-neutral-600 dark:text-gray-300 mb-1">Created At</p>
-                    <p className="text-neutral-900 dark:text-neutral-100">
+                    <p className="text-sm font-medium text-black dark:text-white mb-1">Created At</p>
+                    <p className="text-black dark:text-white">
                       {new Date(selectedTransaction.created_at).toLocaleString()}
                     </p>
                   </div>
                   {selectedTransaction.completed_at && (
                     <div>
-                      <p className="text-sm font-medium text-neutral-600 dark:text-gray-300 mb-1">Completed At</p>
-                      <p className="text-neutral-900 dark:text-neutral-100">
+                      <p className="text-sm font-medium text-black dark:text-white mb-1">Completed At</p>
+                      <p className="text-black dark:text-white">
                         {new Date(selectedTransaction.completed_at).toLocaleString()}
                       </p>
                     </div>

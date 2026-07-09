@@ -57,14 +57,14 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
         <div className="flex items-start justify-between mb-2 gap-3">
         <div className="min-w-0">
           <h2 className="text-base md:text-xl font-medium text-secondary">Complete your profile setup</h2>
-          <span className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Finish setting up your account to enjoy BillXpress fully</span>
+          <span className="text-xs md:text-sm text-black dark:text-white">Finish setting up your account to enjoy BillXpress fully</span>
         </div>
         <span className="text-sm font-bold text-secondary flex-shrink-0">{percent}% complete</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
         <div className="bg-secondary h-2 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
       </div>
-      <button className="text-xs text-gray-500 dark:text-gray-300 hover:underline mb-4" onClick={() => setCollapsed((p) => !p)}>
+      <button className="text-xs text-black dark:text-white hover:underline mb-4" onClick={() => setCollapsed((p) => !p)}>
         {collapsed ? 'Show more' : 'Show less'}
       </button>
       {!collapsed && (
@@ -80,7 +80,7 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-secondary">{step.label}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">{step.description}</div>
+                <div className="text-sm text-black dark:text-white">{step.description}</div>
               </div>
               <div className={step.completed ? 'text-green-500' : 'text-gray-300'}>
                 {step.completed ? (
@@ -117,11 +117,11 @@ function EmailVerifyModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalWrapper title="Verify Email" onClose={onClose}>
-      <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">Enter your email address to verify.</p>
+      <p className="text-black dark:text-white mb-4 text-center">Enter your email address to verify.</p>
       <input id="verifyEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`w-full px-4 py-2 border rounded-xl mb-2 ${error ? 'border-red-500' : 'border-gray-300'}`} placeholder="Email address" aria-invalid={!!error} aria-describedby={error ? 'verifyEmail-error' : undefined} />
       {error && <p id="verifyEmail-error" className="text-red-500 text-xs mb-2">{error}</p>}
       <div className="flex gap-3 mt-4">
-        <button onClick={onClose} className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium hover:bg-gray-300">Cancel</button>
+        <button onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300">Cancel</button>
         <button onClick={handleSend} className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium hover:bg-opacity-90">Send Verification</button>
       </div>
       {sent && <p className="text-green-600 text-center mt-4">Verification email sent!</p>}
@@ -148,26 +148,26 @@ function BasicInfoModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalWrapper title="Complete Your Basic Information" onClose={onClose}>
-      <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">Add your billing info and home address.</p>
+      <p className="text-black dark:text-white mb-4 text-center">Add your billing info and home address.</p>
       <form onSubmit={handleSave} className="space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(['billingStreet', 'billingCity', 'billingState', 'billingCountry'] as const).map((f) => (
             <div key={f}>
-              <label htmlFor={f} className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 capitalize">{f.replace('billing', 'Billing ')}</label>
+              <label htmlFor={f} className="block text-sm font-medium text-black dark:text-white mb-1 capitalize">{f.replace('billing', 'Billing ')}</label>
               <input id={f} type="text" value={info[f]} onChange={(e) => handleChange(f, e.target.value)} className={`w-full px-4 py-2 border rounded-xl ${errors[f] ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors[f]} aria-describedby={errors[f] ? `${f}-error` : undefined} />
               {errors[f] && <p id={`${f}-error`} className="text-red-500 text-xs mt-1">{errors[f]}</p>}
             </div>
           ))}
           {(['homeStreet', 'homeCity', 'homeState', 'homeZip'] as const).map((f) => (
             <div key={f}>
-              <label htmlFor={f} className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 capitalize">{f.replace('home', 'Home ')}</label>
+              <label htmlFor={f} className="block text-sm font-medium text-black dark:text-white mb-1 capitalize">{f.replace('home', 'Home ')}</label>
               <input id={f} type="text" value={info[f]} onChange={(e) => handleChange(f, e.target.value)} className={`w-full px-4 py-2 border rounded-xl ${errors[f] ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors[f]} aria-describedby={errors[f] ? `${f}-error` : undefined} />
               {errors[f] && <p id={`${f}-error`} className="text-red-500 text-xs mt-1">{errors[f]}</p>}
             </div>
           ))}
         </div>
         <div className="flex gap-3 mt-6">
-          <button type="button" onClick={onClose} className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium">Cancel</button>
+          <button type="button" onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium">Cancel</button>
           <button type="submit" className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium">Save</button>
         </div>
       </form>
@@ -187,11 +187,11 @@ function BVNModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalWrapper title="Link BVN" onClose={onClose}>
-      <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">Enter your BVN to link your account for withdrawals.</p>
+      <p className="text-black dark:text-white mb-4 text-center">Enter your BVN to link your account for withdrawals.</p>
       <input id="bvnField" type="text" value={bvn} onChange={(e) => setBvn(e.target.value)} className={`w-full px-4 py-2 border rounded-xl mb-2 ${error ? 'border-red-500' : 'border-gray-300'}`} placeholder="Enter BVN" maxLength={11} aria-invalid={!!error} aria-describedby={error ? 'bvnField-error' : undefined} />
       {error && <p id="bvnField-error" className="text-red-500 text-xs mb-2">{error}</p>}
       <div className="flex gap-3 mt-4">
-        <button onClick={onClose} className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium">Cancel</button>
+        <button onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium">Cancel</button>
         <button onClick={handleVerify} className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium">Verify BVN</button>
       </div>
     </ModalWrapper>
@@ -217,17 +217,17 @@ function BankDetailsModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalWrapper title="Add Bank Details" onClose={onClose}>
-      <p className="text-gray-600 dark:text-gray-300 mb-4 text-center">Enter your bank account details.</p>
+      <p className="text-black dark:text-white mb-4 text-center">Enter your bank account details.</p>
       <form onSubmit={handleSave} className="space-y-3">
         {(['accountNumber', 'bankName', 'accountName'] as const).map((f) => (
           <div key={f}>
-            <label htmlFor={f} className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 capitalize">{f.replace(/([A-Z])/g, ' $1')}</label>
+            <label htmlFor={f} className="block text-sm font-medium text-black dark:text-white mb-1 capitalize">{f.replace(/([A-Z])/g, ' $1')}</label>
             <input id={f} type="text" value={details[f]} onChange={(e) => handleChange(f, e.target.value)} className={`w-full px-4 py-2 border rounded-xl ${errors[f] ? 'border-red-500' : 'border-gray-300'}`} maxLength={f === 'accountNumber' ? 10 : undefined} aria-invalid={!!errors[f]} aria-describedby={errors[f] ? `${f}-error` : undefined} />
             {errors[f] && <p id={`${f}-error`} className="text-red-500 text-xs mt-1">{errors[f]}</p>}
           </div>
         ))}
         <div className="flex gap-3 mt-6">
-          <button type="button" onClick={onClose} className="w-1/2 bg-gray-200 text-gray-700 dark:text-gray-200 py-3 rounded-2xl font-medium">Cancel</button>
+          <button type="button" onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium">Cancel</button>
           <button type="submit" className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium">Save</button>
         </div>
       </form>
@@ -246,7 +246,7 @@ function ModalWrapper({ title, children, onClose }: { title: string; children: R
         className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2 text-center">{title}</h2>
+        <h2 className="text-lg font-bold text-black dark:text-white mb-2 text-center">{title}</h2>
         {children}
       </div>
     </div>

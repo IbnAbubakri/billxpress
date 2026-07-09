@@ -142,10 +142,10 @@ const Analytics: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">
             Analytics Dashboard
           </h1>
-          <p className="text-neutral-600 dark:text-gray-300 mt-1">
+          <p className="text-black dark:text-white mt-1">
             Comprehensive insights into your VTU platform
           </p>
         </div>
@@ -211,10 +211,10 @@ const Analytics: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">
+                <p className="text-sm font-medium text-black dark:text-white">
                   {metric.title}
                 </p>
-                <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">
+                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">
                   {metric.value}
                 </p>
                 <p className="text-sm text-success-600 font-medium mt-1">
@@ -247,7 +247,7 @@ const Analytics: React.FC = () => {
         className="chart-container"
       >
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4">
-          <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 className="text-base font-ginto font-semibold text-black dark:text-white">
             Performance Overview
           </h3>
           <div className="flex items-center space-x-2">
@@ -320,7 +320,7 @@ const Analytics: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="chart-container"
         >
-          <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">
             Service Performance
           </h3>
           <div className="space-y-3">
@@ -330,10 +330,10 @@ const Analytics: React.FC = () => {
                 className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl"
               >
                 <div className="flex-1">
-                  <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                  <p className="font-medium text-black dark:text-white">
                     {service.service}
                   </p>
-                  <p className="text-sm text-neutral-600 dark:text-gray-300">
+                  <p className="text-sm text-black dark:text-white">
                     ₦{service.revenue.toLocaleString()} • {service.transactions}{" "}
                     transactions
                   </p>
@@ -355,7 +355,7 @@ const Analytics: React.FC = () => {
           transition={{ delay: 0.4 }}
           className="chart-container"
         >
-          <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">
             User Growth
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -384,7 +384,7 @@ const Analytics: React.FC = () => {
         transition={{ delay: 0.5 }}
         className="chart-container"
       >
-        <h3 className="text-base font-ginto font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+        <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">
           Regional Distribution
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -419,11 +419,11 @@ const Analytics: React.FC = () => {
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: region.color }}
                   ></div>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                  <span className="font-medium text-black dark:text-white">
                     {region.name}
                   </span>
                 </div>
-                <span className="text-neutral-600 dark:text-gray-300">{region.value}%</span>
+                <span className="text-black dark:text-white">{region.value}%</span>
               </div>
             ))}
           </div>

@@ -174,10 +174,10 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
               <RefreshCw className="w-5 h-5 text-green-600" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-black dark:text-white">
                 Airtime to Cash
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-black dark:text-white">
                 Convert your airtime to cash instantly
               </p>
             </div>
@@ -187,7 +187,7 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
         <div className="max-w-md mx-auto">
           {/* Phone Number Input */}
           <div className="mb-4">
-            <label htmlFor="airtimeToCashPhone" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="airtimeToCashPhone" className="block text-sm font-medium text-black dark:text-white mb-2">
               Phone Number
             </label>
             <input
@@ -209,7 +209,7 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
 
           {/* Network Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Network
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -229,7 +229,7 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
                     className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow"
                   />
                   <p className="font-medium text-sm">{network.name}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">
+                  <p className="text-xs text-black dark:text-white">
                     {(network.rate * 100).toFixed(0)}% rate
                   </p>
                 </button>
@@ -242,7 +242,7 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
 
           {/* Amount Input */}
           <div className="mb-4">
-            <label htmlFor="airtimeToCashAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label htmlFor="airtimeToCashAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
               Airtime Amount (₦100 - ₦50,000)
             </label>
             <input
@@ -267,13 +267,13 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
             <div className="mb-4 p-4 bg-green-50 rounded-2xl border border-green-200">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">You will receive:</p>
+                  <p className="text-sm text-black dark:text-white">You will receive:</p>
                   <p className="text-xl font-bold text-green-600">
                     ₦{creditedAmount.toLocaleString()}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Rate:</p>
+                  <p className="text-sm text-black dark:text-white">Rate:</p>
                   <p className="font-medium">
                     {(selectedNetworkData.rate * 100).toFixed(0)}%
                   </p>
@@ -310,33 +310,33 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-2">
+                <h3 className="text-lg font-bold text-black dark:text-white mb-2">
                   Confirm Conversion
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Please review your airtime to cash conversion
                 </p>
               </div>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Network</span>
+                  <span className="text-black dark:text-white">Network</span>
                   <span className="font-medium">
                     {selectedNetworkData.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Phone Number</span>
+                  <span className="text-black dark:text-white">Phone Number</span>
                   <span className="font-medium">{phoneNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Airtime Amount</span>
+                  <span className="text-black dark:text-white">Airtime Amount</span>
                   <span className="font-medium">
                     ₦{Number(amount).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Conversion Rate</span>
+                  <span className="text-black dark:text-white">Conversion Rate</span>
                   <span className="font-medium">
                     {(selectedNetworkData.rate * 100).toFixed(0)}%
                   </span>
@@ -391,14 +391,14 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
                     />
                   </svg>
                 </div>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-black dark:text-white">
                   Are you sure you want to sign out?
                 </p>
               </div>
               <div className="flex space-x-3">
                 <button
                   onClick={handleCancelLogout}
-                  className="flex-1 bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-200 py-3 px-4 rounded-2xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all"
+                  className="flex-1 bg-gray-100 dark:bg-dark-700 text-black dark:text-white py-3 px-4 rounded-2xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all"
                 >
                   Cancel
                 </button>

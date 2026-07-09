@@ -61,10 +61,10 @@ const AdminLogin: React.FC = () => {
           <div className="flex justify-center mb-4">
             <Logo iconOnly />
           </div>
-          <h1 className="text-3xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+          <h1 className="text-3xl font-ginto font-bold text-black dark:text-white mb-2">
             BillXpress
           </h1>
-          <p className="text-neutral-600 dark:text-gray-300 text-base">
+          <p className="text-black dark:text-white text-base">
             Secure access to your VTU dashboard
           </p>
         </motion.div>
@@ -90,7 +90,7 @@ const AdminLogin: React.FC = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-neutral-700 dark:text-gray-200 mb-2"
+                  className="block text-sm font-medium text-black dark:text-white mb-2"
                 >
                   Email Address
                 </label>
@@ -109,7 +109,7 @@ const AdminLogin: React.FC = () => {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-neutral-700 dark:text-gray-200 mb-2"
+                  className="block text-sm font-medium text-black dark:text-white mb-2"
                 >
                   Password
                 </label>
@@ -128,7 +128,7 @@ const AdminLogin: React.FC = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black dark:text-white transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" aria-hidden="true" />
@@ -163,7 +163,7 @@ const AdminLogin: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="mt-6 text-center text-xs text-neutral-500 dark:text-gray-300"
+          className="mt-6 text-center text-xs text-black dark:text-white"
         >
           Protected by enterprise-grade security
         </motion.div>
