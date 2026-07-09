@@ -66,13 +66,7 @@ const TransactionChart: React.FC = () => {
           <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickColor }} />
           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickColor }} tickFormatter={formatYAxis} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? "#1e293b" : "#f1f5f9" }} />
-          <defs>
-            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7C3AED" stopOpacity={1} />
-              <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.7} />
-            </linearGradient>
-          </defs>
-          <Bar dataKey="amount" radius={[6, 6, 0, 0]} maxBarSize={36} fill="url(#barGradient)" />
+          <Bar dataKey="amount" radius={[6, 6, 0, 0]} maxBarSize={36} fill="#7C3AED" />
         </BarChart>
       </ResponsiveContainer>
     </div>
