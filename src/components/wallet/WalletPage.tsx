@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import WalletCard from "../ui/WalletCard";
@@ -48,17 +48,6 @@ const WalletPage: React.FC<WalletPageProps> = ({ user, onLogout }) => {
         <div className="space-y-4">
           {/* Wallet Card */}
           <WalletCard user={user} />
-
-          {/* Account Card */}
-          <div className="bg-white dark:bg-dark-800 rounded-2xl p-4 shadow-sm max-w-xs">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <span className="text-sm font-medium text-black dark:text-white">Account Number</span>
-            </div>
-            <p className="text-base font-semibold text-black dark:text-white">{user?.accountNumber || "—"}</p>
-          </div>
 
           {/* Recent Transactions */}
           <RecentTransactions />

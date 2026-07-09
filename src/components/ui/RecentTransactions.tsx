@@ -2,7 +2,9 @@ import React from 'react';
 import { Wifi, Phone, Zap, Tv, GraduationCap, MoreHorizontal } from 'lucide-react';
 
 const RecentTransactions: React.FC = () => {
-  const transactions = [
+  const [showAll, setShowAll] = React.useState(false);
+
+  const allTransactions = [
     {
       id: 1,
       type: 'Wallet Funding',
@@ -57,8 +59,65 @@ const RecentTransactions: React.FC = () => {
       transactionId: 'BDG15592A50',
       icon: GraduationCap,
       color: 'text-orange-600'
+    },
+    {
+      id: 6,
+      type: 'Data Bundle',
+      amount: 2000.00,
+      status: 'Successful',
+      date: 'Jul 1, 2026',
+      time: '10:05 AM',
+      transactionId: 'BDG78F2K19',
+      icon: Wifi,
+      color: 'text-blue-600'
+    },
+    {
+      id: 7,
+      type: 'Airtime',
+      amount: 200.00,
+      status: 'Successful',
+      date: 'Jun 29, 2026',
+      time: '08:30 PM',
+      transactionId: 'BDG91A47B32',
+      icon: Phone,
+      color: 'text-green-600'
+    },
+    {
+      id: 8,
+      type: 'Wallet Funding',
+      amount: 100000.00,
+      status: 'Successful',
+      date: 'Jun 28, 2026',
+      time: '01:45 PM',
+      transactionId: 'BDG52X8C71',
+      icon: Wifi,
+      color: 'text-blue-600'
+    },
+    {
+      id: 9,
+      type: 'Electricity',
+      amount: 3500.00,
+      status: 'Failed',
+      date: 'Jun 25, 2026',
+      time: '07:15 AM',
+      transactionId: 'BDG63D9E04',
+      icon: Zap,
+      color: 'text-yellow-600'
+    },
+    {
+      id: 10,
+      type: 'DStv Subscription',
+      amount: 8400.00,
+      status: 'Successful',
+      date: 'Jun 21, 2026',
+      time: '03:00 PM',
+      transactionId: 'BDG27H5F88',
+      icon: Tv,
+      color: 'text-purple-600'
     }
   ];
+
+  const transactions = showAll ? allTransactions : allTransactions.slice(0, 5);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -129,8 +188,11 @@ const RecentTransactions: React.FC = () => {
       })}
       
       <div className="p-4 text-center">
-        <button className="text-secondary dark:text-white hover:underline font-medium">
-          View all transactions
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="text-secondary dark:text-white hover:underline font-medium"
+        >
+          {showAll ? 'Show less' : 'View all transactions'}
         </button>
       </div>
     </div>
