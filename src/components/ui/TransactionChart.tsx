@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -38,6 +38,21 @@ const formatYAxis = (value: number) => {
 };
 
 const TransactionChart: React.FC = () => {
+  const [isDark, setIsDark] = useState(
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const tickColor = isDark ? "#cbd5e1" : "#64748b";
+  const cursorFill = isDark ? "#1e293b" : "#f1f5f9";
+
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center text-sm text-black dark:text-white">
@@ -48,9 +63,9 @@ const TransactionChart: React.FC = () => {
       </div>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} barCategoryGap="30%">
-          <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} tickFormatter={formatYAxis} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f1f5f9" }} />
+          <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickColor }} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickColor }} tickFormatter={formatYAxis} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: cursorFill }} />
           <Bar dataKey="amount" fill={colors.primary} radius={[8, 8, 0, 0]} maxBarSize={32} />
         </BarChart>
       </ResponsiveContainer>
