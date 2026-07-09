@@ -108,12 +108,12 @@ const RecentTransactions: React.FC = () => {
                       {transaction.status}
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-1 mt-1 text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center gap-x-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
                     <span>{transaction.date}</span>
-                    <span>•</span>
-                    <span>{transaction.time}</span>
-                    <span>•</span>
-                    <span className="font-mono text-xs">{transaction.transactionId}</span>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="hidden sm:inline">{transaction.time}</span>
+                    <span className="hidden md:inline">•</span>
+                    <span className="hidden md:inline font-mono">{transaction.transactionId}</span>
                   </div>
                 </div>
               </div>

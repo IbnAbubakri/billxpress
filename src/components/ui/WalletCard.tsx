@@ -43,8 +43,8 @@ const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
             </button>
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-2xl lg:text-3xl font-bold mb-1 truncate">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 truncate">
               {showBalance ? `₦${user.balance.toLocaleString()}` : '₦***'}
             </h2>
             <p className="text-white text-opacity-60 text-sm">
@@ -53,19 +53,19 @@ const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-4">
+          <div className="flex gap-3">
             <button
               onClick={() => setShowFundModal(true)}
-              className="flex-1 bg-white dark:bg-dark-800 bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm px-6 py-3 rounded-2xl font-medium transition-all flex items-center justify-center"
+              className="flex-1 bg-white dark:bg-dark-800 bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm px-3 sm:px-6 py-3 rounded-2xl font-medium transition-all flex items-center justify-center text-sm sm:text-base"
             >
-              <Plus className="w-5 h-5 mr-2 flex-shrink-0" aria-hidden="true" />
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 flex-shrink-0" aria-hidden="true" />
               Fund Wallet
             </button>
             <button
               onClick={() => setShowWithdrawModal(true)}
-              className="flex-1 bg-transparent border border-white border-opacity-30 hover:bg-white dark:bg-dark-800 hover:bg-opacity-10 px-6 py-3 rounded-2xl font-medium transition-all flex items-center justify-center"
+              className="flex-1 bg-transparent border border-white border-opacity-30 hover:bg-white dark:bg-dark-800 hover:bg-opacity-10 px-3 sm:px-6 py-3 rounded-2xl font-medium transition-all flex items-center justify-center text-sm sm:text-base"
             >
-              <ArrowUpRight className="w-5 h-5 mr-2 flex-shrink-0" aria-hidden="true" />
+              <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 flex-shrink-0" aria-hidden="true" />
               Withdraw
             </button>
           </div>

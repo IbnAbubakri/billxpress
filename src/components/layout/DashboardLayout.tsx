@@ -9,7 +9,6 @@ import {
   GraduationCap,
   ArrowRightLeft,
   Target,
-  Wallet,
   History,
   User,
   Menu,
@@ -153,7 +152,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
             <div className="flex-shrink-0 flex items-center px-4 mb-4">
               <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center mr-3">
-                <Wallet className="w-5 h-5 text-white" aria-hidden="true" />
+                <span className="text-white font-bold text-base leading-none">X</span>
               </div>
               <span className="text-lg font-bold text-secondary">BillXpress</span>
             </div>
@@ -209,8 +208,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
+        {/* Main content */}
+      <div className="lg:pl-64 flex flex-col min-h-screen overflow-x-hidden">
         {/* Top bar */}
         <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow-sm lg:hidden">
           <button

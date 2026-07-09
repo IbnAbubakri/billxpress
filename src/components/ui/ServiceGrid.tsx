@@ -80,24 +80,24 @@ const ServiceGrid: React.FC = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       {services.map((service) => {
         const Icon = service.icon;
         return (
           <button
             key={service.id}
             onClick={() => navigate(service.path)}
-            className={`bg-white dark:bg-dark-800 rounded-2xl p-4 md:p-4 shadow-sm ${service.hoverColor} transition-all duration-200 hover:shadow-md hover:scale-105 text-left group`}
+            className={`bg-white dark:bg-dark-800 rounded-2xl p-3 sm:p-4 shadow-sm ${service.hoverColor} transition-all duration-200 hover:shadow-md hover:scale-105 text-left group`}
           >
             <div
-              className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${service.color} flex items-center justify-center mb-3 md:mb-4 transition-transform group-hover:scale-110`}
+              className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl ${service.color} flex items-center justify-center mb-2 sm:mb-4 transition-transform group-hover:scale-110`}
             >
-              <Icon className="w-6 h-6" aria-hidden="true" />
+              <Icon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </div>
-            <h3 className="font-semibold text-secondary mb-1">
+            <h3 className="font-semibold text-secondary text-sm sm:text-base mb-1">
               {service.title}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{service.description}</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-tight sm:leading-normal">{service.description}</p>
           </button>
         );
       })}

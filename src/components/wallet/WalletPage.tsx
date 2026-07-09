@@ -40,8 +40,8 @@ const WalletPage: React.FC<WalletPageProps> = ({ user, onLogout }) => {
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-neutral-100">Wallet</h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-neutral-100">Wallet</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
               Manage your funds and view transaction history
             </p>
           </div>
