@@ -129,7 +129,7 @@ const RecentTransactions: React.FC = () => {
       })}
       
       <div className="p-4 text-center">
-        <button className="text-secondary hover:underline font-medium">
+        <button className="text-secondary dark:text-white hover:underline font-medium">
           View all transactions
         </button>
       </div>

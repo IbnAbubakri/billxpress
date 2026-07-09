@@ -57,7 +57,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             <div className="flex justify-center mb-4">
               <Logo iconOnly />
             </div>
-            <h2 className="text-xl font-bold text-secondary">Welcome Back</h2>
+            <h2 className="text-xl font-bold text-secondary dark:text-white">Welcome Back</h2>
             <p className="text-black dark:text-white mt-2">Sign in to your BillXpress account</p>
           </div>
 
@@ -107,10 +107,10 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-<input id="remember-me" type="checkbox" className="h-4 w-4 text-secondary focus:ring-secondary border-gray-300 dark:border-dark-700 rounded" />
+<input id="remember-me" type="checkbox" className="h-4 w-4 text-secondary dark:text-white focus:ring-secondary border-gray-300 dark:border-dark-700 rounded" />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-black dark:text-white">Remember me</label>
               </div>
-              <Link to="/reset-password" className="text-sm text-secondary hover:underline font-medium">Forgot password?</Link>
+              <Link to="/reset-password" className="text-sm text-secondary dark:text-white hover:underline font-medium">Forgot password?</Link>
             </div>
 
             <button
@@ -130,7 +130,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
           <div className="mt-8 text-center">
             <p className="text-black dark:text-white">
               Don't have an account?{' '}
-              <Link to="/register" className="text-secondary hover:underline font-medium">Sign up</Link>
+              <Link to="/register" className="text-secondary dark:text-white hover:underline font-medium">Sign up</Link>
             </p>
           </div>
         </div>

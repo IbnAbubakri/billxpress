@@ -54,7 +54,7 @@ const SpendingChart: React.FC = () => {
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
-              <div className="text-base font-bold text-secondary">
+              <div className="text-base font-bold text-secondary dark:text-white">
                 ₦{total.toLocaleString()}
               </div>
               <div className="text-xs text-black dark:text-white">Total</div>
@@ -74,7 +74,7 @@ const SpendingChart: React.FC = () => {
               <span className="text-sm text-black dark:text-white truncate max-w-[120px] md:max-w-[200px]">{item.label}</span>
             </div>
             <div className="text-right">
-              <div className="text-sm font-medium text-secondary">
+              <div className="text-sm font-medium text-secondary dark:text-white">
                 ₦{item.amount.toLocaleString()}
               </div>
             </div>

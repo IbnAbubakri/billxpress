@@ -84,14 +84,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     onClick={() => navigate(item.path)}
                     className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
                       isActive(item.path)
-                        ? "bg-primary text-secondary shadow-sm"
+                        ? "bg-primary text-secondary dark:text-white shadow-sm"
                         : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
                     }`}
                   >
                     <Icon
                       className={`mr-3 h-5 w-5 flex-shrink-0 ${
                         isActive(item.path)
-                          ? "text-secondary"
+                          ? "text-secondary dark:text-white"
                           : "text-black dark:text-white group-hover:text-secondary"
                       }`}
                       aria-hidden="true"
@@ -155,7 +155,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center mr-3">
                 <span className="text-white font-bold text-base leading-none">X</span>
               </div>
-              <span className="text-lg font-bold text-secondary">BillXpress</span>
+              <span className="text-lg font-bold text-secondary dark:text-white">BillXpress</span>
             </div>
             <nav className="px-2 space-y-1">
               {navigationItems.map((item) => {
@@ -169,14 +169,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     }}
                     className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
                       isActive(item.path)
-                        ? "bg-primary text-secondary shadow-sm"
+                        ? "bg-primary text-secondary dark:text-white shadow-sm"
                         : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
                     }`}
                   >
                     <Icon
                       className={`mr-3 h-5 w-5 flex-shrink-0 ${
                         isActive(item.path)
-                          ? "text-secondary"
+                          ? "text-secondary dark:text-white"
                           : "text-black dark:text-white group-hover:text-secondary"
                       }`}
                       aria-hidden="true"
@@ -222,7 +222,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </button>
           <div className="flex-1 px-4 flex justify-between">
             <div className="flex-1 flex items-center">
-              <h1 className="text-base font-semibold text-secondary">
+              <h1 className="text-base font-semibold text-secondary dark:text-white">
                 {navigationItems.find((item) => item.path === location.pathname)
                   ?.label || "Dashboard"}
               </h1>
@@ -248,12 +248,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={`flex-1 flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
-                    isActive(item.path) ? "text-secondary" : "text-black dark:text-white"
+                    isActive(item.path) ? "text-secondary dark:text-white" : "text-black dark:text-white"
                   }`}
                 >
                   <Icon
                     className={`h-5 w-5 mb-1 ${
-                      isActive(item.path) ? "text-secondary" : "text-black dark:text-white"
+                      isActive(item.path) ? "text-secondary dark:text-white" : "text-black dark:text-white"
                     }`}
                     aria-hidden="true"
                   />

@@ -371,7 +371,7 @@ const AirtimeToCashPage: React.FC<AirtimeToCashPageProps> = ({
           <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-dark-900/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-secondary">Sign Out</h2>
+                <h2 className="text-lg font-bold text-secondary dark:text-white">Sign Out</h2>
               </div>
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">

@@ -10,7 +10,7 @@ const LoadingScreen: React.FC = () => {
           </div>
           <div className="absolute inset-0 w-14 h-14 sm:w-20 sm:h-20 mx-auto border-4 border-transparent border-t-secondary rounded-2xl animate-spin"></div>
         </div>
-        <h2 className="text-lg sm:text-xl font-bold text-secondary mb-1 sm:mb-2">BillXpress</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-secondary dark:text-white mb-1 sm:mb-2">BillXpress</h2>
         <p className="text-sm sm:text-base text-black dark:text-white">Loading your dashboard...</p>
       </div>
     </div>

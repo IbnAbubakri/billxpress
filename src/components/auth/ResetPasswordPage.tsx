@@ -66,7 +66,7 @@ const ResetPasswordPage = () => {
               <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Wallet className="w-8 h-8 text-white" aria-hidden="true" />
               </div>
-              <h2 className="text-xl font-bold text-secondary">Set New Password</h2>
+              <h2 className="text-xl font-bold text-secondary dark:text-white">Set New Password</h2>
               <p className="text-black dark:text-white mt-2">Enter your new password</p>
             </div>
             <form onSubmit={handleNewPassword} className="space-y-4">
@@ -119,14 +119,14 @@ const ResetPasswordPage = () => {
             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Mail className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
-            <h2 className="text-xl font-bold text-secondary mb-4">Check Your Email</h2>
+            <h2 className="text-xl font-bold text-secondary dark:text-white mb-4">Check Your Email</h2>
             <p className="text-black dark:text-white mb-4">
               We've sent a password reset link to <strong>{email}</strong>
             </p>
             <p className="text-sm text-black dark:text-white mb-6">
               Didn't receive the email? Check your spam folder or try again.
             </p>
-            <Link to="/login" className="inline-flex items-center text-secondary hover:underline font-medium">
+            <Link to="/login" className="inline-flex items-center text-secondary dark:text-white hover:underline font-medium">
               <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" /> Back to Sign In
             </Link>
           </div>
@@ -143,7 +143,7 @@ const ResetPasswordPage = () => {
             <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Wallet className="w-8 h-8 text-white" aria-hidden="true" />
             </div>
-            <h2 className="text-xl font-bold text-secondary">Reset Password</h2>
+            <h2 className="text-xl font-bold text-secondary dark:text-white">Reset Password</h2>
             <p className="text-black dark:text-white mt-2">Enter your email to receive a reset link</p>
           </div>
 
@@ -184,7 +184,7 @@ const ResetPasswordPage = () => {
           </form>
 
           <div className="mt-8 text-center">
-            <Link to="/login" className="inline-flex items-center text-secondary hover:underline font-medium">
+            <Link to="/login" className="inline-flex items-center text-secondary dark:text-white hover:underline font-medium">
               <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" /> Back to Sign In
             </Link>
           </div>

@@ -24,7 +24,7 @@ function StepIcon({ icon, className }: { icon: string; className?: string }) {
   if (!paths) return null;
 
   return (
-    <svg className={`w-6 h-6 ${className || 'text-secondary'}`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className={`w-6 h-6 ${className || 'text-secondary dark:text-white'}`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
       {paths.split(' M').map((d, i) => (
         <path key={i} d={i === 0 ? d : `M${d}`} />
       ))}
@@ -56,10 +56,10 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
     <div className="mb-6 w-full bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4">
         <div className="flex items-start justify-between mb-2 gap-3">
         <div className="min-w-0">
-          <h2 className="text-base md:text-xl font-medium text-secondary">Complete your profile setup</h2>
+          <h2 className="text-base md:text-xl font-medium text-secondary dark:text-white">Complete your profile setup</h2>
           <span className="text-xs md:text-sm text-black dark:text-white">Finish setting up your account to enjoy BillXpress fully</span>
         </div>
-        <span className="text-sm font-bold text-secondary flex-shrink-0">{percent}% complete</span>
+        <span className="text-sm font-bold text-secondary dark:text-white flex-shrink-0">{percent}% complete</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
         <div className="bg-secondary h-2 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
@@ -79,7 +79,7 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
                 <StepIcon icon={step.icon} />
               </div>
               <div className="flex-1">
-                <div className="font-semibold text-secondary">{step.label}</div>
+                <div className="font-semibold text-secondary dark:text-white">{step.label}</div>
                 <div className="text-sm text-black dark:text-white">{step.description}</div>
               </div>
               <div className={step.completed ? 'text-green-500' : 'text-gray-300'}>

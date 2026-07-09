@@ -91,7 +91,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
         className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4"
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-secondary">
+          <h2 className="text-xl font-bold text-secondary dark:text-white">
             {step === 1 ? "Set Transaction PIN" : "Confirm PIN"}
           </h2>
           <button onClick={onClose} aria-label="Close modal" className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-colors">
@@ -101,7 +101,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
 
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-secondary" aria-hidden="true" />
+            <Lock className="w-8 h-8 text-secondary dark:text-white" aria-hidden="true" />
           </div>
           <p className="text-black dark:text-white">
             {step === 1 ? "Create a 4-digit PIN to secure your transactions" : "Re-enter your PIN to confirm"}

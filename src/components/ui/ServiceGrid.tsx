@@ -94,7 +94,7 @@ const ServiceGrid: React.FC = () => {
             >
               <Icon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </div>
-            <h3 className="font-semibold text-secondary text-sm sm:text-base mb-1">
+            <h3 className="font-semibold text-secondary dark:text-white text-sm sm:text-base mb-1">
               {service.title}
             </h3>
             <p className="text-xs sm:text-sm text-black dark:text-white leading-tight sm:leading-normal">{service.description}</p>

@@ -47,24 +47,24 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-lg font-bold text-secondary mb-4">Quick Services</h2>
+          <h2 className="text-lg font-bold text-secondary dark:text-white mb-4">Quick Services</h2>
           <ServiceGrid />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 md:p-4">
-            <h3 className="text-base font-semibold text-secondary mb-4">Daily Transactions</h3>
+            <h3 className="text-base font-semibold text-secondary dark:text-white mb-4">Daily Transactions</h3>
             <TransactionChart />
           </div>
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 md:p-4">
-            <h3 className="text-base font-semibold text-secondary mb-4">Bill Distribution</h3>
+            <h3 className="text-base font-semibold text-secondary dark:text-white mb-4">Bill Distribution</h3>
             <SpendingChart />
           </div>
         </div>
 
         <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm">
           <div className="p-4 border-b dark:border-dark-700">
-            <h3 className="text-base font-semibold text-secondary">Recent Transactions</h3>
+            <h3 className="text-base font-semibold text-secondary dark:text-white">Recent Transactions</h3>
           </div>
           <RecentTransactions />
         </div>

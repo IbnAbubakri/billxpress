@@ -93,7 +93,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
             <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Wallet className="w-8 h-8 text-white" aria-hidden="true" />
             </div>
-            <h2 className="text-xl font-bold text-secondary">Create Account</h2>
+            <h2 className="text-xl font-bold text-secondary dark:text-white">Create Account</h2>
             <p className="text-black dark:text-white mt-2">Join BillXpress today</p>
           </div>
 
@@ -177,7 +177,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
           <div className="mt-8 text-center">
             <p className="text-black dark:text-white">
               Already have an account?{' '}
-              <Link to="/login" className="text-secondary hover:underline font-medium">Sign in</Link>
+              <Link to="/login" className="text-secondary dark:text-white hover:underline font-medium">Sign in</Link>
             </p>
           </div>
         </div>
