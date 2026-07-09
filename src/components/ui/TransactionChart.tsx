@@ -7,7 +7,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { colors } from "../../constants/theme";
 
 const data = [
   { day: "Mon", amount: 12350 },
@@ -22,8 +21,11 @@ const data = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-dark-800 border border-neutral-200 rounded-xl shadow-lg px-3 py-2">
-        <p className="text-sm font-medium text-black dark:text-white">{`${label}: ₦${payload[0].value.toLocaleString()}`}</p>
+      <div className="bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl shadow-lg px-3 py-2">
+        <p className="text-xs text-black dark:text-white">{label}</p>
+        <p className="text-sm font-semibold text-black dark:text-white">
+          ₦{payload[0].value.toLocaleString()}
+        </p>
       </div>
     );
   }
@@ -31,9 +33,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const formatYAxis = (value: number) => {
-  if (value >= 1000) {
-    return `₦${(value / 1000).toFixed(0)}k`;
-  }
+  if (value >= 1000) return `₦${(value / 1000).toFixed(0)}k`;
   return `₦${value}`;
 };
 
@@ -50,23 +50,29 @@ const TransactionChart: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  const tickColor = isDark ? "#cbd5e1" : "#64748b";
-  const cursorFill = isDark ? "#1e293b" : "#f1f5f9";
+  const tickColor = isDark ? "#94a3b8" : "#64748b";
+  const total = data.reduce((sum, d) => sum + d.amount, 0);
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center text-sm text-black dark:text-white">
-        <span>This Week</span>
-        <span>
-          ₦{data.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-black dark:text-white">This Week</span>
+        <span className="text-sm font-semibold text-black dark:text-white">
+          ₦{total.toLocaleString()}
         </span>
       </div>
       <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data} barCategoryGap="30%">
+        <BarChart data={data} barCategoryGap="40%">
           <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickColor }} />
           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickColor }} tickFormatter={formatYAxis} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: cursorFill }} />
-          <Bar dataKey="amount" fill={colors.primary} radius={[8, 8, 0, 0]} maxBarSize={32} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? "#1e293b" : "#f1f5f9" }} />
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7C3AED" stopOpacity={1} />
+              <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.7} />
+            </linearGradient>
+          </defs>
+          <Bar dataKey="amount" radius={[6, 6, 0, 0]} maxBarSize={36} fill="url(#barGradient)" />
         </BarChart>
       </ResponsiveContainer>
     </div>
