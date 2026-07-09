@@ -15,6 +15,7 @@ import {
   LogOut,
   Sun,
   Moon,
+  Bell,
 } from "lucide-react";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { Logo } from '../ui/Logo';
@@ -200,6 +201,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
         {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
+        {/* Mobile notification button */}
+        <div className="lg:hidden fixed top-4 right-4 z-30">
+          <button aria-label="Notifications" className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary">
+            <Bell className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
         {/* Page content */}
         <main className="flex-1 pb-20 lg:pb-8">{children}</main>
 
