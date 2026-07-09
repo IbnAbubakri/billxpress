@@ -1,31 +1,41 @@
 import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync } from 'fs';
-import { dirname } from 'path';
+import { dirname, basename } from 'path';
 
 const cache = {};
 
+function resolvePath(path) {
+  if (process.env.VERCEL) {
+    const filename = basename(path);
+    return `/tmp/data/${filename}`;
+  }
+  return path;
+}
+
 export function loadJSON(path, fallback) {
-  if (cache[path] !== undefined) return cache[path];
-  if (!existsSync(path)) { cache[path] = fallback; return fallback; }
+  const resolved = resolvePath(path);
+  if (cache[resolved] !== undefined) return cache[resolved];
+  if (!existsSync(resolved)) { cache[resolved] = fallback; return fallback; }
   try {
-    const data = JSON.parse(readFileSync(path, 'utf-8'));
-    cache[path] = data;
+    const data = JSON.parse(readFileSync(resolved, 'utf-8'));
+    cache[resolved] = data;
     return data;
   } catch {
-    cache[path] = fallback;
+    cache[resolved] = fallback;
     return fallback;
   }
 }
 
 export function saveJSON(path, data) {
-  const dir = dirname(path);
+  const resolved = resolvePath(path);
+  const dir = dirname(resolved);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  const tmp = path + '.tmp.' + process.pid;
+  const tmp = resolved + '.tmp.' + process.pid;
   writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf-8');
-  renameSync(tmp, path);
-  cache[path] = data;
+  renameSync(tmp, resolved);
+  cache[resolved] = data;
 }
 
 export function clearCache(path) {
-  if (path) delete cache[path];
+  if (path) delete cache[resolvePath(path)];
   else Object.keys(cache).forEach((k) => delete cache[k]);
 }
