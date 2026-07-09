@@ -102,7 +102,7 @@ const AdminProfile: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">Admin Profile</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">Manage your account settings and preferences</p>
+          <p className="text-neutral-600 dark:text-gray-300 mt-1">Manage your account settings and preferences</p>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ const AdminProfile: React.FC = () => {
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="flex items-center space-x-2 px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 text-neutral-600 dark:text-gray-300 hover:bg-neutral-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                     <span>Cancel</span>
@@ -153,7 +153,7 @@ const AdminProfile: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{adminData.name}</h4>
-                  <p className="text-neutral-600 dark:text-neutral-400">{adminData.role}</p>
+                  <p className="text-neutral-600 dark:text-gray-300">{adminData.role}</p>
                   <button className="text-sm text-primary-600 hover:text-primary-700 mt-1">
                     Change Photo
                   </button>
@@ -244,10 +244,10 @@ const AdminProfile: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                 <div className="flex items-center space-x-3">
-                  <Lock className="w-5 h-5 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
+                  <Lock className="w-5 h-5 text-neutral-600 dark:text-gray-300" aria-hidden="true" />
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-neutral-100">Password</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Last changed 30 days ago</p>
+                    <p className="text-sm text-neutral-600 dark:text-gray-300">Last changed 30 days ago</p>
                   </div>
                 </div>
                 <button
@@ -260,10 +260,10 @@ const AdminProfile: React.FC = () => {
 
               <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                 <div className="flex items-center space-x-3">
-                  <Key className="w-5 h-5 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
+                  <Key className="w-5 h-5 text-neutral-600 dark:text-gray-300" aria-hidden="true" />
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-neutral-100">Two-Factor Authentication</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Add an extra layer of security</p>
+                    <p className="text-sm text-neutral-600 dark:text-gray-300">Add an extra layer of security</p>
                   </div>
                 </div>
                 <button className="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors">
@@ -293,7 +293,7 @@ const AdminProfile: React.FC = () => {
                 <div key={item.key} className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-neutral-100">{item.label}</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p>
+                    <p className="text-sm text-neutral-600 dark:text-gray-300">{item.description}</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -321,23 +321,23 @@ const AdminProfile: React.FC = () => {
             
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                <span className="text-neutral-600 dark:text-neutral-400">Admin ID</span>
+                <span className="text-neutral-600 dark:text-gray-300">Admin ID</span>
                 <span className="font-medium text-neutral-900 dark:text-neutral-100">#{adminData.id}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                <span className="text-neutral-600 dark:text-neutral-400">Account Created</span>
+                <span className="text-neutral-600 dark:text-gray-300">Account Created</span>
                 <span className="font-medium text-neutral-900 dark:text-neutral-100">
                   {new Date(adminData.created_at).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                <span className="text-neutral-600 dark:text-neutral-400">Last Login</span>
+                <span className="text-neutral-600 dark:text-gray-300">Last Login</span>
                 <span className="font-medium text-neutral-900 dark:text-neutral-100">
                   {new Date(adminData.last_login).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2">
-                <span className="text-neutral-600 dark:text-neutral-400">Status</span>
+                <span className="text-neutral-600 dark:text-gray-300">Status</span>
                 <span className="inline-flex px-2 py-1 text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-700 rounded-full">
                   Active
                 </span>
@@ -381,7 +381,7 @@ const AdminProfile: React.FC = () => {
                 <button
                   onClick={() => setShowPasswordModal(false)}
                   aria-label="Close modal"
-                  className="p-2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400 rounded-lg transition-colors"
+                  className="p-2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -404,7 +404,7 @@ const AdminProfile: React.FC = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                   </button>
@@ -427,7 +427,7 @@ const AdminProfile: React.FC = () => {
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     aria-label={showNewPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300"
                   >
                     {showNewPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                   </button>
@@ -450,7 +450,7 @@ const AdminProfile: React.FC = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                   </button>
@@ -466,7 +466,7 @@ const AdminProfile: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setShowPasswordModal(false)}
-                  className="flex-1 px-6 py-3 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-dark-700 rounded-2xl transition-colors"
+                  className="flex-1 px-6 py-3 text-neutral-600 dark:text-gray-300 hover:bg-neutral-100 dark:hover:bg-dark-700 rounded-2xl transition-colors"
                 >
                   Cancel
                 </button>

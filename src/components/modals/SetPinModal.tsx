@@ -95,7 +95,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             {step === 1 ? "Set Transaction PIN" : "Confirm PIN"}
           </h2>
           <button onClick={onClose} aria-label="Close modal" className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-colors">
-            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+            <X className="w-5 h-5 text-gray-500 dark:text-gray-300" aria-hidden="true" />
           </button>
         </div>
 
@@ -151,7 +151,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
         )}
 
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Keep your PIN secure and don't share it with anyone</p>
+          <p className="text-xs text-gray-500 dark:text-gray-300">Keep your PIN secure and don't share it with anyone</p>
         </div>
       </div>
     </div>

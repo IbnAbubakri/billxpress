@@ -85,14 +85,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
                       isActive(item.path)
                         ? "bg-primary text-secondary shadow-sm"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-secondary"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
                     }`}
                   >
                     <Icon
                       className={`mr-3 h-5 w-5 flex-shrink-0 ${
                         isActive(item.path)
                           ? "text-secondary"
-                          : "text-gray-400 group-hover:text-secondary"
+                          : "text-gray-400 dark:text-gray-300 group-hover:text-secondary"
                       }`}
                       aria-hidden="true"
                     />
@@ -170,14 +170,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
                       isActive(item.path)
                         ? "bg-primary text-secondary shadow-sm"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-secondary"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
                     }`}
                   >
                     <Icon
                       className={`mr-3 h-5 w-5 flex-shrink-0 ${
                         isActive(item.path)
                           ? "text-secondary"
-                          : "text-gray-400 group-hover:text-secondary"
+                          : "text-gray-400 dark:text-gray-300 group-hover:text-secondary"
                       }`}
                       aria-hidden="true"
                     />

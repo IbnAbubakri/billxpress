@@ -145,7 +145,7 @@ const Analytics: React.FC = () => {
           <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">
             Analytics Dashboard
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+          <p className="text-neutral-600 dark:text-gray-300 mt-1">
             Comprehensive insights into your VTU platform
           </p>
         </div>
@@ -211,7 +211,7 @@ const Analytics: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">
                   {metric.title}
                 </p>
                 <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">
@@ -333,7 +333,7 @@ const Analytics: React.FC = () => {
                   <p className="font-medium text-neutral-900 dark:text-neutral-100">
                     {service.service}
                   </p>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <p className="text-sm text-neutral-600 dark:text-gray-300">
                     ₦{service.revenue.toLocaleString()} • {service.transactions}{" "}
                     transactions
                   </p>
@@ -423,7 +423,7 @@ const Analytics: React.FC = () => {
                     {region.name}
                   </span>
                 </div>
-                <span className="text-neutral-600 dark:text-neutral-400">{region.value}%</span>
+                <span className="text-neutral-600 dark:text-gray-300">{region.value}%</span>
               </div>
             ))}
           </div>

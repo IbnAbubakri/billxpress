@@ -64,7 +64,7 @@ const AdminLogin: React.FC = () => {
           <h1 className="text-3xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mb-2">
             BillXpress
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 text-base">
+          <p className="text-neutral-600 dark:text-gray-300 text-base">
             Secure access to your VTU dashboard
           </p>
         </motion.div>
@@ -128,7 +128,7 @@ const AdminLogin: React.FC = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" aria-hidden="true" />
@@ -163,7 +163,7 @@ const AdminLogin: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="mt-6 text-center text-xs text-neutral-500 dark:text-gray-400"
+          className="mt-6 text-center text-xs text-neutral-500 dark:text-gray-300"
         >
           Protected by enterprise-grade security
         </motion.div>

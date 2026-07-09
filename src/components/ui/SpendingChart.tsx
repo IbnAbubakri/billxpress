@@ -57,7 +57,7 @@ const SpendingChart: React.FC = () => {
               <div className="text-base font-bold text-secondary">
                 ₦{total.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Total</div>
+              <div className="text-xs text-gray-500 dark:text-gray-300">Total</div>
             </div>
           </div>
         </div>

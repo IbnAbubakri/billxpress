@@ -154,7 +154,7 @@ const PricingControl: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">Pricing Control</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">Manage service prices and profit margins</p>
+          <p className="text-neutral-600 dark:text-gray-300 mt-1">Manage service prices and profit margins</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -215,12 +215,12 @@ const PricingControl: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Service</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Cost Price</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Selling Price</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Profit Margin</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Service</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Cost Price</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Selling Price</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Profit Margin</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -238,7 +238,7 @@ const PricingControl: React.FC = () => {
                       </div>
                       <div>
                         <p className="font-medium text-neutral-900 dark:text-neutral-100">{item.service}</p>
-                        <p className="text-sm text-neutral-500 dark:text-gray-400">{item.provider}</p>
+                        <p className="text-sm text-neutral-500 dark:text-gray-300">{item.provider}</p>
                       </div>
                     </div>
                   </td>
@@ -332,7 +332,7 @@ const PricingControl: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Average Profit Margin</p>
+              <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">Average Profit Margin</p>
               <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">2.8%</p>
             </div>
             <div className="w-12 h-12 bg-success-500 rounded-2xl flex items-center justify-center">
@@ -349,7 +349,7 @@ const PricingControl: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Active Services</p>
+              <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">Active Services</p>
               <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
             </div>
             <div className="w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center">
@@ -366,7 +366,7 @@ const PricingControl: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Total Services</p>
+              <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">Total Services</p>
               <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{pricingData.length}</p>
             </div>
             <div className="w-12 h-12 bg-accent-500 rounded-2xl flex items-center justify-center">

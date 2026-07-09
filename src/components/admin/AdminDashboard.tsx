@@ -153,7 +153,7 @@ const AdminDashboard: React.FC = () => {
           <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">
             Dashboard Overview
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+          <p className="text-neutral-600 dark:text-gray-300 mt-1">
             Monitor your VTU platform performance
           </p>
         </div>
@@ -178,7 +178,7 @@ const AdminDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">
                   {stat.title}
                 </p>
                 <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">
@@ -229,11 +229,11 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center space-x-4 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-primary-500 rounded-full"></div>
-                <span className="text-neutral-600 dark:text-neutral-400">Revenue</span>
+                <span className="text-neutral-600 dark:text-gray-300">Revenue</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-accent-500 rounded-full"></div>
-                <span className="text-neutral-600 dark:text-neutral-400">Transactions</span>
+                <span className="text-neutral-600 dark:text-gray-300">Transactions</span>
               </div>
             </div>
           </div>
@@ -313,7 +313,7 @@ const AdminDashboard: React.FC = () => {
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: service.color }}
                   ></div>
-                  <span className="text-neutral-600 dark:text-neutral-400">{service.name}</span>
+                  <span className="text-neutral-600 dark:text-gray-300">{service.name}</span>
                 </div>
                 <span className="font-medium text-neutral-900 dark:text-neutral-100">
                   {service.value}%
@@ -345,19 +345,19 @@ const AdminDashboard: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
                   Service
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">
                   Time
                 </th>
               </tr>
@@ -413,7 +413,7 @@ const AdminDashboard: React.FC = () => {
                       {transaction.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-gray-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-gray-300">
                     {transaction.time}
                   </td>
                 </tr>

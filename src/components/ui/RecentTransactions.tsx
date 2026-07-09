@@ -69,7 +69,7 @@ const RecentTransactions: React.FC = () => {
       case 'Failed':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 dark:bg-dark-700 text-gray-800';
+        return 'bg-gray-100 dark:bg-dark-700 text-gray-300';
     }
   };
 
@@ -116,11 +116,11 @@ const RecentTransactions: React.FC = () => {
                     <span className="mr-1">{getStatusIcon(transaction.status)}</span>
                     {transaction.status}
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{transaction.date}</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">•</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{transaction.time}</span>
-                  <span className="hidden md:inline text-xs text-gray-400 dark:text-gray-500">•</span>
-                  <span className="hidden md:inline font-mono text-xs text-gray-500 dark:text-gray-400">{transaction.transactionId}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-300">{transaction.date}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-400">•</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-300">{transaction.time}</span>
+                  <span className="hidden md:inline text-xs text-gray-400 dark:text-gray-400">•</span>
+                  <span className="hidden md:inline font-mono text-xs text-gray-500 dark:text-gray-300">{transaction.transactionId}</span>
                 </div>
               </div>
             </div>

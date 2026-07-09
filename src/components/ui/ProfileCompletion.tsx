@@ -64,7 +64,7 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
         <div className="bg-secondary h-2 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
       </div>
-      <button className="text-xs text-gray-500 dark:text-gray-400 hover:underline mb-4" onClick={() => setCollapsed((p) => !p)}>
+      <button className="text-xs text-gray-500 dark:text-gray-300 hover:underline mb-4" onClick={() => setCollapsed((p) => !p)}>
         {collapsed ? 'Show more' : 'Show less'}
       </button>
       {!collapsed && (

@@ -141,7 +141,7 @@ const UserManagement: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-ginto font-bold text-neutral-900 dark:text-neutral-100">User Management</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">Manage and monitor user accounts</p>
+          <p className="text-neutral-600 dark:text-gray-300 mt-1">Manage and monitor user accounts</p>
         </div>
       </div>
 
@@ -162,7 +162,7 @@ const UserManagement: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{stat.title}</p>
+                <p className="text-sm font-medium text-neutral-600 dark:text-gray-300">{stat.title}</p>
                 <p className="text-xl font-ginto font-bold text-neutral-900 dark:text-neutral-100 mt-1">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
@@ -211,13 +211,13 @@ const UserManagement: React.FC = () => {
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">User</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Balance</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Total Spent</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Transactions</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Contact</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Balance</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Total Spent</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Transactions</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-neutral-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -239,7 +239,7 @@ const UserManagement: React.FC = () => {
                         </div>
                         <div>
                           <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
-                          <p className="text-sm text-neutral-500 dark:text-gray-400">ID: {user.id}</p>
+                          <p className="text-sm text-neutral-500 dark:text-gray-300">ID: {user.id}</p>
                         </div>
                       </div>
                     </td>
@@ -249,7 +249,7 @@ const UserManagement: React.FC = () => {
                           <Mail className="w-4 h-4 text-neutral-400" aria-hidden="true" />
                           <span>{user.email}</span>
                         </div>
-                        <div className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-neutral-400">
+                        <div className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-gray-300">
                           <Phone className="w-4 h-4 text-neutral-400" aria-hidden="true" />
                           <span>{user.phone}</span>
                         </div>
@@ -328,7 +328,7 @@ const UserManagement: React.FC = () => {
                 <button
                   onClick={() => setShowUserModal(false)}
                   aria-label="Close modal"
-                  className="p-2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400 rounded-lg transition-colors"
+                  className="p-2 text-neutral-400 hover:text-neutral-600 dark:text-gray-300 rounded-lg transition-colors"
                 >
                   <XCircle className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -344,8 +344,8 @@ const UserManagement: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{selectedUser.name}</h4>
-                  <p className="text-neutral-600 dark:text-neutral-400">{selectedUser.email}</p>
-                  <p className="text-neutral-600 dark:text-neutral-400">{selectedUser.phone}</p>
+                  <p className="text-neutral-600 dark:text-gray-300">{selectedUser.email}</p>
+                  <p className="text-neutral-600 dark:text-gray-300">{selectedUser.phone}</p>
                 </div>
               </div>
 
@@ -354,14 +354,14 @@ const UserManagement: React.FC = () => {
                 <div className="bg-neutral-50 dark:bg-dark-800 rounded-xl p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <DollarSign className="w-5 h-5 text-success-500" aria-hidden="true" />
-                    <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Current Balance</span>
+                    <span className="text-sm font-medium text-neutral-600 dark:text-gray-300">Current Balance</span>
                   </div>
                   <p className="text-lg font-bold text-neutral-900 dark:text-neutral-100">₦{selectedUser.balance.toLocaleString()}</p>
                 </div>
                 <div className="bg-neutral-50 dark:bg-dark-800 rounded-xl p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <DollarSign className="w-5 h-5 text-primary-500" aria-hidden="true" />
-                    <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Total Spent</span>
+                    <span className="text-sm font-medium text-neutral-600 dark:text-gray-300">Total Spent</span>
                   </div>
                   <p className="text-lg font-bold text-neutral-900 dark:text-neutral-100">₦{selectedUser.total_spent.toLocaleString()}</p>
                 </div>
@@ -370,24 +370,24 @@ const UserManagement: React.FC = () => {
               {/* Additional Info */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                  <span className="text-neutral-600 dark:text-neutral-400">Total Transactions</span>
+                  <span className="text-neutral-600 dark:text-gray-300">Total Transactions</span>
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">{selectedUser.transactions}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                  <span className="text-neutral-600 dark:text-neutral-400">Account Status</span>
+                  <span className="text-neutral-600 dark:text-gray-300">Account Status</span>
                   <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedUser.status)}`}>
                     {React.createElement(getStatusIcon(selectedUser.status), { className: "w-3 h-3" })}
                     <span>{selectedUser.status}</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
-                  <span className="text-neutral-600 dark:text-neutral-400">Joined Date</span>
+                  <span className="text-neutral-600 dark:text-gray-300">Joined Date</span>
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">
                     {new Date(selectedUser.joined_date).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-neutral-600 dark:text-neutral-400">Last Login</span>
+                  <span className="text-neutral-600 dark:text-gray-300">Last Login</span>
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">{selectedUser.last_login}</span>
                 </div>
               </div>
