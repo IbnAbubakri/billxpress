@@ -1,10 +1,8 @@
 import React from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Building2, CreditCard, UserCheck, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import WalletCard from "../ui/WalletCard";
-import TransactionChart from "../ui/TransactionChart";
-import SpendingChart from "../ui/SpendingChart";
 import RecentTransactions from "../ui/RecentTransactions";
 
 import type { PageProps } from '../../types/page';
@@ -51,10 +49,39 @@ const WalletPage: React.FC<WalletPageProps> = ({ user, onLogout }) => {
           {/* Wallet Card */}
           <WalletCard user={user} />
 
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <TransactionChart />
-            <SpendingChart />
+          {/* Account Info Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-dark-800 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <span className="text-sm font-medium text-black dark:text-white">Bank</span>
+              </div>
+              <p className="text-base font-semibold text-black dark:text-white truncate">{user?.bankName || "Not set"}</p>
+              <p className="text-xs text-black dark:text-white truncate">{user?.accountName || "—"}</p>
+            </div>
+
+            <div className="bg-white dark:bg-dark-800 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <span className="text-sm font-medium text-black dark:text-white">Account Number</span>
+              </div>
+              <p className="text-base font-semibold text-black dark:text-white">{user?.accountNumber || "—"}</p>
+            </div>
+
+            <div className="bg-white dark:bg-dark-800 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <span className="text-sm font-medium text-black dark:text-white">Security</span>
+              </div>
+              <p className="text-base font-semibold text-black dark:text-white">{user?.hasTransactionPin ? "PIN Active" : "No PIN"}</p>
+              <p className="text-xs text-black dark:text-white">Transaction protection</p>
+            </div>
           </div>
 
           {/* Recent Transactions */}
