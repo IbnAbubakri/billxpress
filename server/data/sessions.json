@@ -1,0 +1,18 @@
+[
+  {
+    "id": "aaa957c4-f1a6-4ba8-acba-3f878f0dfc93",
+    "userId": "e9f12087-ea26-411c-ba65-bdcbe0e22129",
+    "createdAt": "2026-07-09T06:11:31.770Z",
+    "lastActivity": "2026-07-09T06:11:38.782Z",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "c440692a-284e-41d6-a094-09bf26c5ebaf",
+    "userId": "785afb5b-0947-4444-b0f4-510439605805",
+    "createdAt": "2026-07-09T07:30:17.018Z",
+    "lastActivity": "2026-07-09T07:42:18.419Z",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1"
+  }
+]

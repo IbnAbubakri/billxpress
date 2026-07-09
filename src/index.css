@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Ginto";
+  src: url("./assets/fonts/Ginto-Copilot.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --color-bg: #EFF9F0;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #ffffff;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-border: #e2e8f0;
+  --color-sidebar-hover: #faf5ff;
+  --color-sidebar-active: #f3e8ff;
+}
+
+.dark {
+  --color-bg: #0f172a;
+  --color-bg-card: #1e293b;
+  --color-bg-sidebar: #1e293b;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-border: #334155;
+  --color-sidebar-hover: #1e1b4b;
+  --color-sidebar-active: #2e1065;
+}
+
+@layer base {
+  * {
+    @apply border-neutral-200;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .dark body,
+  body.dark {
+    @apply bg-dark-900 text-neutral-100;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-ginto;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+
+  .dark .glass-card {
+    @apply bg-dark-800/80 border-dark-700/20;
+  }
+
+  .premium-button {
+    @apply bg-primary hover:bg-primary-600 text-white font-medium px-6 py-3 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .premium-input {
+    @apply w-full px-4 py-3 bg-white/50 border border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 placeholder-neutral-400;
+  }
+
+  .dark .premium-input {
+    @apply bg-dark-800/50 border-dark-700 text-neutral-100 placeholder-neutral-500;
+  }
+
+  .sidebar-item {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer;
+  }
+
+  .sidebar-item {
+    @apply hover:bg-primary-50 hover:text-primary-700;
+  }
+
+  .dark .sidebar-item {
+    @apply hover:bg-dark-700 hover:text-primary-400;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary-100 text-primary-700 shadow-sm;
+  }
+
+  .dark .sidebar-item.active {
+    @apply bg-primary-900/30 text-primary-400;
+  }
+
+  .stats-card {
+    @apply bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-neutral-100;
+  }
+
+  .dark .stats-card {
+    @apply bg-dark-800 border-dark-700;
+  }
+
+  .chart-container {
+    @apply bg-white rounded-2xl p-6 shadow-lg border border-neutral-100;
+  }
+
+  .dark .chart-container {
+    @apply bg-dark-800 border-dark-700;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
