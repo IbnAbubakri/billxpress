@@ -1,13 +1,12 @@
 import React from "react";
-import { Wallet } from "lucide-react";
 
 const LoadingScreen: React.FC = () => {
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center">
       <div className="text-center">
         <div className="relative mb-6">
-          <div className="w-20 h-20 mx-auto bg-white dark:bg-dark-800 rounded-2xl shadow-lg flex items-center justify-center animate-pulse">
-            <Wallet className="w-10 h-10 text-secondary" aria-hidden="true" />
+          <div className="w-20 h-20 mx-auto bg-secondary rounded-2xl shadow-lg flex items-center justify-center animate-pulse">
+            <span className="text-white font-bold text-3xl leading-none">X</span>
           </div>
           <div className="absolute inset-0 w-20 h-20 mx-auto border-4 border-transparent border-t-secondary rounded-2xl animate-spin"></div>
         </div>
