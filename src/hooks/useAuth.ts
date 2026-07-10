@@ -79,6 +79,9 @@ export function useAuth() {
   const { data: authData, isLoading } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
+      if (!initial) {
+        return { user: null, isAdmin: false, isAuthenticated: false };
+      }
       try {
         const data = await getMe();
         if (data?.user) {
@@ -95,7 +98,6 @@ export function useAuth() {
     },
     staleTime: 5 * 60 * 1000,
     retry: false,
-    placeholderData: initial ? { user: initial.user, isAdmin: initial.isAdmin, isAuthenticated: true } : undefined,
   });
 
   const { user, isAdmin, isAuthenticated } = authData || { user: null, isAdmin: false, isAuthenticated: false };
