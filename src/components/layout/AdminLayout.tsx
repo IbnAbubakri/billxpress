@@ -41,7 +41,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
   ];
 
   return (
-    <div className="flex h-screen bg-neutral-50">
+    <div className="flex h-screen bg-neutral-50 dark:bg-dark-900">
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
@@ -61,15 +61,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
         animate={{
           x: sidebarOpen ? 0 : '-100%',
         }}
-        className="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl lg:static lg:translate-x-0 lg:shadow-none border-r border-neutral-200"
+        className="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-dark-800 shadow-xl lg:static lg:translate-x-0 lg:shadow-none border-r border-neutral-200 dark:border-dark-700"
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-6 py-6 border-b border-neutral-200">
+            <div className="flex items-center justify-between px-6 py-6 border-b border-neutral-200 dark:border-dark-700">
             <Logo />
             <button
               onClick={() => setSidebarOpen(false)}
               aria-label="Close sidebar"
-              className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 transition-colors"
+                className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -92,8 +92,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             })}
           </nav>
 
-          <div className="p-4 border-t border-neutral-200">
-            <div className="flex items-center space-x-3 p-3 rounded-2xl bg-neutral-50">
+          <div className="p-4 border-t border-neutral-200 dark:border-dark-700">
+            <div className="flex items-center space-x-3 p-3 rounded-2xl bg-neutral-50 dark:bg-dark-900">
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-white" aria-hidden="true" />
               </div>
@@ -108,7 +108,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             </div>
             <button
               onClick={toggle}
-              className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 hover:text-primary-700 w-full"
+              className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 dark:hover:bg-dark-700 hover:text-primary-700 dark:hover:text-primary-400 w-full"
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -126,17 +126,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
       </motion.aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-neutral-200 px-6 py-4">
+        <header className="bg-white dark:bg-dark-800 border-b border-neutral-200 dark:border-dark-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open sidebar"
-                className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
               >
                 <Menu className="w-5 h-5" aria-hidden="true" />
               </button>
-              <div className="hidden md:flex items-center space-x-2 bg-neutral-50 rounded-2xl px-4 py-2 w-96">
+              <div className="hidden md:flex items-center space-x-2 bg-neutral-50 dark:bg-dark-900 rounded-2xl px-4 py-2 w-96">
                 <Search className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <input
                   type="text"
@@ -146,7 +146,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button aria-label="Notifications" className="relative p-2 rounded-xl hover:bg-neutral-100 transition-colors">
+              <button aria-label="Notifications" className="relative p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors">
                 <Bell className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-error-500 rounded-full"></span>
               </button>

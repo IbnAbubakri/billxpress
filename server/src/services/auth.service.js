@@ -267,7 +267,7 @@ export async function forgotPassword(email, ip, userAgent) {
   logAction({ userId: user.id, action: 'PASSWORD_RESET_REQUESTED', details: { email: user.email }, ip, userAgent, severity: 'high' });
   stubEmail(email, 'Password Reset', `Reset token: ${resetToken}`);
   logger.info({ userId: user.id }, 'Password reset requested');
-  return { message: 'If that email exists, a reset link has been sent.', resetToken };
+  return { message: 'If that email exists, a reset link has been sent.' };
 }
 
 export async function resetPassword(token, newPassword, ip, userAgent) {

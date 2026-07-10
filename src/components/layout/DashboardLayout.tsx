@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -23,16 +23,16 @@ import { Logo } from '../ui/Logo';
 import type { User as AppUser } from "../../types";
 
 interface DashboardLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   user: AppUser | null;
   onLogout: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+const DashboardLayout = ({
   children,
   user,
   onLogout,
-}) => {
+}: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { isDark, toggle } = useDarkMode();
@@ -66,61 +66,70 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   const isActive = (path: string) => location.pathname === path;
 
+  const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => (
+    <>
+      <div className="flex-shrink-0 flex items-center px-4 h-16 border-b dark:border-dark-700">
+        <Logo />
+      </div>
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => { navigate(item.path); onNavigate?.(); }}
+                className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
+                  isActive(item.path)
+                    ? "bg-primary text-secondary dark:text-white shadow-sm"
+                    : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
+                }`}
+              >
+                <Icon
+                  className={`mr-3 h-5 w-5 flex-shrink-0 ${
+                    isActive(item.path)
+                      ? "text-secondary dark:text-white"
+                      : "text-black dark:text-white group-hover:text-secondary"
+                  }`}
+                  aria-hidden="true"
+                />
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="px-2 pb-2">
+          <button
+            type="button"
+            onClick={toggle}
+            className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 hover:text-primary-700 w-full"
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+        </div>
+        <div className="px-2 pb-4">
+          <button
+            type="button"
+            onClick={onLogout}
+            className="group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left text-red-600 hover:bg-red-50"
+          >
+            <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-red-400 group-hover:text-red-600" aria-hidden="true" />
+            Logout
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-primary">
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <div className="flex min-h-0 flex-1 flex-col bg-white dark:bg-dark-800 shadow-xl">
-          <div className="flex h-16 flex-shrink-0 items-center px-4 border-b dark:border-dark-700">
-            <Logo />
-          </div>
-          <div className="flex flex-1 flex-col overflow-y-auto">
-            <nav className="flex-1 px-2 py-4 space-y-1">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
-                      isActive(item.path)
-                        ? "bg-primary text-secondary dark:text-white shadow-sm"
-                        : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
-                    }`}
-                  >
-                    <Icon
-                      className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                        isActive(item.path)
-                          ? "text-secondary dark:text-white"
-                          : "text-black dark:text-white group-hover:text-secondary"
-                      }`}
-                      aria-hidden="true"
-                    />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </nav>
-            <div className="px-2 pb-2">
-              <button
-                onClick={toggle}
-                className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 hover:text-primary-700 w-full"
-                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-              </button>
-            </div>
-            <div className="px-2 pb-4">
-              <button
-                onClick={onLogout}
-                className="group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left text-red-600 hover:bg-red-50"
-              >
-                <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-red-400 group-hover:text-red-600" aria-hidden="true" />
-                Logout
-              </button>
-            </div>
-          </div>
+          <SidebarContent />
         </div>
       </div>
 
@@ -141,63 +150,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4 mb-4">
-              <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-base leading-none">X</span>
-              </div>
-              <span className="text-lg font-bold text-secondary dark:text-white">BillXpress</span>
-            </div>
-            <nav className="px-2 space-y-1">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => {
-                      navigate(item.path);
-                      setSidebarOpen(false);
-                    }}
-                    className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
-                      isActive(item.path)
-                        ? "bg-primary text-secondary dark:text-white shadow-sm"
-                        : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
-                    }`}
-                  >
-                    <Icon
-                      className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                        isActive(item.path)
-                          ? "text-secondary dark:text-white"
-                          : "text-black dark:text-white group-hover:text-secondary"
-                      }`}
-                      aria-hidden="true"
-                    />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-          <div className="px-2 pb-2">
-            <button
-              onClick={toggle}
-              className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 hover:text-primary-700 w-full"
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-            </button>
-          </div>
-          <div className="px-2 pb-4">
-            <button
-              onClick={onLogout}
-              className="group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left text-red-600 hover:bg-red-50"
-            >
-              <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-red-400 group-hover:text-red-600" aria-hidden="true" />
-              Logout
-            </button>
-          </div>
+          <SidebarContent onNavigate={() => setSidebarOpen(false)} />
         </div>
       </div>
 
@@ -207,7 +160,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <main className="flex-1 pb-20 lg:pb-8 relative">
           <div className="lg:hidden absolute top-4 left-4 z-30">
             <button
+              type="button"
               aria-label="Open sidebar"
+              aria-expanded={sidebarOpen}
               onClick={() => setSidebarOpen(true)}
               className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
             >
@@ -217,6 +172,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           {location.pathname === '/dashboard' && (
             <div className="lg:hidden absolute top-4 right-4 z-30">
               <button
+                type="button"
                 aria-label="Notifications"
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
@@ -245,6 +201,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               const Icon = item.icon;
               return (
                 <button
+                  type="button"
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={`flex-1 flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${

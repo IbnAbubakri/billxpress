@@ -57,8 +57,9 @@ function AppContent() {
         }
         addToast('Login successful!', 'success');
         navigate('/dashboard');
-      } catch (err: any) {
-        const msg = err?.response?.data?.error || err?.message || 'Login failed';
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
+        const msg = axiosErr?.response?.data?.error || axiosErr?.message || 'Login failed';
         addToast(msg, 'error');
         throw err;
       }
@@ -72,8 +73,9 @@ function AppContent() {
         await handleRegister(email, password);
         addToast('Account created successfully!', 'success');
         navigate('/dashboard');
-      } catch (err: any) {
-        const msg = err?.response?.data?.error || err?.message || 'Registration failed';
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
+        const msg = axiosErr?.response?.data?.error || axiosErr?.message || 'Registration failed';
         addToast(msg, 'error');
         throw err;
       }

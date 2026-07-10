@@ -10,7 +10,7 @@ export function csrfToken(req, res) {
     token = randomToken(CSRF_TOKEN_LENGTH);
   }
   res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
+    httpOnly: false,
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
