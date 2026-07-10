@@ -98,9 +98,25 @@ export async function resetPassword(token: string, password: string) {
   return data;
 }
 
-export async function updateProfile(profileData: Record<string, unknown>) {
+export async function updateProfile(profileData: import('../types').ProfileUpdateData) {
   const csrf = await ensureCSRF();
   const { data } = await api.put('/profile', profileData, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
+export async function sendVerificationEmail() {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/send-verification', {}, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
+export async function verifyEmail(token: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/verify-email', { token }, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

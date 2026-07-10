@@ -4,12 +4,15 @@ import { AnimatePresence } from 'framer-motion';
 
 import LoadingScreen from './components/ui/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
+import PageErrorBoundary from './components/PageErrorBoundary';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import { ToastProvider, useToast } from './hooks/useToast';
 import { ToastContainer } from './components/ui/ToastContainer';
 
 const LoginPage = lazy(() => import('./components/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./components/auth/RegisterPage'));
 const ResetPasswordPage = lazy(() => import('./components/auth/ResetPasswordPage'));
+const VerifyEmailPage = lazy(() => import('./components/auth/VerifyEmailPage'));
 const Dashboard = lazy(() => import('./components/dashboard/Dashboard'));
 const AirtimePage = lazy(() => import('./components/services/AirtimePage'));
 const DataPage = lazy(() => import('./components/services/DataPage'));
@@ -91,69 +94,91 @@ function AppContent() {
     <Suspense fallback={<LoadingScreen />}>
       <AnimatePresence mode="wait">
         <Routes>
-          <Route
-            path="/admin/login"
-            element={
-              !isAdmin ? (
-                <AdminLogin />
-              ) : (
-                <Navigate to="/admin" replace />
-              )
-            }
-          />
-          <Route
-            path="/admin/*"
-            element={
-              isAdmin ? (
-                <AdminLayout onLogout={handleLogout}>
-                  <Routes>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="analytics" element={<Analytics />} />
-                    <Route path="pricing" element={<PricingControl />} />
-                    <Route path="users" element={<UserManagement />} />
-                    <Route path="transactions" element={<TransactionManagement />} />
-                    <Route path="profile" element={<AdminProfile />} />
-                  </Routes>
-                </AdminLayout>
-              ) : (
-                <Navigate to="/admin/login" replace />
-              )
-            }
-          />
+          <Route path="/login" element={
+            !isAuthenticated ? <LoginPage onLogin={onLogin} /> : <Navigate to="/dashboard" replace />
+          } />
+          <Route path="/register" element={
+            !isAuthenticated ? <RegisterPage onRegister={onRegister} /> : <Navigate to="/dashboard" replace />
+          } />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {!isAuthenticated ? (
-            <>
-              <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
-              <Route path="/register" element={<RegisterPage onRegister={onRegister} />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="*" element={<Navigate to="/login" />} />
-            </>
-          ) : (
-            <>
-              <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
-              <Route path="/airtime" element={<AirtimePage user={user} onLogout={handleLogout} />} />
-              <Route path="/data" element={<DataPage user={user} onLogout={handleLogout} />} />
-              <Route path="/tv" element={<TVSubscriptionPage user={user} onLogout={handleLogout} />} />
-              <Route path="/electricity" element={<ElectricityPage user={user} onLogout={handleLogout} />} />
-              <Route path="/education" element={<EducationPage user={user} onLogout={handleLogout} />} />
-              <Route path="/airtime-to-cash" element={<AirtimeToCashPage user={user} onLogout={handleLogout} />} />
-              <Route path="/betting" element={<BettingPage user={user} onLogout={handleLogout} />} />
-              <Route path="/wallet" element={<WalletPage user={user} onLogout={handleLogout} />} />
-              <Route path="/transactions" element={<TransactionsPage user={user} onLogout={handleLogout} />} />
-              <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />} />
-              <Route path="*" element={<Navigate to="/dashboard" />} />
-            </>
-          )}
+          <Route path="/admin/login" element={
+            !isAdmin ? <AdminLogin /> : <Navigate to="/admin" replace />
+          } />
+          <Route path="/admin/*" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin} requireAdmin redirectTo="/admin/login">
+              <AdminLayout onLogout={handleLogout}>
+                <Routes>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="analytics" element={<Analytics />} />
+                  <Route path="pricing" element={<PricingControl />} />
+                  <Route path="users" element={<UserManagement />} />
+                  <Route path="transactions" element={<TransactionManagement />} />
+                  <Route path="profile" element={<AdminProfile />} />
+                </Routes>
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
 
-          <Route
-            path="/"
-            element={
-              <Navigate
-                to={isAdmin ? '/admin' : isAuthenticated ? '/dashboard' : '/login'}
-                replace
-              />
-            }
-          />
+          <Route path="/dashboard" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Dashboard"><Dashboard user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/airtime" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Airtime"><AirtimePage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/data" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Data"><DataPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/tv" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="TV"><TVSubscriptionPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/electricity" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Electricity"><ElectricityPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/education" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Education"><EducationPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/airtime-to-cash" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="AirtimeToCash"><AirtimeToCashPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/betting" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Betting"><BettingPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/wallet" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Wallet"><WalletPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/transactions" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Transactions"><TransactionsPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <PageErrorBoundary pageName="Profile"><ProfilePage user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} /></PageErrorBoundary>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/" element={<Navigate to={isAdmin ? '/admin' : isAuthenticated ? '/dashboard' : '/login'} replace />} />
+          <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
         </Routes>
       </AnimatePresence>
 

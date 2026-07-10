@@ -1,7 +1,7 @@
-import type { User } from './index';
+import type { User, ProfileUpdateData } from './index';
 
 export interface PageProps {
   user: User | null;
   onLogout: () => void;
-  onUpdateProfile?: (data: Record<string, unknown>) => Promise<User>;
+  onUpdateProfile?: (data: ProfileUpdateData) => Promise<User>;
 }

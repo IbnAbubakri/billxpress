@@ -1,33 +1,75 @@
 import { resolve, dirname } from 'path';
+import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import logger from '../utils/logger.js';
-import { loadJSON, saveJSON } from '../utils/fileStore.js';
+import { getDb } from '../utils/db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const AUDIT_PATH = resolve(__dirname, '../../data/audit.json');
+const DATA_DIR = resolve(__dirname, '../../data');
+const ARCHIVE_DIR = resolve(DATA_DIR, 'audit-archive');
 
-function loadAudit() {
-  return loadJSON(AUDIT_PATH, []);
+function ensureArchiveDir() {
+  if (!existsSync(ARCHIVE_DIR)) {
+    mkdirSync(ARCHIVE_DIR, { recursive: true });
+  }
 }
 
-function saveAudit(entries) {
-  const trimmed = entries.length > 10000 ? entries.slice(entries.length - 10000) : entries;
-  saveJSON(AUDIT_PATH, trimmed);
+function rotateIfNeeded() {
+  const db = getDb();
+  const { count } = db.prepare('SELECT COUNT(*) as count FROM audit_logs').get();
+  if (count <= 10000) return;
+
+  const date = new Date().toISOString().slice(0, 10);
+  const archivePath = resolve(ARCHIVE_DIR, `audit-${date}.json`);
+  ensureArchiveDir();
+
+  const toRotate = db.prepare(`
+    SELECT * FROM audit_logs ORDER BY timestamp ASC LIMIT ?
+  `).all(count - 10000);
+
+  const keptIds = db.prepare(`
+    SELECT id FROM audit_logs ORDER BY timestamp DESC LIMIT 10000
+  `).all().map(r => r.id);
+
+  const archive = toRotate.map(r => ({
+    timestamp: r.timestamp,
+    userId: r.userId,
+    action: r.action,
+    details: JSON.parse(r.details || '{}'),
+    ip: r.ip,
+    userAgent: r.userAgent,
+    severity: r.severity,
+  }));
+
+  let existingArchive = [];
+  if (existsSync(archivePath)) {
+    try {
+      existingArchive = JSON.parse(readFileSync(archivePath, 'utf-8'));
+    } catch { }
+  }
+
+  try {
+    writeFileSync(archivePath, JSON.stringify([...existingArchive, ...archive], null, 2), 'utf-8');
+    logger.info({ rotatedCount: archive.length, archivePath }, 'Audit log rotated');
+  } catch (err) {
+    logger.error({ err: err.message }, 'Failed to rotate audit log');
+    return;
+  }
+
+  const placeholders = keptIds.map(() => '?').join(',');
+  db.prepare(`DELETE FROM audit_logs WHERE id NOT IN (${placeholders})`).run(...keptIds);
 }
 
 export function logAction({ userId, action, details, ip, userAgent, severity = 'info' }) {
-  const entry = {
-    timestamp: new Date().toISOString(),
-    userId,
-    action,
-    details,
-    ip,
-    userAgent,
-    severity,
-  };
-  const log = loadAudit();
-  log.push(entry);
-  saveAudit(log);
+  const db = getDb();
+  const timestamp = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO audit_logs (timestamp, userId, action, details, ip, userAgent, severity)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(timestamp, userId, action, JSON.stringify(details || {}), ip, userAgent, severity);
+
+  rotateIfNeeded();
+
   const level = severity === 'high' ? 'warn' : 'info';
   logger[level]({ userId, action, details, ip }, `[AUDIT] ${action}`);
 }

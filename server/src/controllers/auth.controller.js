@@ -1,12 +1,12 @@
 import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
-  updateUserProfile,
+  updateUserProfile, generateVerificationToken, verifyEmailToken,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
   rotateRefreshToken, revokeRefreshToken,
   revokeAllUserRefreshTokens, getStoredRefreshToken,
-  createSession, updateSessionActivity, getSessionsByUserId,
+  createSession, updateSessionActivity, getSessionsByUserId, getSessionById,
   deleteSession, deleteAllUserSessions,
 } from '../services/token.service.js';
 import logger from '../utils/logger.js';
@@ -175,9 +175,33 @@ export async function handlePasswordPolicy(req, res, next) {
   } catch (err) { next(err); }
 }
 
+export async function handleSendVerification(req, res, next) {
+  try {
+    const user = getUserById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    if (user.emailVerified) return res.json({ message: 'Email already verified.' });
+    const token = generateVerificationToken(user);
+    stubEmail(user.email, 'Verify Your Email', `Verification token: ${token}`);
+    logAction({ userId: req.user.id, action: 'VERIFICATION_EMAIL_SENT', details: {}, ip: req.clientIp, userAgent: req.clientUA });
+    res.json({ message: 'Verification email sent.' });
+  } catch (err) { next(err); }
+}
+
+export async function handleVerifyEmail(req, res, next) {
+  try {
+    const result = verifyEmailToken(req.body.token);
+    logAction({ userId: result.id, action: 'EMAIL_VERIFIED', details: {}, ip: req.clientIp, userAgent: req.clientUA });
+    res.json({ message: 'Email verified successfully.', user: result });
+  } catch (err) { next(err); }
+}
+
 export async function handleUpdateProfile(req, res, next) {
   try {
     const user = updateUserProfile(req.user.id, req.body, req.clientIp, req.clientUA);
     res.json({ user });
   } catch (err) { next(err); }
+}
+
+function stubEmail(to, subject, body) {
+  logger.info({ emailTo: to, subject }, `[EMAIL STUB] ${body}`);
 }

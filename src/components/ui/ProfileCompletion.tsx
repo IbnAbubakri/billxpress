@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import type { User, ProfileStep, BasicInfo, BankDetails } from '../../types';
 import { validateEmail, validateBVN, validateAccountNumber } from '../../utils/validation';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
+import EmailVerificationModal from '../profile/EmailVerificationModal';
+import BVNModal from '../profile/BVNModal';
+import BankDetailsModal from '../profile/BankDetailsModal';
+import BasicInfoModal from '../profile/BasicInfoModal';
 
 const STEPS: ProfileStep[] = [
   { label: 'Create account', description: 'Create BillXpress account', icon: 'UserPlus', completed: true },
@@ -94,17 +97,22 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
         </ul>
       )}
 
-      {activeStep === 'Mail' && <EmailVerifyModal onClose={() => setActiveStep(null)} />}
-      {activeStep === 'Info' && <BasicInfoModal onClose={() => setActiveStep(null)} />}
-      {activeStep === 'Fingerprint' && <BVNModal onClose={() => setActiveStep(null)} />}
-      {activeStep === 'Banknote' && <BankDetailsModal onClose={() => setActiveStep(null)} />}
+      <CallbackModals activeStep={activeStep} onClose={() => setActiveStep(null)} />
     </div>
   );
 }
 
 export default ProfileCompletion;
 
-function EmailVerifyModal({ onClose }: { onClose: () => void }) {
+function CallbackModals({ activeStep, onClose }: { activeStep: string | null; onClose: () => void }) {
+  if (activeStep === 'Mail') return <MailStep onClose={onClose} />;
+  if (activeStep === 'Info') return <InfoStep onClose={onClose} />;
+  if (activeStep === 'Fingerprint') return <FingerprintStep onClose={onClose} />;
+  if (activeStep === 'Banknote') return <BanknoteStep onClose={onClose} />;
+  return null;
+}
+
+function MailStep({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -116,27 +124,22 @@ function EmailVerifyModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <ModalWrapper title="Verify Email" onClose={onClose}>
-      <p className="text-black dark:text-white mb-4 text-center">Enter your email address to verify.</p>
-      <input id="verifyEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`w-full px-4 py-2 border rounded-xl mb-2 ${error ? 'border-red-500' : 'border-gray-300'}`} placeholder="Email address" aria-invalid={!!error} aria-describedby={error ? 'verifyEmail-error' : undefined} />
-      {error && <p id="verifyEmail-error" className="text-red-500 text-xs mb-2">{error}</p>}
-      <div className="flex gap-3 mt-4">
-        <button onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300">Cancel</button>
-        <button onClick={handleSend} className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium hover:bg-opacity-90">Send Verification</button>
-      </div>
-      {sent && <p className="text-green-600 text-center mt-4">Verification email sent!</p>}
-    </ModalWrapper>
+    <EmailVerificationModal
+      open={true}
+      emailSent={sent}
+      onClose={onClose}
+      onSend={handleSend}
+    />
   );
 }
 
-function BasicInfoModal({ onClose }: { onClose: () => void }) {
+function InfoStep({ onClose }: { onClose: () => void }) {
   const [info, setInfo] = useState<BasicInfo>({ billingStreet: '', billingCity: '', billingState: '', billingCountry: '', homeStreet: '', homeCity: '', homeState: '', homeZip: '', avatar: null, avatarPreview: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (field: string, value: any) => setInfo((p) => ({ ...p, [field]: value }));
+  const handleChange = (field: string, value: string | File | null) => setInfo((p) => ({ ...p, [field]: value }));
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     const errs: Record<string, string> = {};
     if (!info.billingStreet) errs.billingStreet = 'Required';
     if (!info.billingCity) errs.billingCity = 'Required';
@@ -147,35 +150,18 @@ function BasicInfoModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <ModalWrapper title="Complete Your Basic Information" onClose={onClose}>
-      <p className="text-black dark:text-white mb-4 text-center">Add your billing info and home address.</p>
-      <form onSubmit={handleSave} className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(['billingStreet', 'billingCity', 'billingState', 'billingCountry'] as const).map((f) => (
-            <div key={f}>
-              <label htmlFor={f} className="block text-sm font-medium text-black dark:text-white mb-1 capitalize">{f.replace('billing', 'Billing ')}</label>
-              <input id={f} type="text" value={info[f]} onChange={(e) => handleChange(f, e.target.value)} className={`w-full px-4 py-2 border rounded-xl ${errors[f] ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors[f]} aria-describedby={errors[f] ? `${f}-error` : undefined} />
-              {errors[f] && <p id={`${f}-error`} className="text-red-500 text-xs mt-1">{errors[f]}</p>}
-            </div>
-          ))}
-          {(['homeStreet', 'homeCity', 'homeState', 'homeZip'] as const).map((f) => (
-            <div key={f}>
-              <label htmlFor={f} className="block text-sm font-medium text-black dark:text-white mb-1 capitalize">{f.replace('home', 'Home ')}</label>
-              <input id={f} type="text" value={info[f]} onChange={(e) => handleChange(f, e.target.value)} className={`w-full px-4 py-2 border rounded-xl ${errors[f] ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors[f]} aria-describedby={errors[f] ? `${f}-error` : undefined} />
-              {errors[f] && <p id={`${f}-error`} className="text-red-500 text-xs mt-1">{errors[f]}</p>}
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-3 mt-6">
-          <button type="button" onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium">Cancel</button>
-          <button type="submit" className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium">Save</button>
-        </div>
-      </form>
-    </ModalWrapper>
+    <BasicInfoModal
+      open={true}
+      info={info}
+      errors={errors}
+      onClose={onClose}
+      onChange={handleChange}
+      onSave={handleSave}
+    />
   );
 }
 
-function BVNModal({ onClose }: { onClose: () => void }) {
+function FingerprintStep({ onClose }: { onClose: () => void }) {
   const [bvn, setBvn] = useState('');
   const [error, setError] = useState('');
 
@@ -186,26 +172,24 @@ function BVNModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <ModalWrapper title="Link BVN" onClose={onClose}>
-      <p className="text-black dark:text-white mb-4 text-center">Enter your BVN to link your account for withdrawals.</p>
-      <input id="bvnField" type="text" value={bvn} onChange={(e) => setBvn(e.target.value)} className={`w-full px-4 py-2 border rounded-xl mb-2 ${error ? 'border-red-500' : 'border-gray-300'}`} placeholder="Enter BVN" maxLength={11} aria-invalid={!!error} aria-describedby={error ? 'bvnField-error' : undefined} />
-      {error && <p id="bvnField-error" className="text-red-500 text-xs mb-2">{error}</p>}
-      <div className="flex gap-3 mt-4">
-        <button onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium">Cancel</button>
-        <button onClick={handleVerify} className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium">Verify BVN</button>
-      </div>
-    </ModalWrapper>
+    <BVNModal
+      open={true}
+      bvn={bvn}
+      error={error}
+      onClose={onClose}
+      onBVNChange={setBvn}
+      onVerify={handleVerify}
+    />
   );
 }
 
-function BankDetailsModal({ onClose }: { onClose: () => void }) {
+function BanknoteStep({ onClose }: { onClose: () => void }) {
   const [details, setDetails] = useState<BankDetails>({ accountNumber: '', bankName: '', accountName: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (f: string, v: string) => setDetails((p) => ({ ...p, [f]: v }));
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     const errs: Record<string, string> = {};
     const acctErr = validateAccountNumber(details.accountNumber);
     if (acctErr) errs.accountNumber = acctErr;
@@ -216,39 +200,13 @@ function BankDetailsModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <ModalWrapper title="Add Bank Details" onClose={onClose}>
-      <p className="text-black dark:text-white mb-4 text-center">Enter your bank account details.</p>
-      <form onSubmit={handleSave} className="space-y-3">
-        {(['accountNumber', 'bankName', 'accountName'] as const).map((f) => (
-          <div key={f}>
-            <label htmlFor={f} className="block text-sm font-medium text-black dark:text-white mb-1 capitalize">{f.replace(/([A-Z])/g, ' $1')}</label>
-            <input id={f} type="text" value={details[f]} onChange={(e) => handleChange(f, e.target.value)} className={`w-full px-4 py-2 border rounded-xl ${errors[f] ? 'border-red-500' : 'border-gray-300'}`} maxLength={f === 'accountNumber' ? 10 : undefined} aria-invalid={!!errors[f]} aria-describedby={errors[f] ? `${f}-error` : undefined} />
-            {errors[f] && <p id={`${f}-error`} className="text-red-500 text-xs mt-1">{errors[f]}</p>}
-          </div>
-        ))}
-        <div className="flex gap-3 mt-6">
-          <button type="button" onClick={onClose} className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium">Cancel</button>
-          <button type="submit" className="w-1/2 bg-secondary text-white py-3 rounded-2xl font-medium">Save</button>
-        </div>
-      </form>
-    </ModalWrapper>
-  );
-}
-
-function ModalWrapper({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
-  const containerRef = useFocusTrap(true, onClose);
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40 dark:bg-dark-900/80" onClick={onClose}>
-      <div
-        ref={containerRef}
-        role="dialog"
-        aria-modal="true"
-        className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-lg font-bold text-black dark:text-white mb-2 text-center">{title}</h2>
-        {children}
-      </div>
-    </div>
+    <BankDetailsModal
+      open={true}
+      details={details}
+      errors={errors}
+      onClose={onClose}
+      onChange={handleChange}
+      onSave={handleSave}
+    />
   );
 }

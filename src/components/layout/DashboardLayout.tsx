@@ -1,25 +1,11 @@
 import { useState, type ReactNode } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Phone,
-  Wifi,
-  Tv,
-  Zap,
-  GraduationCap,
-  ArrowRightLeft,
-  Target,
-  Wallet,
-  History,
-  User,
-  LogOut,
-  Sun,
-  Moon,
-  Bell,
-  Menu,
-} from "lucide-react";
-import { useDarkMode } from "../../hooks/useDarkMode";
-import { Logo } from '../ui/Logo';
+import { useLocation } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { Sidebar } from './Sidebar';
+import { ThemeToggle } from './ThemeToggle';
+import { LogoutButton } from './LogoutButton';
+import { MobileNav } from './MobileNav';
+import { NotificationBell } from './NotificationBell';
 import type { User as AppUser } from "../../types";
 
 interface DashboardLayoutProps {
@@ -35,105 +21,24 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const { isDark, toggle } = useDarkMode();
-  const navigate = useNavigate();
   const location = useLocation();
-
-  const navigationItems = [
-    { path: "/dashboard", label: "Overview", icon: LayoutDashboard },
-    { path: "/airtime", label: "Buy Airtime", icon: Phone },
-    { path: "/data", label: "Buy Data", icon: Wifi },
-    { path: "/tv", label: "Cable TV", icon: Tv },
-    { path: "/electricity", label: "Electricity", icon: Zap },
-    { path: "/education", label: "Education", icon: GraduationCap },
-    {
-      path: "/airtime-to-cash",
-      label: "Airtime to Cash",
-      icon: ArrowRightLeft,
-    },
-    { path: "/betting", label: "Betting", icon: Target },
-    { path: "/wallet", label: "Wallet", icon: Wallet },
-    { path: "/transactions", label: "Transactions", icon: History },
-    { path: "/profile", label: "Profile", icon: User },
-  ];
-
-  const mobileNavigationItems = [
-    { path: "/dashboard", label: "Home", icon: LayoutDashboard },
-    { path: "/wallet", label: "Wallet", icon: Wallet },
-    { path: "/transactions", label: "History", icon: History },
-    { path: "/profile", label: "Profile", icon: User },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
-
-  const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => (
-    <>
-      <div className="flex-shrink-0 flex items-center px-4 h-16 border-b dark:border-dark-700">
-        <Logo />
-      </div>
-      <div className="flex flex-1 flex-col overflow-y-auto">
-        <nav className="flex-1 px-2 py-4 space-y-1">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => { navigate(item.path); onNavigate?.(); }}
-                className={`group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left ${
-                  isActive(item.path)
-                    ? "bg-primary text-secondary dark:text-white shadow-sm"
-                    : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
-                }`}
-              >
-                <Icon
-                  className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                    isActive(item.path)
-                      ? "text-secondary dark:text-white"
-                      : "text-black dark:text-white group-hover:text-secondary"
-                  }`}
-                  aria-hidden="true"
-                />
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
-        <div className="px-2 pb-2">
-          <button
-            type="button"
-            onClick={toggle}
-            className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 hover:text-primary-700 w-full"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-          </button>
-        </div>
-        <div className="px-2 pb-4">
-          <button
-            type="button"
-            onClick={onLogout}
-            className="group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left text-red-600 hover:bg-red-50"
-          >
-            <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-red-400 group-hover:text-red-600" aria-hidden="true" />
-            Logout
-          </button>
-        </div>
-      </div>
-    </>
-  );
 
   return (
     <div className="min-h-screen bg-primary">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary-700 focus:rounded-2xl focus:shadow-lg focus:outline-none">
+        Skip to content
+      </a>
+
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <div className="flex min-h-0 flex-1 flex-col bg-white dark:bg-dark-800 shadow-xl">
-          <SidebarContent />
+          <Sidebar />
+          <ThemeToggle />
+          <LogoutButton onLogout={onLogout} />
         </div>
       </div>
 
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar overlay */}
       <div
         className={`lg:hidden fixed inset-0 flex z-40 ${
           sidebarOpen ? "pointer-events-auto" : "pointer-events-none"
@@ -150,14 +55,15 @@ const DashboardLayout = ({
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <SidebarContent onNavigate={() => setSidebarOpen(false)} />
+          <Sidebar onNavigate={() => setSidebarOpen(false)} />
+          <ThemeToggle />
+          <LogoutButton onLogout={onLogout} />
         </div>
       </div>
 
-        {/* Main content */}
+      {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
-        {/* Page content */}
-        <main className="flex-1 pb-20 lg:pb-8 relative">
+        <main id="main-content" className="flex-1 pb-20 lg:pb-8 relative">
           <div className="lg:hidden absolute top-4 left-4 z-30">
             <button
               type="button"
@@ -170,56 +76,15 @@ const DashboardLayout = ({
             </button>
           </div>
           {location.pathname === '/dashboard' && (
-            <div className="lg:hidden absolute top-4 right-4 z-30">
-              <button
-                type="button"
-                aria-label="Notifications"
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
-              >
-                <Bell className="h-5 w-5" aria-hidden="true" />
-              </button>
-              {showNotifications && (
-                <div className="absolute top-12 right-0 w-72 bg-white dark:bg-dark-800 rounded-2xl shadow-2xl border dark:border-dark-700 overflow-hidden">
-                  <div className="p-4 border-b dark:border-dark-700">
-                    <h3 className="font-semibold text-black dark:text-white">Notifications</h3>
-                  </div>
-                  <div className="p-8 text-center text-black dark:text-white text-sm">
-                    No new notifications
-                  </div>
-                </div>
-              )}
-            </div>
+            <NotificationBell
+              show={showNotifications}
+              onToggle={() => setShowNotifications(!showNotifications)}
+            />
           )}
           {children}
         </main>
 
-        {/* Mobile bottom navigation */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-800 border-t dark:border-dark-700 shadow-lg">
-          <div className="flex">
-            {mobileNavigationItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  type="button"
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  className={`flex-1 flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
-                    isActive(item.path) ? "text-secondary dark:text-white" : "text-black dark:text-white"
-                  }`}
-                >
-                  <Icon
-                    className={`h-5 w-5 mb-1 ${
-                      isActive(item.path) ? "text-secondary dark:text-white" : "text-black dark:text-white"
-                    }`}
-                    aria-hidden="true"
-                  />
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <MobileNav />
       </div>
     </div>
   );

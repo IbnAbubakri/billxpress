@@ -20,6 +20,10 @@ const env = {
 
 const DEFAULT_SECRET = 'change-this-to-a-long-random-string-in-production';
 if (!env.JWT_SECRET || env.JWT_SECRET === DEFAULT_SECRET) {
+  if (env.isProd()) {
+    console.error('FATAL: JWT_SECRET must be set in production. Server cannot start safely.');
+    process.exit(1);
+  }
   env.JWT_SECRET = randomToken(32);
   console.warn('WARNING: JWT_SECRET is weak or default. Auto-generated a random secret for this session.');
 }

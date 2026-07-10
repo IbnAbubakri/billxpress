@@ -167,6 +167,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
                   <img
                     src={provider.icon}
                     alt={provider.name}
+                    loading="lazy"
                     className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow"
                   />
                   <p className="font-medium text-sm">{provider.name}</p>

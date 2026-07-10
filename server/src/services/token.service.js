@@ -1,29 +1,17 @@
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import env from '../config/env.js';
-import { loadJSON, saveJSON } from '../utils/fileStore.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const REFRESH_PATH = resolve(__dirname, '../../data/refresh-tokens.json');
-const SESSIONS_PATH = resolve(__dirname, '../../data/sessions.json');
-
-function loadRT() { return loadJSON(REFRESH_PATH, []); }
-function saveRT(t) { saveJSON(REFRESH_PATH, t); }
-function loadSessions() { return loadJSON(SESSIONS_PATH, []); }
-function saveSessions(s) { saveJSON(SESSIONS_PATH, s); }
+import { getDb } from '../utils/db.js';
 
 export function generateAccessToken(payload) {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
 }
 
 export function generateRefreshToken(userId) {
+  const db = getDb();
   const token = uuidv4();
   const expiresAt = new Date(Date.now() + parseDuration(env.JWT_REFRESH_EXPIRES_IN)).toISOString();
-  const tokens = loadRT();
-  tokens.push({ token, userId, expiresAt });
-  saveRT(tokens);
+  db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(token, userId, expiresAt);
   return token;
 }
 
@@ -32,83 +20,80 @@ export function verifyAccessToken(token) {
 }
 
 export function rotateRefreshToken(oldToken, userId) {
-  const tokens = loadRT();
-  const filtered = tokens.filter((t) => t.token !== oldToken);
-  if (filtered.length === tokens.length) return null;
+  const db = getDb();
+  const deleted = db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(oldToken);
+  if (deleted.changes === 0) return null;
   const newToken = uuidv4();
   const expiresAt = new Date(Date.now() + parseDuration(env.JWT_REFRESH_EXPIRES_IN)).toISOString();
-  filtered.push({ token: newToken, userId, expiresAt });
-  saveRT(filtered);
+  db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(newToken, userId, expiresAt);
   return newToken;
 }
 
 export function revokeRefreshToken(token) {
-  saveRT(loadRT().filter((t) => t.token !== token));
+  const db = getDb();
+  db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
 }
 
 export function revokeAllUserRefreshTokens(userId) {
-  saveRT(loadRT().filter((t) => t.userId !== userId));
+  const db = getDb();
+  db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(userId);
 }
 
 export function getStoredRefreshToken(token) {
-  const tokens = loadRT();
-  const found = tokens.find((t) => t.token === token);
+  const db = getDb();
+  const found = db.prepare('SELECT * FROM refresh_tokens WHERE token = ?').get(token);
   if (!found) return null;
   if (new Date(found.expiresAt) < new Date()) {
-    revokeRefreshToken(token);
+    db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
     return null;
   }
   return found;
 }
 
 export function createSession(userId, ip, userAgent) {
-  const sessions = loadSessions();
-  const now = new Date();
+  const db = getDb();
+  const now = new Date().toISOString();
   const id = uuidv4();
-  sessions.push({
-    id,
-    userId,
-    createdAt: now.toISOString(),
-    lastActivity: now.toISOString(),
-    ip,
-    userAgent,
-  });
-  saveSessions(sessions);
+  db.prepare('INSERT INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(id, userId, now, now, ip, userAgent);
   return id;
 }
 
 export function updateSessionActivity(sessionId) {
-  const sessions = loadSessions();
-  const s = sessions.find((s) => s.id === sessionId);
-  if (s) { s.lastActivity = new Date().toISOString(); saveSessions(sessions); }
+  const db = getDb();
+  db.prepare('UPDATE sessions SET lastActivity = ? WHERE id = ?').run(new Date().toISOString(), sessionId);
 }
 
 export function checkSessionActivity(sessionId, idleMinutes) {
-  const sessions = loadSessions();
-  const s = sessions.find((s) => s.id === sessionId);
+  const db = getDb();
+  const s = db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId);
   if (!s) return false;
   const elapsed = (new Date() - new Date(s.lastActivity)) / 60000;
   if (elapsed > idleMinutes) {
-    saveSessions(sessions.filter((x) => x.id !== sessionId));
+    db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
     return false;
   }
   return true;
 }
 
 export function getSessionsByUserId(userId) {
-  return loadSessions().filter((s) => s.userId === userId);
+  const db = getDb();
+  return db.prepare('SELECT * FROM sessions WHERE userId = ?').all(userId);
 }
 
 export function getSessionById(sessionId) {
-  return loadSessions().find((s) => s.id === sessionId) || null;
+  const db = getDb();
+  return db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId) || null;
 }
 
 export function deleteSession(sessionId) {
-  saveSessions(loadSessions().filter((s) => s.id !== sessionId));
+  const db = getDb();
+  db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
 }
 
 export function deleteAllUserSessions(userId) {
-  saveSessions(loadSessions().filter((s) => s.userId !== userId));
+  const db = getDb();
+  db.prepare('DELETE FROM sessions WHERE userId = ?').run(userId);
 }
 
 function parseDuration(dur) {

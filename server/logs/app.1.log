@@ -34,3 +34,22 @@
 {"level":30,"time":1783582217017,"pid":2282,"hostname":"IbnAbubakri","userId":"785afb5b-0947-4444-b0f4-510439605805","action":"LOGIN","details":{"email":"demo@billxpress.com"},"ip":"::ffff:127.0.0.1","msg":"[AUDIT] LOGIN"}
 {"level":30,"time":1783582217017,"pid":2282,"hostname":"IbnAbubakri","userId":"785afb5b-0947-4444-b0f4-510439605805","msg":"User authenticated"}
 {"level":30,"time":1783582217019,"pid":2282,"hostname":"IbnAbubakri","userId":"785afb5b-0947-4444-b0f4-510439605805","msg":"Login successful"}
+{"level":30,"time":1783661454039,"pid":2764,"hostname":"IbnAbubakri","path":"/home/faaruq/FintechApp/server/data/billxpress.db","msg":"Database initialized"}
+{"level":30,"time":1783661454050,"pid":2764,"hostname":"IbnAbubakri","count":2,"msg":"Migrated users from JSON"}
+{"level":30,"time":1783661454051,"pid":2764,"hostname":"IbnAbubakri","count":1,"msg":"Migrated refresh tokens from JSON"}
+{"level":30,"time":1783661468929,"pid":2780,"hostname":"IbnAbubakri","path":"/home/faaruq/FintechApp/server/data/billxpress.db","msg":"Database initialized"}
+{"level":30,"time":1783661468932,"pid":2780,"hostname":"IbnAbubakri","count":2,"msg":"Migrated users from JSON"}
+{"level":30,"time":1783661468933,"pid":2780,"hostname":"IbnAbubakri","total":1,"migrated":1,"msg":"Migrated refresh tokens from JSON"}
+{"level":30,"time":1783661468933,"pid":2780,"hostname":"IbnAbubakri","total":2,"migrated":1,"msg":"Migrated sessions from JSON"}
+{"level":30,"time":1783661468934,"pid":2780,"hostname":"IbnAbubakri","count":7,"msg":"Migrated audit logs from JSON"}
+{"level":30,"time":1783661468935,"pid":2780,"hostname":"IbnAbubakri","msg":"Migration complete"}
+{"level":30,"time":1783661468942,"pid":2780,"hostname":"IbnAbubakri","msg":"Server running on http://localhost:4000 [development]"}
+{"level":30,"time":1783661481243,"pid":2793,"hostname":"IbnAbubakri","path":"/home/faaruq/FintechApp/server/data/billxpress.db","msg":"Database initialized"}
+{"level":30,"time":1783661481254,"pid":2793,"hostname":"IbnAbubakri","msg":"Database already has data, skipping migration"}
+{"level":30,"time":1783661481260,"pid":2793,"hostname":"IbnAbubakri","msg":"Server running on http://localhost:4000 [development]"}
+{"level":30,"time":1783661503634,"pid":2819,"hostname":"IbnAbubakri","path":"/home/faaruq/FintechApp/server/data/billxpress.db","msg":"Database initialized"}
+{"level":30,"time":1783661503635,"pid":2819,"hostname":"IbnAbubakri","msg":"Database already has data, skipping migration"}
+{"level":30,"time":1783661503641,"pid":2819,"hostname":"IbnAbubakri","msg":"Server running on http://localhost:4000 [development]"}
+{"level":30,"time":1783661511406,"pid":2855,"hostname":"IbnAbubakri","path":"/home/faaruq/FintechApp/server/data/billxpress.db","msg":"Database initialized"}
+{"level":30,"time":1783661511408,"pid":2855,"hostname":"IbnAbubakri","msg":"Database already has data, skipping migration"}
+{"level":30,"time":1783661511415,"pid":2855,"hostname":"IbnAbubakri","msg":"Server running on http://localhost:4000 [development]"}

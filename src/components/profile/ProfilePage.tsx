@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ArrowLeft, User, Lock, Check, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
+import LogoutModal from "../ui/LogoutModal";
 
 import type { PageProps } from '../../types/page';
 import EmailVerificationModal from "./EmailVerificationModal";
@@ -714,37 +715,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
         onSave={handleBasicInfoSave}
       />
 
-      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
-          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-sm w-full mx-4">
-            <div className="text-center mb-4">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="w-8 h-8 text-red-600" aria-hidden="true" />
-              </div>
-              <h2 className="text-lg font-bold text-black dark:text-white mb-2">
-                Confirm Logout
-              </h2>
-              <p className="text-black dark:text-white mb-4">
-                Are you sure you want to logout?
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="w-1/2 bg-red-600 text-white py-3 rounded-2xl font-medium hover:bg-red-700 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
+        <LogoutModal
+          onConfirm={handleConfirmLogout}
+          onCancel={() => setShowLogoutModal(false)}
+        />
       )}
     </DashboardLayout>
   );

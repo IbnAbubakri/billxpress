@@ -58,6 +58,12 @@ export interface BankDetails {
   accountName: string;
 }
 
+export type ProfileUpdateData = Partial<Pick<User,
+  'name' | 'phone' | 'bvn' | 'accountNumber' | 'bankName' | 'accountName' |
+  'billingStreet' | 'billingCity' | 'billingState' | 'billingCountry' |
+  'homeStreet' | 'homeCity' | 'homeState' | 'homeZip'
+>>;
+
 export interface BasicInfo {
   billingStreet: string;
   billingCity: string;

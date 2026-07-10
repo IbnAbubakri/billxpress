@@ -1,12 +1,42 @@
-import { useState, useEffect, useCallback } from 'react';
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile } from '../api/client';
-import type { User } from '../types';
+import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, sendVerificationEmail as apiSendVerification } from '../api/client';
+import type { User, ProfileUpdateData } from '../types';
 
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
+const AUTH_STORAGE_KEY = 'billxpress_auth';
+const AUTH_TTL = 60 * 60 * 1000;
+
+interface StoredAuth {
+  user: User;
   isAdmin: boolean;
-  isLoading: boolean;
+  timestamp: number;
+}
+
+function loadStoredAuth(): StoredAuth | null {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredAuth;
+    if (Date.now() - parsed.timestamp > AUTH_TTL) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return null;
+  }
+}
+
+function saveStoredAuth(user: User, isAdmin: boolean) {
+  try {
+    const data: StoredAuth = { user, isAdmin, timestamp: Date.now() };
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+  } catch { }
+}
+
+function clearStoredAuth() {
+  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { }
 }
 
 function toUser(data: Record<string, unknown>): User {
@@ -34,86 +64,112 @@ function toUser(data: Record<string, unknown>): User {
   };
 }
 
-export function useAuth() {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    isAdmin: false,
-    isLoading: true,
-  });
+function getInitialAuth() {
+  const stored = loadStoredAuth();
+  if (stored) {
+    return { user: stored.user, isAdmin: stored.isAdmin };
+  }
+  return null;
+}
 
-  const checkAuth = useCallback(async () => {
-    try {
+export function useAuth() {
+  const queryClient = useQueryClient();
+  const initial = getInitialAuth();
+
+  const { data: authData, isLoading } = useQuery({
+    queryKey: ['auth', 'me'],
+    queryFn: async () => {
       const data = await getMe();
       if (data.user) {
-        setState({
-          user: toUser(data.user),
-          isAuthenticated: true,
-          isAdmin: data.user.role === 'admin',
-          isLoading: false,
-        });
-      } else {
-        setState({ user: null, isAuthenticated: false, isAdmin: false, isLoading: false });
+        const u = toUser(data.user);
+        const isAdmin = data.user.role === 'admin';
+        saveStoredAuth(u, isAdmin);
+        return { user: u, isAdmin, isAuthenticated: true };
       }
-    } catch {
-      setState({ user: null, isAuthenticated: false, isAdmin: false, isLoading: false });
-    }
-  }, []);
+      clearStoredAuth();
+      return { user: null, isAdmin: false, isAuthenticated: false };
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+    placeholderData: initial ? { user: initial.user, isAdmin: initial.isAdmin, isAuthenticated: true } : undefined,
+  });
 
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+  const { user, isAdmin, isAuthenticated } = authData || { user: null, isAdmin: false, isAuthenticated: false };
 
-  const handleLogin = useCallback(async (email: string, password: string): Promise<{ user?: User; mfaRequired?: boolean }> => {
-    const data = await apiLogin(email, password);
-    if (data.mfaRequired) {
-      return { mfaRequired: true };
-    }
-    if (data.user) {
-      const u = toUser(data.user);
-      setState({ user: u, isAuthenticated: true, isAdmin: data.user.role === 'admin', isLoading: false });
-      return { user: u };
-    }
-    throw new Error('Login failed');
-  }, []);
+  const loginMutation = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) => apiLogin(email, password),
+    onSuccess: (data) => {
+      if (data.user) {
+        const u = toUser(data.user);
+        const admin = data.user.role === 'admin';
+        saveStoredAuth(u, admin);
+        queryClient.setQueryData(['auth', 'me'], { user: u, isAdmin: admin, isAuthenticated: true });
+      }
+    },
+  });
 
-  const handleRegister = useCallback(async (email: string, password: string): Promise<User> => {
-    const data = await apiRegister(email, password);
-    if (data.user) {
-      const u = toUser(data.user);
-      setState({ user: u, isAuthenticated: true, isAdmin: false, isLoading: false });
-      return u;
-    }
-    throw new Error('Registration failed');
-  }, []);
+  const registerMutation = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) => apiRegister(email, password),
+    onSuccess: (data) => {
+      if (data.user) {
+        const u = toUser(data.user);
+        saveStoredAuth(u, false);
+        queryClient.setQueryData(['auth', 'me'], { user: u, isAdmin: false, isAuthenticated: true });
+      }
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: apiLogout,
+    onSettled: () => {
+      clearStoredAuth();
+      queryClient.setQueryData(['auth', 'me'], { user: null, isAdmin: false, isAuthenticated: false });
+      queryClient.clear();
+    },
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (profileData: ProfileUpdateData) => apiUpdateProfile(profileData),
+    onSuccess: (data) => {
+      if (data.user) {
+        const u = toUser(data.user);
+        const current = queryClient.getQueryData<{ user: User; isAdmin: boolean; isAuthenticated: boolean }>(['auth', 'me']);
+        const admin = current?.isAdmin ?? false;
+        saveStoredAuth(u, admin);
+        queryClient.setQueryData(['auth', 'me'], { user: u, isAdmin: admin, isAuthenticated: true });
+      }
+    },
+  });
+
+  const handleLogin = useCallback(async (email: string, password: string) => {
+    return loginMutation.mutateAsync({ email, password });
+  }, [loginMutation]);
+
+  const handleRegister = useCallback(async (email: string, password: string) => {
+    return registerMutation.mutateAsync({ email, password });
+  }, [registerMutation]);
 
   const handleLogout = useCallback(async () => {
-    try {
-      await apiLogout();
-    } catch {
-      // proceed with local logout even if API fails
-    }
-    setState({ user: null, isAuthenticated: false, isAdmin: false, isLoading: false });
-  }, []);
+    return logoutMutation.mutateAsync();
+  }, [logoutMutation]);
 
-  const handleUpdateProfile = useCallback(async (profileData: Record<string, unknown>): Promise<User> => {
-    const data = await apiUpdateProfile(profileData);
-    if (data.user) {
-      const u = toUser(data.user);
-      setState((prev) => ({ ...prev, user: u }));
-      return u;
-    }
-    throw new Error('Profile update failed');
+  const handleUpdateProfile = useCallback(async (profileData: ProfileUpdateData) => {
+    return updateProfileMutation.mutateAsync(profileData);
+  }, [updateProfileMutation]);
+
+  const handleSendVerification = useCallback(async () => {
+    return apiSendVerification();
   }, []);
 
   return {
-    user: state.user,
-    isAuthenticated: state.isAuthenticated,
-    isAdmin: state.isAdmin,
-    isLoading: state.isLoading,
+    user,
+    isAuthenticated,
+    isAdmin,
+    isLoading,
     handleLogin,
     handleRegister,
     handleLogout,
     handleUpdateProfile,
+    handleSendVerification,
   };
 }

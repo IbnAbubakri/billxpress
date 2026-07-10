@@ -1,79 +1,63 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { loadJSON, saveJSON } from './utils/fileStore.js';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { getDb } from './utils/db.js';
 import logger from './utils/logger.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const USERS_PATH = resolve(__dirname, '../data/users.json');
 const SALT_ROUNDS = 12;
-
 const DEMO_EMAIL = 'demo@billxpress.com';
-const DEMO_PASSWORD = 'DemoXy7!kqmn92';
 
 export default async function seed() {
-  const users = loadJSON(USERS_PATH, []);
-  if (users.some((u) => u.email === DEMO_EMAIL)) return;
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(DEMO_EMAIL);
+  if (existing) return;
 
-  const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, SALT_ROUNDS);
-  const user = {
-    id: uuidv4(),
-    email: DEMO_EMAIL,
-    password: hashedPassword,
-    role: 'user',
-    name: 'Abubakri Faaruq',
-    phone: '09061345507',
-    balance: 250000.50,
-    hasTransactionPin: true,
-    bvn: '22334455667',
-    accountNumber: '0123456789',
-    bankName: 'GTBank',
-    accountName: 'Abubakri Faaruq',
-    billingStreet: '42 Marina Road',
-    billingCity: 'Lagos Island',
-    billingState: 'Lagos',
-    billingCountry: 'Nigeria',
-    homeStreet: '15 Bode Thomas Street',
-    homeCity: 'Surulere',
-    homeState: 'Lagos',
-    homeZip: '101283',
-    avatar: '',
-    createdAt: new Date().toISOString(),
-    emailVerified: true,
-    emailVerificationToken: null,
-    emailVerificationExpires: null,
-    mfaSecret: null,
-    mfaEnabled: false,
-    failedLoginAttempts: 0,
-    lockedUntil: null,
-    lastLogin: null,
-    passwordHistory: [],
-    passwordChangedAt: new Date().toISOString(),
-  };
-  users.push(user);
+  const now = new Date().toISOString();
+  const hashedPassword = await bcrypt.hash('DemoXy7!kqmn92', SALT_ROUNDS);
+
+  db.prepare(`
+    INSERT INTO users (id, email, password, role, name, phone, balance,
+      hasTransactionPin, bvn, accountNumber, bankName, accountName,
+      billingStreet, billingCity, billingState, billingCountry,
+      homeStreet, homeCity, homeState, homeZip, avatar,
+      emailVerified, createdAt, lastLogin, passwordChangedAt,
+      passwordHistory)
+    VALUES (?, ?, ?, 'user', ?, ?, ?,
+      1, ?, ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?, ?, ?,
+      1, ?, ?, ?,
+      '[]')
+  `).run(
+    uuidv4(),
+    DEMO_EMAIL,
+    hashedPassword,
+    'Abubakri Faaruq',
+    '09061345507',
+    250000.50,
+    '22334455667',
+    '0123456789',
+    'GTBank',
+    'Abubakri Faaruq',
+    '42 Marina Road',
+    'Lagos Island',
+    'Lagos',
+    'Nigeria',
+    '15 Bode Thomas Street',
+    'Surulere',
+    'Lagos',
+    '101283',
+    '',
+    now,
+    now,
+    now,
+  );
 
   const adminPassword = await bcrypt.hash('Admin@123Xpress', SALT_ROUNDS);
-  const adminUser = {
-    id: uuidv4(),
-    email: 'admin@billxpress.com',
-    password: adminPassword,
-    role: 'admin',
-    createdAt: new Date().toISOString(),
-    emailVerified: true,
-    emailVerificationToken: null,
-    emailVerificationExpires: null,
-    mfaSecret: null,
-    mfaEnabled: false,
-    failedLoginAttempts: 0,
-    lockedUntil: null,
-    lastLogin: null,
-    passwordHistory: [],
-    passwordChangedAt: new Date().toISOString(),
-  };
-  users.push(adminUser);
+  db.prepare(`
+    INSERT INTO users (id, email, password, role, emailVerified, createdAt, passwordChangedAt, passwordHistory)
+    VALUES (?, ?, ?, 'admin', 1, ?, ?, '[]')
+  `).run(uuidv4(), 'admin@billxpress.com', adminPassword, now, now);
 
-  saveJSON(USERS_PATH, users);
   logger.info({ email: DEMO_EMAIL }, 'Seeded demo user');
   logger.info({ email: 'admin@billxpress.com' }, 'Seeded admin user');
 }

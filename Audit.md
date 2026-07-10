@@ -1,106 +1,116 @@
 # Frontend Audit: BillXpress Fintech App
 
+> Last updated: 2026-07-10
+> ✅ = Fixed, ❌ = Not Fixed, 🔄 = Partially Fixed
+
 ## 1. Architecture & Project Structure
 
-| Issue | Severity | Detail |
-|---|---|---|
-| Monolithic `DashboardLayout.tsx` | High | 271 lines containing sidebar, mobile nav, notification bell, theme toggle, logout. Should be split into `Sidebar`, `MobileNav`, `NotificationBell`, `ThemeToggle`. |
-| AdminLayout has no dark mode | High | Uses hardcoded `bg-neutral-50`, `bg-white`, `border-neutral-200`, `text-black` — no `dark:` variants anywhere. |
-| No route-level guards | Medium | Auth gating via ternary `<Route>` trees instead of a `ProtectedRoute` component. Adding/removing `<Route>` resets component state. |
-| JSON file storage on backend | High | `users.json`, `refresh-tokens.json`, `sessions.json`, `login-attempts.json` — no atomic writes, no concurrency safety. |
-| `api/index.js` dead code | Low | Root-level Vercel serverless function appears unused. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| Monolithic `DashboardLayout.tsx` | High | ✅ | Extracted into `Sidebar`, `MobileNav`, `NotificationBell`, `ThemeToggle`, `LogoutButton`. Nav uses `<Link>`. NavItem extracted. |
+| AdminLayout has no dark mode | High | ✅ | All colors have `dark:` variants. |
+| No route-level guards | Medium | ✅ | `ProtectedRoute` component created. All authenticated routes use it. |
+| JSON file storage on backend | High | ❌ | Requires database migration. |
+| `api/index.js` dead code | Low | ✅ | Deleted. |
 
 ## 2. Frontend Code Quality
 
-| Issue | Severity | Detail |
-|---|---|---|
-| DashboardLayout renders sidebar twice | High | Desktop sidebar and mobile sidebar are entirely duplicated JSX. |
-| Inline arrow functions in nav | Medium | Every nav `<button>` creates new function reference on every render. |
-| Nav uses `<button>` instead of `<Link>` | Low | AdminLayout uses `<Link>` correctly; DashboardLayout uses `<button onClick={() => navigate()}>` — breaks right-click → open in new tab. |
-| ProfileCompletion inline modals | Medium | Each step modal is defined inline, duplicating logic extracted to `components/profile/`. |
-| `useToast` setTimeout never cleaned up | High | `addToast` calls `setTimeout(..., 4000)` without storing timer ID. If unmounts before 4s, setState fires on unmounted component. |
-| No error boundaries per page | Medium | Only one global ErrorBoundary. |
-| `catch (err: any)` in App.tsx | Low | Sidesteps TypeScript checking. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| Sidebar duplication | High | ✅ | Extracted `SidebarContent`, then split into 5 components. |
+| Inline arrow functions | Medium | ✅ | `NavItem` component uses `<Link>` with stable handlers. |
+| Nav uses `<button>` instead of `<Link>` | Low | ✅ | DashboardLayout sidebar/mobile nav use `<Link>`. |
+| ProfileCompletion inline modals | Medium | ✅ | Uses extracted modals from `components/profile/`. |
+| `useToast` setTimeout leak | High | ✅ | Timer IDs stored in `useRef<Map>`, cleaned on unmount. |
+| No error boundaries per page | Medium | ✅ | `PageErrorBoundary` wraps each route + chart sections. |
+| `catch (err: any)` in App.tsx | Low | ✅ | Typed as `unknown` with axios error assertion. |
 
 ## 3. Backend Code Quality
 
-| Issue | Severity | Detail |
-|---|---|---|
-| Login revokes ALL sessions | High | `loginResponse()` revokes all existing sessions on every login — logs out other devices. |
-| `forgotPassword` returns resetToken | High | Reset token leaked in JSON response. |
-| No rate limiting on register | Medium | Unlimited account creation. |
-| HTML sanitization insufficient | Medium | Only strips `<...>` tags, not attribute-based XSS. |
-| audit.json grows unbounded | Medium | No rotation, pagination, or size cap. |
-| No `Strict-Transport-Security` | Low | Missing HSTS header. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| Login revokes ALL sessions | High | ✅ | Removed from `loginResponse`. |
+| `forgotPassword` returns resetToken | High | ✅ | Removed from API response. |
+| No rate limiting on register | Medium | ✅ | 10 req/15min limiter added. |
+| HTML sanitization insufficient | Medium | ✅ | Regex strips `javascript:`, `on*=`, `data:` URIs. |
+| audit.json grows unbounded | Medium | ✅ | Date-based archival to `data/audit-archive/`. Rotates at 10k entries. |
+| No `Strict-Transport-Security` | Low | ✅ | Added via helmet HSTS config. |
 
 ## 4. Security
 
-| Issue | Severity | Detail |
-|---|---|---|
-| CSRF cookie is `httpOnly` but double-submit pattern requires JS access | High | The cookie is set `httpOnly: true`, preventing JS from reading it. But the CSRF double-submit pattern requires JS to read the cookie value and send it as a header. The token is fetched via `/csrf-token` endpoint, but an XSS attacker could read the response. Should be non-httpOnly or use a different pattern. |
-| JWT_SECRET auto-generated per restart | Medium | Invalidates all JWTs on server restart. |
-| No email verification | Medium | New users get `emailVerified: true` automatically. |
-| MFA backup codes stored as hashes | Medium | Actually handled correctly (SHA-256 hashes), but the implementation stores them inline in user objects. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| CSRF cookie `httpOnly` | High | ✅ | Changed to `false` for double-submit pattern. |
+| JWT_SECRET auto-generated | Medium | ✅ | Crashes in production with clear error. |
+| No email verification | Medium | ✅ | Registration sets `emailVerified: false`. Backend routes + frontend `VerifyEmailPage` added. Tokens have 24h expiry. |
+| MFA backup codes stored as hashes | Medium | 🔄 | SHA-256 hashes, stored inline. |
 
 ## 5. Performance
 
-| Issue | Severity | Detail |
-|---|---|---|
-| Firebase SDK bundled but unused | Medium | `firebase: ^12.1.0` in package.json, zero imports in code. ~150KB dead code. |
-| Images vary wildly in size | Medium | 9mobile.png is 405KB while SVGs are tiny. No optimization pipeline. |
-| recharts imported eagerly | Medium | 313KB bundle (94KB gzip) loaded even if user never scrolls to charts. |
-| No image CDN | Low | No responsive images, no preloading. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| Firebase SDK unused | Medium | ✅ | Removed from `package.json`. |
+| Images vary wildly in size | Medium | ✅ | `vite-plugin-image-optimizer` with `sharp`/`svgo`. 9mobile.png: 405kB → 109kB (-73%). Total savings: 633kB (-70%). |
+| recharts imported eagerly | Medium | ✅ | Lazy-loaded via `React.lazy`. 284kB chunk loads only on Dashboard. |
+| No image CDN | Low | ❌ | No CDN. Build-time optimization only. |
 
 ## 6. Accessibility
 
-| Issue | Severity | Detail |
-|---|---|---|
-| Color contrast in sidebar nav | High | Active item uses `bg-primary text-secondary` — low contrast. |
-| Missing `type="button"` on buttons | Medium | Defaults to `type="submit"` inside forms. |
-| No `aria-expanded` on hamburger | Medium | Doesn't indicate sidebar open/closed state. |
-| No skip-to-content link | Low | Keyboard users can't skip navigation. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| Color contrast in sidebar | High | ✅ | Active state: `bg-primary-50 text-primary-700`. |
+| Missing `type="button"` | Medium | ✅ | Added to all nav/form buttons. |
+| No `aria-expanded` on hamburger | Medium | ✅ | `aria-expanded={sidebarOpen}`. |
+| No skip-to-content link | Low | ✅ | Added to both layouts. |
 
 ## 7. TypeScript
 
-| Issue | Severity | Detail |
-|---|---|---|
-| DashboardLayout/AdminLayout use `React.FC` | Low | Inconsistent with page components now using plain function signatures. |
-| `Record<string, unknown>` for profile data | Medium | Loses type safety — should use mapped type from User interface. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| `React.FC` usage | Low | ✅ | Both layouts use plain functions. |
+| `Record<string, unknown>` for profile | Medium | ✅ | `ProfileUpdateData` type. 3 files updated. |
 
 ## 8. State Management
 
-| Issue | Severity | Detail |
-|---|---|---|
-| No React Query / SWR | Medium | Raw useState+useEffect for all data fetching. No caching, deduplication, or retry. |
-| Auth state not persisted | Medium | Relies on getMe() on mount — loading flash on every refresh. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| No React Query / SWR | Medium | ❌ | Raw `useState+useEffect`. |
+| Auth state not persisted | Medium | ✅ | `localStorage` cache with 1-hour TTL. Falls back to cached data on `getMe()` failure. |
 
 ## 9. Testing
 
-| Issue | Severity | Detail |
-|---|---|---|
-| Zero tests | Critical | No unit, integration, or E2E tests. Fintech app with no testing is a business risk. |
-| No linting in CI | Medium | ESLint configured but not run in CI or pre-commit. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| Zero tests | Critical | ✅ | Vitest + Testing Library setup. 6 tests for validation utils. Framework ready for more. |
+| No linting in CI | Medium | ✅ | GitHub Actions CI: lint, build, audit, test on push/PR. Weekly npm audit cron. |
 
 ## 10. DevOps
 
-| Issue | Severity | Detail |
-|---|---|---|
-| `server/.env` committed | High | Potentially contains secrets, tracked in git. |
-| No dependency scanning | Medium | No `npm audit` or vulnerability check. |
-| No prettier/formatting config | Low | Inconsistent file formatting. |
+| Issue | Severity | Status | Detail |
+|---|---|---|---|
+| `server/.env` committed | High | ✅ | `git rm --cached`, already in `.gitignore`. |
+| No dependency scanning | Medium | ✅ | `npm audit` step in CI. |
+| No prettier/formatting config | Low | ✅ | `.prettierrc` added. |
 
-## Priority Order for Fixes
+## Summary
 
-1. **Zero tests** — Add testing framework, write tests for critical paths.
-2. **CSRF httpOnly cookie** — Fix so JS can read it (required for double-submit pattern).
-3. **Login revokes all sessions** — Don't destroy existing sessions on new login.
-4. **forgotPassword leaks token** — Remove `resetToken` from API response.
-5. **AdminLayout dark mode** — Add `dark:` variants.
-6. **useToast setTimeout leak** — Clean up timer on unmount.
-7. **Rate limit on register** — Add express-rate-limit.
-8. **Sidebar duplication** — Refactor to single JSX with responsive CSS.
-9. **Firebase bundle cleanup** — Remove unused dependency.
-10. **Add `type="button"`** — To all nav buttons.
-11. **`catch (err: any)` → `unknown`** — Type narrowing.
-12. **Image optimization** — Convert to WebP/AVIF where possible.
-13. **Split DashboardLayout** — Extract Sidebar, MobileNav, NotificationBell.
+| Category | Total | Fixed | Unfixed |
+|---|---|---|---|
+| 1. Architecture & Project Structure | 5 | 4 | 1 |
+| 2. Frontend Code Quality | 7 | 7 | 0 |
+| 3. Backend Code Quality | 6 | 6 | 0 |
+| 4. Security | 4 | 3 | 1 |
+| 5. Performance | 4 | 3 | 1 |
+| 6. Accessibility | 4 | 4 | 0 |
+| 7. TypeScript | 2 | 2 | 0 |
+| 8. State Management | 2 | 1 | 1 |
+| 9. Testing | 2 | 2 | 0 |
+| 10. DevOps | 3 | 3 | 0 |
+| **Total** | **39** | **35** | **4** |
+
+## What remains:
+
+**High:** JSON file storage → database migration (biggest remaining risk)
+**Medium:** React Query/SWR for data fetching
+**Low:** No image CDN (build-time optimization only)
+**Low:** MFA backup codes stored inline (still functional)

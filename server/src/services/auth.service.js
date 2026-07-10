@@ -1,17 +1,12 @@
 import bcrypt from 'bcryptjs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import { logAction, securityAlert } from './audit.service.js';
-import { loadJSON, saveJSON } from '../utils/fileStore.js';
+import { getDb } from '../utils/db.js';
 import randomToken from '../utils/randomToken.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const USERS_PATH = resolve(__dirname, '../../data/users.json');
-const ATTEMPTS_PATH = resolve(__dirname, '../../data/login-attempts.json');
 const SALT_ROUNDS = 12;
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
@@ -26,11 +21,6 @@ const PASSWORD_POLICY = {
   historySize: 5,
   expiryDays: 90,
 };
-
-function loadUsers() { return loadJSON(USERS_PATH, []); }
-function saveUsers(u) { saveJSON(USERS_PATH, u); }
-function loadAttempts() { return loadJSON(ATTEMPTS_PATH, {}); }
-function saveAttempts(a) { saveJSON(ATTEMPTS_PATH, a); }
 
 export function getPasswordPolicy() {
   return {
@@ -90,8 +80,51 @@ async function checkHIBP(password) {
   }
 }
 
-function isEmailVerified(user) {
-  return user.emailVerified === true;
+function rowToUser(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    email: row.email,
+    password: row.password,
+    role: row.role,
+    name: row.name || '',
+    phone: row.phone || '',
+    balance: row.balance ?? 0,
+    hasTransactionPin: Boolean(row.hasTransactionPin),
+    bvn: row.bvn || '',
+    accountNumber: row.accountNumber || '',
+    bankName: row.bankName || '',
+    accountName: row.accountName || '',
+    billingStreet: row.billingStreet || '',
+    billingCity: row.billingCity || '',
+    billingState: row.billingState || '',
+    billingCountry: row.billingCountry || '',
+    homeStreet: row.homeStreet || '',
+    homeCity: row.homeCity || '',
+    homeState: row.homeState || '',
+    homeZip: row.homeZip || '',
+    avatar: row.avatar || '',
+    emailVerified: Boolean(row.emailVerified),
+    emailVerificationToken: row.emailVerificationToken,
+    emailVerificationExpires: row.emailVerificationExpires,
+    mfaSecret: row.mfaSecret,
+    mfaEnabled: Boolean(row.mfaEnabled),
+    mfaBackupCodes: row.mfaBackupCodes ? JSON.parse(row.mfaBackupCodes) : [],
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    lastLogin: row.lastLogin,
+    failedLoginAttempts: row.failedLoginAttempts ?? 0,
+    lockedUntil: row.lockedUntil,
+    passwordHistory: row.passwordHistory ? JSON.parse(row.passwordHistory) : [],
+    passwordChangedAt: row.passwordChangedAt,
+    resetToken: row.resetToken,
+    resetTokenExpires: row.resetTokenExpires,
+  };
+}
+
+function getUserByEmailRaw(email) {
+  const db = getDb();
+  return rowToUser(db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()));
 }
 
 function getLockoutDuration(attemptCount) {
@@ -105,71 +138,84 @@ function lockoutKey(email, ip) {
 }
 
 function isAccountLocked(email, ip) {
-  const attempts = loadAttempts();
+  const db = getDb();
   const key = lockoutKey(email, ip);
-  const record = attempts[key];
+  const record = db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(key);
   if (!record || record.count < MAX_ATTEMPTS) return false;
   if (new Date(record.lockedUntil) > new Date()) return true;
-  delete attempts[key];
-  saveAttempts(attempts);
+  db.prepare('DELETE FROM login_attempts WHERE key = ?').run(key);
   return false;
 }
 
 const LOCKOUT_MULTI_IP_THRESHOLD = 3;
 
 function recordFailedAttempt(email, ip, userAgent) {
-  const attempts = loadAttempts();
+  const db = getDb();
   const emailKey = email.toLowerCase();
   const ipKey = lockoutKey(email, ip);
-  const now = new Date();
-  if (!attempts[ipKey] || new Date(attempts[ipKey].lockedUntil) < now) {
-    attempts[ipKey] = { count: 0, lastAttempt: now.toISOString(), lockedUntil: null, ips: [] };
-  }
-  if (!attempts[emailKey] || new Date(attempts[emailKey].lockedUntil) < now) {
-    attempts[emailKey] = { count: 0, lastAttempt: now.toISOString(), lockedUntil: null, ips: [] };
-  }
-  attempts[ipKey].count += 1;
-  attempts[emailKey].count += 1;
-  attempts[ipKey].lastAttempt = now.toISOString();
-  attempts[emailKey].lastAttempt = now.toISOString();
-  if (ip && !attempts[ipKey].ips.includes(ip)) {
-    attempts[ipKey].ips.push(ip);
-  }
-  if (ip && !attempts[emailKey].ips.includes(ip)) {
-    attempts[emailKey].ips.push(ip);
-    if (attempts[emailKey].ips.length >= LOCKOUT_MULTI_IP_THRESHOLD) {
-      securityAlert({
-        type: 'MULTI_IP_FAILED_LOGINS',
-        email: emailKey,
-        details: `Failed logins from ${attempts[emailKey].ips.length} different IPs: ${attempts[emailKey].ips.join(', ')}`,
-        ip,
-      });
-    }
-  }
-  logger.warn({ email: emailKey, attempts: attempts[ipKey].count, ip }, 'Failed login attempt');
-  if (attempts[ipKey].count >= MAX_ATTEMPTS) {
-    const lockoutMin = getLockoutDuration(attempts[ipKey].count);
-    attempts[ipKey].lockedUntil = new Date(now.getTime() + lockoutMin * 60 * 1000).toISOString();
-    logger.warn({ email: emailKey, attempts: attempts[ipKey].count, lockoutMin, ip }, 'Account locked due to failed attempts');
+  const now = new Date().toISOString();
+
+  const upsert = db.prepare(`
+    INSERT INTO login_attempts (key, count, lastAttempt, lockedUntil, ips)
+    VALUES (?, 1, ?, NULL, ?)
+    ON CONFLICT(key) DO UPDATE SET
+      count = count + 1,
+      lastAttempt = excluded.lastAttempt,
+      ips = CASE
+        WHEN json_valid(login_attempts.ips) AND json_valid(excluded.ips)
+        THEN (
+          SELECT json_group_array(DISTINCT value)
+          FROM (
+            SELECT value FROM json_each(login_attempts.ips)
+            UNION
+            SELECT value FROM json_each(excluded.ips)
+          )
+        )
+        ELSE excluded.ips
+      END
+  `);
+
+  upsert.run(ipKey, now, JSON.stringify([ip || 'unknown']));
+  upsert.run(emailKey, now, JSON.stringify([ip || 'unknown']));
+
+  const ipRecord = db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(ipKey);
+  const emailRecord = db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(emailKey);
+
+  logger.warn({ email: emailKey, attempts: ipRecord.count, ip }, 'Failed login attempt');
+
+  if (ipRecord.count >= MAX_ATTEMPTS) {
+    const lockoutMin = getLockoutDuration(ipRecord.count);
+    const lockedUntil = new Date(Date.now() + lockoutMin * 60 * 1000).toISOString();
+    db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, ipKey);
+    logger.warn({ email: emailKey, attempts: ipRecord.count, lockoutMin, ip }, 'Account locked due to failed attempts');
     securityAlert({
       type: 'ACCOUNT_LOCKED',
       email: emailKey,
-      details: `Account locked for ${lockoutMin} minutes after ${attempts[ipKey].count} failed attempts from ${ip}`,
+      details: `Account locked for ${lockoutMin} minutes after ${ipRecord.count} failed attempts from ${ip}`,
       ip,
     });
   }
-  saveAttempts(attempts);
+
+  const ips = emailRecord.ips ? JSON.parse(emailRecord.ips) : [];
+  if (ips.length >= LOCKOUT_MULTI_IP_THRESHOLD) {
+    securityAlert({
+      type: 'MULTI_IP_FAILED_LOGINS',
+      email: emailKey,
+      details: `Failed logins from ${ips.length} different IPs: ${ips.join(', ')}`,
+      ip,
+    });
+  }
 }
 
 function clearFailedAttempts(email, ip) {
-  const attempts = loadAttempts();
-  delete attempts[lockoutKey(email, ip)];
-  saveAttempts(attempts);
+  const db = getDb();
+  db.prepare('DELETE FROM login_attempts WHERE key = ?').run(lockoutKey(email, ip));
 }
 
 export async function register({ email, password, ip, userAgent }) {
-  const users = loadUsers();
-  if (users.some((u) => u.email === email.toLowerCase())) {
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
+  if (existing) {
     throw new AppError('Email already registered.', 409);
   }
   const complexityErrors = validatePasswordComplexity(password);
@@ -185,33 +231,19 @@ export async function register({ email, password, ip, userAgent }) {
     throw new AppError('Cannot verify password security. Please try again later.', 503);
   }
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-  const user = {
-    id: uuidv4(),
-    email: email.toLowerCase(),
-    password: hashedPassword,
-    role: 'user',
-    createdAt: new Date().toISOString(),
-    emailVerified: true,
-    emailVerificationToken: null,
-    emailVerificationExpires: null,
-    mfaSecret: null,
-    mfaEnabled: false,
-    failedLoginAttempts: 0,
-    lockedUntil: null,
-    lastLogin: null,
-    passwordHistory: [],
-    passwordChangedAt: new Date().toISOString(),
-  };
-  users.push(user);
-  saveUsers(users);
-  logAction({ userId: user.id, action: 'REGISTER', details: { email: user.email }, ip, userAgent });
-  logger.info({ userId: user.id }, 'User registered');
-  return { id: user.id, email: user.email, role: user.role, emailVerified: true };
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO users (id, email, password, role, createdAt, emailVerified, passwordChangedAt)
+    VALUES (?, ?, ?, 'user', ?, 0, ?)
+  `).run(id, email.toLowerCase(), hashedPassword, now, now);
+  logAction({ userId: id, action: 'REGISTER', details: { email: email.toLowerCase() }, ip, userAgent });
+  logger.info({ userId: id }, 'User registered');
+  return { id, email: email.toLowerCase(), role: 'user', emailVerified: false };
 }
 
 export async function authenticate(email, password, totpCode, ip, userAgent) {
-  const users = loadUsers();
-  const user = users.find((u) => u.email === email.toLowerCase());
+  const user = getUserByEmailRaw(email);
   if (!user) {
     await new Promise((r) => setTimeout(r, 500));
     throw new AppError('Invalid email or password.', 401);
@@ -220,7 +252,7 @@ export async function authenticate(email, password, totpCode, ip, userAgent) {
     logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
     throw new AppError('Account temporarily locked. Try again later.', 423);
   }
-  if (!isEmailVerified(user)) {
+  if (!user.emailVerified) {
     throw new AppError('Please verify your email before signing in.', 403);
   }
   const match = await bcrypt.compare(password, user.password);
@@ -242,28 +274,28 @@ export async function authenticate(email, password, totpCode, ip, userAgent) {
         logAction({ userId: user.id, action: 'MFA_FAILED', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
         throw new AppError('Invalid two-factor code.', 401);
       }
-      user.mfaBackupCodes[idx].used = true;
+      codes[idx].used = true;
+      const db = getDb();
+      db.prepare('UPDATE users SET mfaBackupCodes = ? WHERE id = ?').run(JSON.stringify(codes), user.id);
       logAction({ userId: user.id, action: 'MFA_BACKUP_CODE_USED', details: {}, ip, userAgent, severity: 'high' });
     }
   }
   clearFailedAttempts(email, ip);
-  user.lastLogin = new Date().toISOString();
-  user.failedLoginAttempts = 0;
-  user.lockedUntil = null;
-  saveUsers(users);
+  const db = getDb();
+  const now = new Date().toISOString();
+  db.prepare('UPDATE users SET lastLogin = ?, failedLoginAttempts = 0, lockedUntil = NULL WHERE id = ?').run(now, user.id);
   logAction({ userId: user.id, action: 'LOGIN', details: { email: user.email }, ip, userAgent });
   logger.info({ userId: user.id }, 'User authenticated');
   return { id: user.id, email: user.email, role: user.role };
 }
 
 export async function forgotPassword(email, ip, userAgent) {
-  const users = loadUsers();
-  const user = users.find((u) => u.email === email.toLowerCase());
+  const user = getUserByEmailRaw(email);
   if (!user) return { message: 'If that email exists, a reset link has been sent.' };
   const resetToken = randomToken(32);
-  user.resetToken = resetToken;
-  user.resetTokenExpires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-  saveUsers(users);
+  const db = getDb();
+  db.prepare('UPDATE users SET resetToken = ?, resetTokenExpires = ? WHERE id = ?')
+    .run(resetToken, new Date(Date.now() + 15 * 60 * 1000).toISOString(), user.id);
   logAction({ userId: user.id, action: 'PASSWORD_RESET_REQUESTED', details: { email: user.email }, ip, userAgent, severity: 'high' });
   stubEmail(email, 'Password Reset', `Reset token: ${resetToken}`);
   logger.info({ userId: user.id }, 'Password reset requested');
@@ -275,8 +307,8 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   if (complexityErrors.length) {
     throw new AppError(complexityErrors.join(' '), 400);
   }
-  const users = loadUsers();
-  const user = users.find((u) => u.resetToken === token);
+  const db = getDb();
+  const user = db.prepare('SELECT * FROM users WHERE resetToken = ?').get(token);
   if (!user || new Date(user.resetTokenExpires) < new Date()) {
     throw new AppError('Invalid or expired reset token.', 400);
   }
@@ -288,43 +320,44 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   if (pwned === null) {
     throw new AppError('Cannot verify password security. Please try again later.', 503);
   }
-  if (!user.passwordHistory) user.passwordHistory = [];
-  for (const oldHash of user.passwordHistory) {
+  const passwordHistory = user.passwordHistory ? JSON.parse(user.passwordHistory) : [];
+  for (const oldHash of passwordHistory) {
     if (await bcrypt.compare(newPassword, oldHash)) {
       throw new AppError('Cannot reuse a recent password.', 400);
     }
   }
-  user.passwordHistory.push(user.password);
-  if (user.passwordHistory.length > PASSWORD_POLICY.historySize) {
-    user.passwordHistory.shift();
+  passwordHistory.push(user.password);
+  if (passwordHistory.length > PASSWORD_POLICY.historySize) {
+    passwordHistory.shift();
   }
-  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
-  user.passwordChangedAt = new Date().toISOString();
-  user.resetToken = null;
-  user.resetTokenExpires = null;
-  user.emailVerified = true;
-  saveUsers(users);
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  const now = new Date().toISOString();
+  db.prepare(`
+    UPDATE users SET password = ?, passwordChangedAt = ?, resetToken = NULL,
+      resetTokenExpires = NULL, emailVerified = 1, passwordHistory = ?
+    WHERE id = ?
+  `).run(hashedPassword, now, JSON.stringify(passwordHistory), user.id);
   logAction({ userId: user.id, action: 'PASSWORD_RESET_COMPLETED', details: {}, ip, userAgent, severity: 'high' });
   logger.info({ userId: user.id }, 'Password reset completed');
   return { userId: user.id, message: 'Password updated.' };
 }
 
 export function getUserById(id) {
-  const users = loadUsers();
-  const user = users.find((u) => u.id === id);
+  const db = getDb();
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   if (!user) return null;
   return {
     id: user.id,
     email: user.email,
     role: user.role,
-    emailVerified: user.emailVerified,
-    mfaEnabled: user.mfaEnabled,
+    emailVerified: Boolean(user.emailVerified),
+    mfaEnabled: Boolean(user.mfaEnabled),
     createdAt: user.createdAt,
     lastLogin: user.lastLogin,
     name: user.name || '',
     phone: user.phone || '',
     balance: user.balance ?? 0,
-    hasTransactionPin: user.hasTransactionPin ?? false,
+    hasTransactionPin: Boolean(user.hasTransactionPin),
     bvn: user.bvn || '',
     accountNumber: user.accountNumber || '',
     bankName: user.bankName || '',
@@ -342,8 +375,8 @@ export function getUserById(id) {
 }
 
 export function updateUserProfile(id, profileData, ip, userAgent) {
-  const users = loadUsers();
-  const user = users.find((u) => u.id === id);
+  const db = getDb();
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   if (!user) throw new AppError('User not found.', 404);
 
   const allowedFields = [
@@ -352,24 +385,51 @@ export function updateUserProfile(id, profileData, ip, userAgent) {
     'homeStreet', 'homeCity', 'homeState', 'homeZip', 'avatar',
   ];
 
+  const updates = [];
+  const values = [];
   for (const field of allowedFields) {
     if (profileData[field] !== undefined) {
-      user[field] = profileData[field];
+      updates.push(`${field} = ?`);
+      values.push(profileData[field]);
     }
   }
 
-  user.updatedAt = new Date().toISOString();
-  saveUsers(users);
+  if (updates.length > 0) {
+    updates.push('updatedAt = ?');
+    values.push(new Date().toISOString());
+    values.push(id);
+    db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  }
+
   logAction({ userId: id, action: 'PROFILE_UPDATED', details: {}, ip, userAgent });
   logger.info({ userId: id }, 'User profile updated');
   return getUserById(id);
 }
 
 export function getUserByEmail(email) {
-  const users = loadUsers();
-  const user = users.find((u) => u.email === email.toLowerCase());
-  if (!user) return null;
-  return user;
+  return getUserByEmailRaw(email);
+}
+
+export function generateVerificationToken(user) {
+  const db = getDb();
+  const found = db.prepare('SELECT id FROM users WHERE id = ?').get(user.id);
+  if (!found) throw new AppError('User not found.', 404);
+  const token = randomToken(32);
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  db.prepare('UPDATE users SET emailVerificationToken = ?, emailVerificationExpires = ? WHERE id = ?')
+    .run(token, expires, user.id);
+  return token;
+}
+
+export function verifyEmailToken(token) {
+  const db = getDb();
+  const user = db.prepare('SELECT * FROM users WHERE emailVerificationToken = ?').get(token);
+  if (!user || new Date(user.emailVerificationExpires) < new Date()) {
+    throw new AppError('Invalid or expired verification token.', 400);
+  }
+  db.prepare('UPDATE users SET emailVerified = 1, emailVerificationToken = NULL, emailVerificationExpires = NULL WHERE id = ?')
+    .run(user.id);
+  return { id: user.id, email: user.email };
 }
 
 function stubEmail(to, subject, body) {

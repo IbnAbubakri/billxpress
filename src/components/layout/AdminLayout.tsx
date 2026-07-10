@@ -42,6 +42,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
 
   return (
     <div className="flex h-screen bg-neutral-50 dark:bg-dark-900">
+      <a href="#admin-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary-700 focus:rounded-2xl focus:shadow-lg focus:outline-none">
+        Skip to content
+      </a>
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
@@ -154,7 +157,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4">
+        <main id="admin-content" className="flex-1 overflow-auto p-4">
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 20 }}

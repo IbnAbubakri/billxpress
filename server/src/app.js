@@ -15,7 +15,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+}));
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 200,

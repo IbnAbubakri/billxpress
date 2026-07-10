@@ -4,7 +4,7 @@ import {
   handleLogin, handleRegister, handleLogout, handleRefresh,
   handleMe, handleForgotPassword, handleResetPassword,
   handleSessions, handleDeleteSession, handleLogoutAll, handlePasswordPolicy,
-  handleUpdateProfile,
+  handleUpdateProfile, handleSendVerification, handleVerifyEmail,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { validateLogin, validateRegister, validatePasswordReset } from '../middleware/validate.middleware.js';
@@ -47,6 +47,8 @@ router.post('/refresh', validateCsrf, handleRefresh);
 router.get('/me', authenticate, handleMe);
 router.post('/forgot-password', forgotLimiter, validateCsrf, handleForgotPassword);
 router.post('/reset-password', resetLimiter, validateCsrf, validatePasswordReset, handleResetPassword);
+router.post('/send-verification', authenticate, validateCsrf, handleSendVerification);
+router.post('/verify-email', validateCsrf, handleVerifyEmail);
 router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
 router.get('/sessions', authenticate, handleSessions);
 router.delete('/sessions/:sessionId', authenticate, validateCsrf, handleDeleteSession);

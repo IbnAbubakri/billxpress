@@ -4,9 +4,11 @@ import { getPasswordPolicy, validatePasswordComplexity } from '../services/auth.
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAIL_LENGTH = 254;
 
+const SCRIPT_PATTERN = /<[^>]*>|javascript:|on\w+=|data:/gi;
+
 function sanitize(val) {
   if (typeof val !== 'string') return '';
-  return val.replace(/<[^>]*>/g, '').trim();
+  return val.replace(SCRIPT_PATTERN, '').trim();
 }
 
 function commonValidation(email, password) {

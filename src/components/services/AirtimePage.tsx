@@ -149,6 +149,7 @@ const AirtimePage: React.FC<AirtimePageProps> = ({ user, onLogout }) => {
                   <img
                     src={network.icon}
                     alt={network.name}
+                    loading="lazy"
                     className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow"
                   />
                   <p className="font-medium text-sm">{network.name}</p>
