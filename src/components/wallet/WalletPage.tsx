@@ -1,4 +1,5 @@
-import { ArrowLeft, useState } from "react";
+import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import WalletCard from "../ui/WalletCard";
