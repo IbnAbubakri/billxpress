@@ -16,7 +16,6 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['billxpress.svg', 'logo.svg'],
       manifest: {
         name: 'BillXpress',
         short_name: 'BillXpress',
