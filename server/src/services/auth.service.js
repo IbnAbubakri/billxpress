@@ -268,16 +268,21 @@ export async function authenticate(email, password, totpCode, ip, userAgent) {
     const isValid = authenticator.check(totpCode, user.mfaSecret);
     if (!isValid) {
       const codes = user.mfaBackupCodes || [];
-      const codeHash = crypto.createHash('sha256').update(totpCode).digest('hex');
-      const idx = codes.findIndex((bc) => bc.hash === codeHash && !bc.used);
-      if (idx === -1) {
+      let matched = false;
+      for (const bc of codes) {
+        if (!bc.used && await bcrypt.compare(totpCode, bc.hash)) {
+          bc.used = true;
+          const db = getDb();
+          db.prepare('UPDATE users SET mfaBackupCodes = ? WHERE id = ?').run(JSON.stringify(codes), user.id);
+          logAction({ userId: user.id, action: 'MFA_BACKUP_CODE_USED', details: {}, ip, userAgent, severity: 'high' });
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
         logAction({ userId: user.id, action: 'MFA_FAILED', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
         throw new AppError('Invalid two-factor code.', 401);
       }
-      codes[idx].used = true;
-      const db = getDb();
-      db.prepare('UPDATE users SET mfaBackupCodes = ? WHERE id = ?').run(JSON.stringify(codes), user.id);
-      logAction({ userId: user.id, action: 'MFA_BACKUP_CODE_USED', details: {}, ip, userAgent, severity: 'high' });
     }
   }
   clearFailedAttempts(email, ip);
