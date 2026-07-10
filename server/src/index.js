@@ -5,8 +5,8 @@ import { initDatabase } from './utils/db.js';
 import { migrateFromJSON } from './utils/migrate.js';
 import seed from './seed.js';
 
-initDatabase();
-migrateFromJSON();
+await initDatabase();
+await migrateFromJSON();
 
 app.listen(env.PORT, async () => {
   await seed();

@@ -8,13 +8,13 @@ const DEMO_EMAIL = 'demo@billxpress.com';
 
 export default async function seed() {
   const db = getDb();
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(DEMO_EMAIL);
+  const existing = await db.prepare('SELECT id FROM users WHERE email = ?').get(DEMO_EMAIL);
   if (existing) return;
 
   const now = new Date().toISOString();
   const hashedPassword = await bcrypt.hash('DemoXy7!kqmn92', SALT_ROUNDS);
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO users (id, email, password, role, name, phone, balance,
       hasTransactionPin, bvn, accountNumber, bankName, accountName,
       billingStreet, billingCity, billingState, billingCountry,
@@ -53,7 +53,7 @@ export default async function seed() {
   );
 
   const adminPassword = await bcrypt.hash('Admin@123Xpress', SALT_ROUNDS);
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO users (id, email, password, role, emailVerified, createdAt, passwordChangedAt, passwordHistory)
     VALUES (?, ?, ?, 'admin', 1, ?, ?, '[]')
   `).run(uuidv4(), 'admin@billxpress.com', adminPassword, now, now);

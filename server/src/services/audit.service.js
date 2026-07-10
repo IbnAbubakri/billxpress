@@ -14,22 +14,23 @@ function ensureArchiveDir() {
   }
 }
 
-function rotateIfNeeded() {
+async function rotateIfNeeded() {
   const db = getDb();
-  const { count } = db.prepare('SELECT COUNT(*) as count FROM audit_logs').get();
+  const { count } = await db.prepare('SELECT COUNT(*) as count FROM audit_logs').get();
   if (count <= 10000) return;
 
   const date = new Date().toISOString().slice(0, 10);
   const archivePath = resolve(ARCHIVE_DIR, `audit-${date}.json`);
   ensureArchiveDir();
 
-  const toRotate = db.prepare(`
+  const toRotate = await db.prepare(`
     SELECT * FROM audit_logs ORDER BY timestamp ASC LIMIT ?
   `).all(count - 10000);
 
-  const keptIds = db.prepare(`
+  const keptRows = await db.prepare(`
     SELECT id FROM audit_logs ORDER BY timestamp DESC LIMIT 10000
-  `).all().map(r => r.id);
+  `).all();
+  const keptIds = keptRows.map(r => r.id);
 
   const archive = toRotate.map(r => ({
     timestamp: r.timestamp,
@@ -56,30 +57,30 @@ function rotateIfNeeded() {
     return;
   }
 
-  const placeholders = keptIds.map(() => '?').join(',');
-  db.prepare(`DELETE FROM audit_logs WHERE id NOT IN (${placeholders})`).run(...keptIds);
+  const placeholders = keptIds.map((_, i) => `$${i + 1}`).join(',');
+  await db.prepare(`DELETE FROM audit_logs WHERE id NOT IN (${placeholders})`).run(...keptIds);
 }
 
-export function logAction({ userId, action, details, ip, userAgent, severity = 'info' }) {
+export async function logAction({ userId, action, details, ip, userAgent, severity = 'info' }) {
   const db = getDb();
   const timestamp = new Date().toISOString();
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO audit_logs (timestamp, userId, action, details, ip, userAgent, severity)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(timestamp, userId, action, JSON.stringify(details || {}), ip, userAgent, severity);
 
-  rotateIfNeeded();
+  await rotateIfNeeded();
 
   const level = severity === 'high' ? 'warn' : 'info';
   logger[level]({ userId, action, details, ip }, `[AUDIT] ${action}`);
 }
 
-export function securityAlert({ type, email, userId, ip, details }) {
+export async function securityAlert({ type, email, userId, ip, details }) {
   logger.error(
     { securityEvent: type, email, userId, ip, details },
     `[SECURITY ALERT] ${type}: ${details}`
   );
-  logAction({
+  await logAction({
     userId,
     action: `SECURITY_ALERT:${type}`,
     details,

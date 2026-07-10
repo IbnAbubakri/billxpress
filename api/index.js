@@ -10,8 +10,8 @@ export default async function handler(req, res) {
   if (!ready) {
     if (!readyPromise) {
       readyPromise = (async () => {
-        initDatabase();
-        migrateFromJSON();
+        await initDatabase();
+        await migrateFromJSON();
         await seed();
         ready = true;
       })();

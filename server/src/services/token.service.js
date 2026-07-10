@@ -7,11 +7,11 @@ export function generateAccessToken(payload) {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
 }
 
-export function generateRefreshToken(userId) {
+export async function generateRefreshToken(userId) {
   const db = getDb();
   const token = uuidv4();
   const expiresAt = new Date(Date.now() + parseDuration(env.JWT_REFRESH_EXPIRES_IN)).toISOString();
-  db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(token, userId, expiresAt);
+  await db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(token, userId, expiresAt);
   return token;
 }
 
@@ -19,81 +19,81 @@ export function verifyAccessToken(token) {
   return jwt.verify(token, env.JWT_SECRET);
 }
 
-export function rotateRefreshToken(oldToken, userId) {
+export async function rotateRefreshToken(oldToken, userId) {
   const db = getDb();
-  const deleted = db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(oldToken);
+  const deleted = await db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(oldToken);
   if (deleted.changes === 0) return null;
   const newToken = uuidv4();
   const expiresAt = new Date(Date.now() + parseDuration(env.JWT_REFRESH_EXPIRES_IN)).toISOString();
-  db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(newToken, userId, expiresAt);
+  await db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(newToken, userId, expiresAt);
   return newToken;
 }
 
-export function revokeRefreshToken(token) {
+export async function revokeRefreshToken(token) {
   const db = getDb();
-  db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
+  await db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
 }
 
-export function revokeAllUserRefreshTokens(userId) {
+export async function revokeAllUserRefreshTokens(userId) {
   const db = getDb();
-  db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(userId);
+  await db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(userId);
 }
 
-export function getStoredRefreshToken(token) {
+export async function getStoredRefreshToken(token) {
   const db = getDb();
-  const found = db.prepare('SELECT * FROM refresh_tokens WHERE token = ?').get(token);
+  const found = await db.prepare('SELECT * FROM refresh_tokens WHERE token = ?').get(token);
   if (!found) return null;
   if (new Date(found.expiresAt) < new Date()) {
-    db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
+    await db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
     return null;
   }
   return found;
 }
 
-export function createSession(userId, ip, userAgent) {
+export async function createSession(userId, ip, userAgent) {
   const db = getDb();
   const now = new Date().toISOString();
   const id = uuidv4();
-  db.prepare('INSERT INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent) VALUES (?, ?, ?, ?, ?, ?)')
+  await db.prepare('INSERT INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent) VALUES (?, ?, ?, ?, ?, ?)')
     .run(id, userId, now, now, ip, userAgent);
   return id;
 }
 
-export function updateSessionActivity(sessionId) {
+export async function updateSessionActivity(sessionId) {
   const db = getDb();
-  db.prepare('UPDATE sessions SET lastActivity = ? WHERE id = ?').run(new Date().toISOString(), sessionId);
+  await db.prepare('UPDATE sessions SET lastActivity = ? WHERE id = ?').run(new Date().toISOString(), sessionId);
 }
 
-export function checkSessionActivity(sessionId, idleMinutes) {
+export async function checkSessionActivity(sessionId, idleMinutes) {
   const db = getDb();
-  const s = db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId);
+  const s = await db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId);
   if (!s) return false;
   const elapsed = (new Date() - new Date(s.lastActivity)) / 60000;
   if (elapsed > idleMinutes) {
-    db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
+    await db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
     return false;
   }
   return true;
 }
 
-export function getSessionsByUserId(userId) {
+export async function getSessionsByUserId(userId) {
   const db = getDb();
-  return db.prepare('SELECT * FROM sessions WHERE userId = ?').all(userId);
+  return await db.prepare('SELECT * FROM sessions WHERE userId = ?').all(userId);
 }
 
-export function getSessionById(sessionId) {
+export async function getSessionById(sessionId) {
   const db = getDb();
-  return db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId) || null;
+  return await db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId) || null;
 }
 
-export function deleteSession(sessionId) {
+export async function deleteSession(sessionId) {
   const db = getDb();
-  db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
+  await db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
 }
 
-export function deleteAllUserSessions(userId) {
+export async function deleteAllUserSessions(userId) {
   const db = getDb();
-  db.prepare('DELETE FROM sessions WHERE userId = ?').run(userId);
+  await db.prepare('DELETE FROM sessions WHERE userId = ?').run(userId);
 }
 
 function parseDuration(dur) {

@@ -18,10 +18,10 @@ function readJSON(filename) {
   }
 }
 
-export function migrateFromJSON() {
+export async function migrateFromJSON() {
   const db = getDb();
 
-  const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
+  const { count: userCount } = await db.prepare('SELECT COUNT(*) as count FROM users').get();
   if (userCount > 0) {
     logger.info('Database already has data, skipping migration');
     return;
@@ -30,7 +30,7 @@ export function migrateFromJSON() {
   const users = readJSON('users.json');
   if (users && users.length > 0) {
     const insert = db.prepare(`
-      INSERT OR IGNORE INTO users (id, email, password, role, name, phone, balance,
+      INSERT INTO users (id, email, password, role, name, phone, balance,
         hasTransactionPin, bvn, accountNumber, bankName, accountName,
         billingStreet, billingCity, billingState, billingCountry,
         homeStreet, homeCity, homeState, homeZip, avatar,
@@ -38,63 +38,60 @@ export function migrateFromJSON() {
         mfaSecret, mfaEnabled, mfaBackupCodes,
         createdAt, lastLogin, failedLoginAttempts, lockedUntil,
         passwordHistory, passwordChangedAt, resetToken, resetTokenExpires)
-      VALUES (@id, @email, @password, @role, @name, @phone, @balance,
-        @hasTransactionPin, @bvn, @accountNumber, @bankName, @accountName,
-        @billingStreet, @billingCity, @billingState, @billingCountry,
-        @homeStreet, @homeCity, @homeState, @homeZip, @avatar,
-        @emailVerified, @emailVerificationToken, @emailVerificationExpires,
-        @mfaSecret, @mfaEnabled, @mfaBackupCodes,
-        @createdAt, @lastLogin, @failedLoginAttempts, @lockedUntil,
-        @passwordHistory, @passwordChangedAt, @resetToken, @resetTokenExpires)
+      VALUES (?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
     `);
 
-    const tx = db.transaction(() => {
-      for (const u of users) {
-        insert.run({
-          id: u.id,
-          email: u.email,
-          password: u.password,
-          role: u.role || 'user',
-          name: u.name || '',
-          phone: u.phone || '',
-          balance: u.balance ?? 0,
-          hasTransactionPin: u.hasTransactionPin ? 1 : 0,
-          bvn: u.bvn || '',
-          accountNumber: u.accountNumber || '',
-          bankName: u.bankName || '',
-          accountName: u.accountName || '',
-          billingStreet: u.billingStreet || '',
-          billingCity: u.billingCity || '',
-          billingState: u.billingState || '',
-          billingCountry: u.billingCountry || '',
-          homeStreet: u.homeStreet || '',
-          homeCity: u.homeCity || '',
-          homeState: u.homeState || '',
-          homeZip: u.homeZip || '',
-          avatar: u.avatar || '',
-          emailVerified: u.emailVerified ? 1 : 0,
-          emailVerificationToken: u.emailVerificationToken || null,
-          emailVerificationExpires: u.emailVerificationExpires || null,
-          mfaSecret: u.mfaSecret || null,
-          mfaEnabled: u.mfaEnabled ? 1 : 0,
-          mfaBackupCodes: JSON.stringify(u.mfaBackupCodes || []),
-          createdAt: u.createdAt || new Date().toISOString(),
-          lastLogin: u.lastLogin || null,
-          failedLoginAttempts: u.failedLoginAttempts ?? 0,
-          lockedUntil: u.lockedUntil || null,
-          passwordHistory: JSON.stringify(u.passwordHistory || []),
-          passwordChangedAt: u.passwordChangedAt || null,
-          resetToken: u.resetToken || null,
-          resetTokenExpires: u.resetTokenExpires || null,
-        });
-      }
-    });
-    tx();
+    for (const u of users) {
+      await insert.run(
+        u.id,
+        u.email,
+        u.password,
+        u.role || 'user',
+        u.name || '',
+        u.phone || '',
+        u.balance ?? 0,
+        u.hasTransactionPin ? 1 : 0,
+        u.bvn || '',
+        u.accountNumber || '',
+        u.bankName || '',
+        u.accountName || '',
+        u.billingStreet || '',
+        u.billingCity || '',
+        u.billingState || '',
+        u.billingCountry || '',
+        u.homeStreet || '',
+        u.homeCity || '',
+        u.homeState || '',
+        u.homeZip || '',
+        u.avatar || '',
+        u.emailVerified ? 1 : 0,
+        u.emailVerificationToken || null,
+        u.emailVerificationExpires || null,
+        u.mfaSecret || null,
+        u.mfaEnabled ? 1 : 0,
+        JSON.stringify(u.mfaBackupCodes || []),
+        u.createdAt || new Date().toISOString(),
+        u.lastLogin || null,
+        u.failedLoginAttempts ?? 0,
+        u.lockedUntil || null,
+        JSON.stringify(u.passwordHistory || []),
+        u.passwordChangedAt || null,
+        u.resetToken || null,
+        u.resetTokenExpires || null,
+      );
+    }
     logger.info({ count: users.length }, 'Migrated users from JSON');
   }
 
   const existingUserIds = new Set(
-    db.prepare('SELECT id FROM users').all().map(r => r.id)
+    (await db.prepare('SELECT id FROM users').all()).map(r => r.id)
   );
 
   const refreshTokens = readJSON('refresh-tokens.json');
@@ -102,13 +99,13 @@ export function migrateFromJSON() {
     const valid = refreshTokens.filter(rt => existingUserIds.has(rt.userId));
     if (valid.length > 0) {
       const insert = db.prepare(`
-        INSERT OR IGNORE INTO refresh_tokens (token, userId, expiresAt)
-        VALUES (@token, @userId, @expiresAt)
+        INSERT INTO refresh_tokens (token, userId, expiresAt)
+        VALUES (?, ?, ?)
+        ON CONFLICT DO NOTHING
       `);
-      const tx = db.transaction(() => {
-        for (const rt of valid) insert.run(rt);
-      });
-      tx();
+      for (const rt of valid) {
+        await insert.run(rt.token, rt.userId, rt.expiresAt);
+      }
     }
     logger.info({ total: refreshTokens.length, migrated: valid.length }, 'Migrated refresh tokens from JSON');
   }
@@ -118,13 +115,13 @@ export function migrateFromJSON() {
     const valid = sessions.filter(s => existingUserIds.has(s.userId));
     if (valid.length > 0) {
       const insert = db.prepare(`
-        INSERT OR IGNORE INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent)
-        VALUES (@id, @userId, @createdAt, @lastActivity, @ip, @userAgent)
+        INSERT INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT DO NOTHING
       `);
-      const tx = db.transaction(() => {
-        for (const s of valid) insert.run(s);
-      });
-      tx();
+      for (const s of valid) {
+        await insert.run(s.id, s.userId, s.createdAt, s.lastActivity, s.ip, s.userAgent);
+      }
     }
     logger.info({ total: sessions.length, migrated: valid.length }, 'Migrated sessions from JSON');
   }
@@ -132,21 +129,19 @@ export function migrateFromJSON() {
   const loginAttempts = readJSON('login-attempts.json');
   if (loginAttempts && Object.keys(loginAttempts).length > 0) {
     const insert = db.prepare(`
-      INSERT OR IGNORE INTO login_attempts (key, count, lastAttempt, lockedUntil, ips)
-      VALUES (@key, @count, @lastAttempt, @lockedUntil, @ips)
+      INSERT INTO login_attempts (key, count, lastAttempt, lockedUntil, ips)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING
     `);
-    const tx = db.transaction(() => {
-      for (const [key, record] of Object.entries(loginAttempts)) {
-        insert.run({
-          key,
-          count: record.count || 0,
-          lastAttempt: record.lastAttempt || null,
-          lockedUntil: record.lockedUntil || null,
-          ips: JSON.stringify(record.ips || []),
-        });
-      }
-    });
-    tx();
+    for (const [key, record] of Object.entries(loginAttempts)) {
+      await insert.run(
+        key,
+        record.count || 0,
+        record.lastAttempt || null,
+        record.lockedUntil || null,
+        JSON.stringify(record.ips || []),
+      );
+    }
     logger.info({ count: Object.keys(loginAttempts).length }, 'Migrated login attempts from JSON');
   }
 
@@ -154,22 +149,19 @@ export function migrateFromJSON() {
   if (auditLogs && auditLogs.length > 0) {
     const insert = db.prepare(`
       INSERT INTO audit_logs (timestamp, userId, action, details, ip, userAgent, severity)
-      VALUES (@timestamp, @userId, @action, @details, @ip, @userAgent, @severity)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
-    const tx = db.transaction(() => {
-      for (const entry of auditLogs) {
-        insert.run({
-          timestamp: entry.timestamp,
-          userId: entry.userId || null,
-          action: entry.action,
-          details: JSON.stringify(entry.details || {}),
-          ip: entry.ip || null,
-          userAgent: entry.userAgent || null,
-          severity: entry.severity || 'info',
-        });
-      }
-    });
-    tx();
+    for (const entry of auditLogs) {
+      await insert.run(
+        entry.timestamp,
+        entry.userId || null,
+        entry.action,
+        JSON.stringify(entry.details || {}),
+        entry.ip || null,
+        entry.userAgent || null,
+        entry.severity || 'info',
+      );
+    }
     logger.info({ count: auditLogs.length }, 'Migrated audit logs from JSON');
   }
 

@@ -1,30 +1,18 @@
-import Database from 'better-sqlite3';
-import { resolve, dirname, basename } from 'path';
-import { existsSync, mkdirSync } from 'fs';
-import { fileURLToPath } from 'url';
+import pg from 'pg';
 import logger from './logger.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
 
-function getDbPath() {
-  if (process.env.VERCEL) {
-    const dir = '/tmp/data';
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    return resolve(dir, 'billxpress.db');
-  }
-  const dir = resolve(__dirname, '../../data');
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  return resolve(dir, 'billxpress.db');
-}
+let initialized = false;
 
-const DB_PATH = getDbPath();
-const db = new Database(DB_PATH);
-
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-export function initDatabase() {
-  db.exec(`
+export async function initDatabase() {
+  if (initialized) return;
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -65,36 +53,34 @@ export function initDatabase() {
     );
 
     CREATE TABLE IF NOT EXISTS refresh_tokens (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       token TEXT UNIQUE NOT NULL,
-      userId TEXT NOT NULL,
+      userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       expiresAt TEXT NOT NULL,
-      createdAt TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      createdAt TEXT DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY,
-      userId TEXT NOT NULL,
+      userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       createdAt TEXT NOT NULL,
       lastActivity TEXT NOT NULL,
       ip TEXT,
-      userAgent TEXT,
-      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      userAgent TEXT
     );
 
     CREATE TABLE IF NOT EXISTS login_attempts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       key TEXT UNIQUE NOT NULL,
       count INTEGER DEFAULT 0,
       lastAttempt TEXT,
       lockedUntil TEXT,
       ips TEXT DEFAULT '[]',
-      createdAt TEXT DEFAULT (datetime('now'))
+      createdAt TEXT DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS audit_logs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       timestamp TEXT NOT NULL,
       userId TEXT,
       action TEXT NOT NULL,
@@ -105,17 +91,17 @@ export function initDatabase() {
     );
 
     CREATE TABLE IF NOT EXISTS otps (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       phone TEXT NOT NULL,
       code TEXT NOT NULL,
       expiresAt TEXT NOT NULL,
       verified INTEGER DEFAULT 0,
-      createdAt TEXT DEFAULT (datetime('now')),
+      createdAt TEXT DEFAULT NOW(),
       usedAt TEXT
     );
   `);
 
-  db.exec(`
+  await pool.query(`
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_userId ON refresh_tokens(userId);
@@ -129,34 +115,35 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
   `);
 
-  logger.info({ path: DB_PATH }, 'Database initialized');
-  return db;
+  initialized = true;
+  logger.info('Database initialized (PostgreSQL)');
 }
 
-let otpTableEnsured = false;
-export function ensureOtpTable() {
-  if (otpTableEnsured) return;
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS otps (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      phone TEXT NOT NULL,
-      code TEXT NOT NULL,
-      expiresAt TEXT NOT NULL,
-      verified INTEGER DEFAULT 0,
-      createdAt TEXT DEFAULT (datetime('now')),
-      usedAt TEXT
-    );
-    CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
-  `);
-  otpTableEnsured = true;
+function convertSql(sql) {
+  let i = 0;
+  return sql.replace(/\?/g, () => `$${++i}`);
 }
+
+const compat = {
+  prepare(sql) {
+    const pgSql = convertSql(sql);
+    return {
+      get: (...params) => pool.query(pgSql, params).then(r => r.rows[0] || undefined),
+      all: (...params) => pool.query(pgSql, params).then(r => r.rows),
+      run: (...params) => pool.query(pgSql, params).then(r => ({ changes: r.rowCount })),
+    };
+  },
+  exec(sql) {
+    return pool.query(sql).then(r => ({ changes: r.rowCount }));
+  },
+};
 
 export function getDb() {
-  return db;
+  return compat;
 }
 
-export function closeDb() {
-  db.close();
+export async function closeDb() {
+  await pool.end();
 }
 
-export default db;
+export default compat;

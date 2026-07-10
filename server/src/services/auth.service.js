@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import { logAction, securityAlert } from './audit.service.js';
-import { getDb, ensureOtpTable } from '../utils/db.js';
+import { getDb } from '../utils/db.js';
 import randomToken from '../utils/randomToken.js';
 
 const SALT_ROUNDS = 12;
@@ -132,9 +132,10 @@ function rowToUser(row) {
   };
 }
 
-function getUserByEmailRaw(email) {
+async function getUserByEmailRaw(email) {
   const db = getDb();
-  return rowToUser(db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()));
+  const row = await db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase());
+  return rowToUser(row);
 }
 
 function getLockoutDuration(attemptCount) {
@@ -147,56 +148,64 @@ function lockoutKey(email, ip) {
   return `${email.toLowerCase()}:${ip || 'unknown'}`;
 }
 
-function isAccountLocked(email, ip) {
+async function isAccountLocked(email, ip) {
   const db = getDb();
   const key = lockoutKey(email, ip);
-  const record = db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(key);
+  const record = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(key);
   if (!record || record.count < MAX_ATTEMPTS) return false;
   if (new Date(record.lockedUntil) > new Date()) return true;
-  db.prepare('DELETE FROM login_attempts WHERE key = ?').run(key);
+  await db.prepare('DELETE FROM login_attempts WHERE key = ?').run(key);
   return false;
 }
 
 const LOCKOUT_MULTI_IP_THRESHOLD = 3;
 
-function recordFailedAttempt(email, ip, userAgent) {
+async function recordFailedAttempt(email, ip, userAgent) {
   const db = getDb();
   const emailKey = email.toLowerCase();
   const ipKey = lockoutKey(email, ip);
   const now = new Date().toISOString();
 
-  const upsert = db.prepare(`
+  await db.prepare(`
     INSERT INTO login_attempts (key, count, lastAttempt, lockedUntil, ips)
     VALUES (?, 1, ?, NULL, ?)
     ON CONFLICT(key) DO UPDATE SET
-      count = count + 1,
-      lastAttempt = excluded.lastAttempt,
-      ips = CASE
-        WHEN json_valid(login_attempts.ips) AND json_valid(excluded.ips)
-        THEN (
-          SELECT json_group_array(DISTINCT value)
-          FROM (
-            SELECT value FROM json_each(login_attempts.ips)
-            UNION
-            SELECT value FROM json_each(excluded.ips)
-          )
-        )
-        ELSE excluded.ips
-      END
-  `);
+      count = login_attempts.count + 1,
+      lastAttempt = EXCLUDED.lastAttempt,
+      ips = (
+        SELECT COALESCE(json_agg(DISTINCT elem)::text, ?)
+        FROM (
+          SELECT jsonb_array_elements_text(login_attempts.ips::jsonb) AS elem
+          UNION
+          SELECT jsonb_array_elements_text(EXCLUDED.ips::jsonb) AS elem
+        ) AS combined
+      )
+  `).run(ipKey, now, JSON.stringify([ip || 'unknown']), JSON.stringify([ip || 'unknown']));
+  await db.prepare(`
+    INSERT INTO login_attempts (key, count, lastAttempt, lockedUntil, ips)
+    VALUES (?, 1, ?, NULL, ?)
+    ON CONFLICT(key) DO UPDATE SET
+      count = login_attempts.count + 1,
+      lastAttempt = EXCLUDED.lastAttempt,
+      ips = (
+        SELECT COALESCE(json_agg(DISTINCT elem)::text, ?)
+        FROM (
+          SELECT jsonb_array_elements_text(login_attempts.ips::jsonb) AS elem
+          UNION
+          SELECT jsonb_array_elements_text(EXCLUDED.ips::jsonb) AS elem
+        ) AS combined
+      )
+  `).run(emailKey, now, JSON.stringify([ip || 'unknown']), JSON.stringify([ip || 'unknown']));
 
-  upsert.run(ipKey, now, JSON.stringify([ip || 'unknown']));
-  upsert.run(emailKey, now, JSON.stringify([ip || 'unknown']));
-
-  const ipRecord = db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(ipKey);
-  const emailRecord = db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(emailKey);
+  const ipRecord = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(ipKey);
+  const emailRecord = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(emailKey);
 
   logger.warn({ email: emailKey, attempts: ipRecord.count, ip }, 'Failed login attempt');
 
   if (ipRecord.count >= MAX_ATTEMPTS) {
     const lockoutMin = getLockoutDuration(ipRecord.count);
     const lockedUntil = new Date(Date.now() + lockoutMin * 60 * 1000).toISOString();
-    db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, ipKey);
+    await db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, ipKey);
     logger.warn({ email: emailKey, attempts: ipRecord.count, lockoutMin, ip }, 'Account locked due to failed attempts');
     securityAlert({
       type: 'ACCOUNT_LOCKED',
@@ -217,22 +226,22 @@ function recordFailedAttempt(email, ip, userAgent) {
   }
 }
 
-function clearFailedAttempts(email, ip) {
+async function clearFailedAttempts(email, ip) {
   const db = getDb();
-  db.prepare('DELETE FROM login_attempts WHERE key = ?').run(lockoutKey(email, ip));
+  await db.prepare('DELETE FROM login_attempts WHERE key = ?').run(lockoutKey(email, ip));
 }
 
 export async function register({ email, password, phone, name, ip, userAgent }) {
   const db = getDb();
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
+  const existing = await db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
   if (existing) {
     throw new AppError('Email already registered.', 409);
   }
   if (phone) {
     const normalized = normalizePhone(phone);
-    const existingPhone = db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
+    const existingPhone = await db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
     if (existingPhone) throw new AppError('Phone number already registered.', 409);
-    const verifiedOtp = db.prepare(
+    const verifiedOtp = await db.prepare(
       'SELECT id FROM otps WHERE phone = ? AND verified = 1 AND usedAt > ?'
     ).get(normalized, new Date(Date.now() - 15 * 60 * 1000).toISOString());
     if (!verifiedOtp) {
@@ -254,7 +263,7 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const id = uuidv4();
   const now = new Date().toISOString();
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO users (id, email, password, name, phone, role, createdAt, emailVerified, passwordChangedAt)
     VALUES (?, ?, ?, ?, ?, 'user', ?, 0, ?)
   `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, now);
@@ -264,12 +273,12 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
 }
 
 export async function authenticate(email, password, totpCode, ip, userAgent) {
-  const user = getUserByEmailRaw(email);
+  const user = await getUserByEmailRaw(email);
   if (!user) {
     await new Promise((r) => setTimeout(r, 500));
     throw new AppError('Invalid email or password.', 401);
   }
-  if (isAccountLocked(email, ip)) {
+  if (await isAccountLocked(email, ip)) {
     logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
     throw new AppError('Account temporarily locked. Try again later.', 423);
   }
@@ -278,7 +287,7 @@ export async function authenticate(email, password, totpCode, ip, userAgent) {
   }
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    recordFailedAttempt(email, ip, userAgent);
+    await recordFailedAttempt(email, ip, userAgent);
     throw new AppError('Invalid email or password.', 401);
   }
   if (user.mfaEnabled) {
@@ -294,7 +303,7 @@ export async function authenticate(email, password, totpCode, ip, userAgent) {
         if (!bc.used && await bcrypt.compare(totpCode, bc.hash)) {
           bc.used = true;
           const db = getDb();
-          db.prepare('UPDATE users SET mfaBackupCodes = ? WHERE id = ?').run(JSON.stringify(codes), user.id);
+          await db.prepare('UPDATE users SET mfaBackupCodes = ? WHERE id = ?').run(JSON.stringify(codes), user.id);
           logAction({ userId: user.id, action: 'MFA_BACKUP_CODE_USED', details: {}, ip, userAgent, severity: 'high' });
           matched = true;
           break;
@@ -306,21 +315,21 @@ export async function authenticate(email, password, totpCode, ip, userAgent) {
       }
     }
   }
-  clearFailedAttempts(email, ip);
+  await clearFailedAttempts(email, ip);
   const db = getDb();
   const now = new Date().toISOString();
-  db.prepare('UPDATE users SET lastLogin = ?, failedLoginAttempts = 0, lockedUntil = NULL WHERE id = ?').run(now, user.id);
+  await db.prepare('UPDATE users SET lastLogin = ?, failedLoginAttempts = 0, lockedUntil = NULL WHERE id = ?').run(now, user.id);
   logAction({ userId: user.id, action: 'LOGIN', details: { email: user.email }, ip, userAgent });
   logger.info({ userId: user.id }, 'User authenticated');
   return { id: user.id, email: user.email, role: user.role };
 }
 
 export async function forgotPassword(email, ip, userAgent) {
-  const user = getUserByEmailRaw(email);
+  const user = await getUserByEmailRaw(email);
   if (!user) return { message: 'If that email exists, a reset link has been sent.' };
   const resetToken = randomToken(32);
   const db = getDb();
-  db.prepare('UPDATE users SET resetToken = ?, resetTokenExpires = ? WHERE id = ?')
+  await db.prepare('UPDATE users SET resetToken = ?, resetTokenExpires = ? WHERE id = ?')
     .run(resetToken, new Date(Date.now() + 15 * 60 * 1000).toISOString(), user.id);
   logAction({ userId: user.id, action: 'PASSWORD_RESET_REQUESTED', details: { email: user.email }, ip, userAgent, severity: 'high' });
   stubEmail(email, 'Password Reset', `Reset token: ${resetToken}`);
@@ -334,7 +343,7 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
     throw new AppError(complexityErrors.join(' '), 400);
   }
   const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE resetToken = ?').get(token);
+  const user = await db.prepare('SELECT * FROM users WHERE resetToken = ?').get(token);
   if (!user || new Date(user.resetTokenExpires) < new Date()) {
     throw new AppError('Invalid or expired reset token.', 400);
   }
@@ -358,7 +367,7 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   }
   const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
   const now = new Date().toISOString();
-  db.prepare(`
+  await db.prepare(`
     UPDATE users SET password = ?, passwordChangedAt = ?, resetToken = NULL,
       resetTokenExpires = NULL, emailVerified = 1, passwordHistory = ?
     WHERE id = ?
@@ -368,9 +377,9 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   return { userId: user.id, message: 'Password updated.' };
 }
 
-export function getUserById(id) {
+export async function getUserById(id) {
   const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   if (!user) return null;
   return {
     id: user.id,
@@ -400,9 +409,9 @@ export function getUserById(id) {
   };
 }
 
-export function updateUserProfile(id, profileData, ip, userAgent) {
+export async function updateUserProfile(id, profileData, ip, userAgent) {
   const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   if (!user) throw new AppError('User not found.', 404);
 
   const allowedFields = [
@@ -424,7 +433,7 @@ export function updateUserProfile(id, profileData, ip, userAgent) {
     updates.push('updatedAt = ?');
     values.push(new Date().toISOString());
     values.push(id);
-    db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+    await db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
   }
 
   logAction({ userId: id, action: 'PROFILE_UPDATED', details: {}, ip, userAgent });
@@ -432,28 +441,28 @@ export function updateUserProfile(id, profileData, ip, userAgent) {
   return getUserById(id);
 }
 
-export function getUserByEmail(email) {
+export async function getUserByEmail(email) {
   return getUserByEmailRaw(email);
 }
 
-export function generateVerificationToken(user) {
+export async function generateVerificationToken(user) {
   const db = getDb();
-  const found = db.prepare('SELECT id FROM users WHERE id = ?').get(user.id);
+  const found = await db.prepare('SELECT id FROM users WHERE id = ?').get(user.id);
   if (!found) throw new AppError('User not found.', 404);
   const token = randomToken(32);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-  db.prepare('UPDATE users SET emailVerificationToken = ?, emailVerificationExpires = ? WHERE id = ?')
+  await db.prepare('UPDATE users SET emailVerificationToken = ?, emailVerificationExpires = ? WHERE id = ?')
     .run(token, expires, user.id);
   return token;
 }
 
-export function verifyEmailToken(token) {
+export async function verifyEmailToken(token) {
   const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE emailVerificationToken = ?').get(token);
+  const user = await db.prepare('SELECT * FROM users WHERE emailVerificationToken = ?').get(token);
   if (!user || new Date(user.emailVerificationExpires) < new Date()) {
     throw new AppError('Invalid or expired verification token.', 400);
   }
-  db.prepare('UPDATE users SET emailVerified = 1, emailVerificationToken = NULL, emailVerificationExpires = NULL WHERE id = ?')
+  await db.prepare('UPDATE users SET emailVerified = 1, emailVerificationToken = NULL, emailVerificationExpires = NULL WHERE id = ?')
     .run(user.id);
   return { id: user.id, email: user.email };
 }
@@ -462,22 +471,21 @@ function stubEmail(to, subject, body) {
   logger.info({ emailTo: to, subject }, `[EMAIL STUB] ${body}`);
 }
 
-export function checkPhone(phone) {
+export async function checkPhone(phone) {
   const db = getDb();
   const normalized = normalizePhone(phone);
-  const user = db.prepare('SELECT id, email, name FROM users WHERE phone = ?').get(normalized);
+  const user = await db.prepare('SELECT id, email, name FROM users WHERE phone = ?').get(normalized);
   if (user) {
     return { exists: true, hasEmail: Boolean(user.email), email: user.email || undefined, name: user.name || undefined };
   }
   return { exists: false };
 }
 
-export function sendOtp(phone) {
-  ensureOtpTable();
+export async function sendOtp(phone) {
   const db = getDb();
   const normalized = normalizePhone(phone);
-  db.prepare('DELETE FROM otps WHERE phone = ? AND expiresAt < ?').run(normalized, new Date().toISOString());
-  const recent = db.prepare(
+  await db.prepare('DELETE FROM otps WHERE phone = ? AND expiresAt < ?').run(normalized, new Date().toISOString());
+  const recent = await db.prepare(
     'SELECT COUNT(*) as cnt FROM otps WHERE phone = ? AND createdAt > ?'
   ).get(normalized, new Date(Date.now() - 15 * 60 * 1000).toISOString());
   if (recent.cnt >= 3) {
@@ -485,26 +493,23 @@ export function sendOtp(phone) {
   }
   const code = String(Math.floor(100000 + Math.random() * 900000));
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-  db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
+  await db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
   logger.info({ phone: normalized }, 'OTP sent');
   return { message: 'OTP sent successfully', expiresIn: 600, code };
 }
 
-export function verifyOtp(phone, code) {
-  ensureOtpTable();
+export async function verifyOtp(phone, code) {
   const db = getDb();
   const normalized = normalizePhone(phone);
   const now = new Date().toISOString();
-  const all = db.prepare('SELECT id, phone, code, expiresAt, verified FROM otps WHERE phone = ? ORDER BY createdAt DESC LIMIT 5').all(normalized);
-  logger.info({ phone: normalized, code, now, all }, 'verifyOtp debug');
-  const otp = db.prepare(
-    'SELECT * FROM otps WHERE phone = ? AND code = ? AND verified = 0 AND expiresAt > ? ORDER BY createdAt DESC LIMIT 1'
+  const otp = await db.prepare(
+    'SELECT * FROM otps WHERE phone = ? AND code = ? AND verified = 0 AND expiresAt > ? ORDER BY id DESC LIMIT 1'
   ).get(normalized, code, now);
   if (!otp) {
-    throw new AppError(`Invalid or expired OTP. [phone=${normalized} code=${code} now=${now} all=${JSON.stringify(all)}]`, 400);
+    throw new AppError('Invalid or expired OTP.', 400);
   }
-  db.prepare('UPDATE otps SET verified = 1, usedAt = ? WHERE id = ?').run(now, otp.id);
+  await db.prepare('UPDATE otps SET verified = 1, usedAt = ? WHERE id = ?').run(now, otp.id);
   logger.info({ phone: normalized }, 'OTP verified');
   return { verified: true };
 }
