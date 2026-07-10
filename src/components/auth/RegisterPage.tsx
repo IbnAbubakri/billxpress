@@ -30,7 +30,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const inputClass = (field: string) =>
-    `w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
+    `w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
 
   const handlePhoneSubmit = async () => {
     setGeneralError('');
