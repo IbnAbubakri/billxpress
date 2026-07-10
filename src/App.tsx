@@ -52,6 +52,19 @@ function AppContent() {
   const navigate = useNavigate();
   const { toasts, removeToast, addToast } = useToast();
 
+  function getErrorMessage(err: unknown): string {
+    if (err && typeof err === 'object') {
+      const axiosErr = err as Record<string, unknown>;
+      const response = axiosErr.response as Record<string, unknown> | undefined;
+      if (response?.data && typeof response.data === 'object') {
+        const data = response.data as Record<string, unknown>;
+        if (typeof data.error === 'string') return data.error;
+      }
+      if (typeof axiosErr.message === 'string') return axiosErr.message;
+    }
+    return 'An unexpected error occurred';
+  }
+
   const onLogin = useCallback(
     async (email: string, password: string) => {
       try {
@@ -63,9 +76,7 @@ function AppContent() {
         addToast('Login successful!', 'success');
         navigate('/dashboard');
       } catch (err: unknown) {
-        const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
-        const msg = axiosErr?.response?.data?.error || axiosErr?.message || 'Login failed';
-        addToast(msg, 'error');
+        addToast(getErrorMessage(err), 'error');
         throw err;
       }
     },
@@ -79,9 +90,7 @@ function AppContent() {
         addToast('Account created successfully!', 'success');
         navigate('/dashboard');
       } catch (err: unknown) {
-        const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
-        const msg = axiosErr?.response?.data?.error || axiosErr?.message || 'Registration failed';
-        addToast(msg, 'error');
+        addToast(getErrorMessage(err), 'error');
         throw err;
       }
     },
