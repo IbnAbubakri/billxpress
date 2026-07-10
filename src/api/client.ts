@@ -37,7 +37,8 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/refresh') &&
-      !originalRequest.url?.includes('/csrf-token')
+      !originalRequest.url?.includes('/csrf-token') &&
+      !originalRequest.url?.includes('/me')
     ) {
       originalRequest._retry = true;
       try {

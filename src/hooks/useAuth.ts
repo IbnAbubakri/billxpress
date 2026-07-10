@@ -79,12 +79,16 @@ export function useAuth() {
   const { data: authData, isLoading } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
-      const data = await getMe();
-      if (data.user) {
-        const u = toUser(data.user);
-        const isAdmin = data.user.role === 'admin';
-        saveStoredAuth(u, isAdmin);
-        return { user: u, isAdmin, isAuthenticated: true };
+      try {
+        const data = await getMe();
+        if (data?.user) {
+          const u = toUser(data.user);
+          const isAdmin = data.user.role === 'admin';
+          saveStoredAuth(u, isAdmin);
+          return { user: u, isAdmin, isAuthenticated: true };
+        }
+      } catch {
+        /* 401 is expected when not logged in */
       }
       clearStoredAuth();
       return { user: null, isAdmin: false, isAuthenticated: false };
