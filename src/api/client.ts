@@ -62,9 +62,9 @@ export async function login(email: string, password: string) {
   return data;
 }
 
-export async function register(email: string, password: string) {
+export async function register(email: string, password: string, extra?: { phone?: string; name?: string }) {
   const csrf = await ensureCSRF();
-  const { data } = await api.post('/register', { email, password }, {
+  const { data } = await api.post('/register', { email, password, ...extra }, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;
@@ -121,6 +121,30 @@ export async function verifyEmail(token: string) {
     headers: { 'x-csrf-token': csrf },
   });
   return data;
+}
+
+export async function checkPhone(phone: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/check-phone', { phone }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { exists: boolean; hasEmail?: boolean; email?: string; name?: string };
+}
+
+export async function sendOtp(phone: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/send-otp', { phone }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { message: string; expiresIn: number };
+}
+
+export async function verifyOtp(phone: string, code: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/verify-otp', { phone, code }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { verified: boolean };
 }
 
 export default api;

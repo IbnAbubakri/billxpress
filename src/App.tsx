@@ -84,9 +84,9 @@ function AppContent() {
   );
 
   const onRegister = useCallback(
-    async (email: string, password: string) => {
+    async (data: { email: string; password: string; phone?: string; name?: string }) => {
       try {
-        await handleRegister(email, password);
+        await handleRegister(data);
         addToast('Account created successfully!', 'success');
         navigate('/dashboard');
       } catch (err: unknown) {

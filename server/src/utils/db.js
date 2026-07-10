@@ -103,6 +103,16 @@ export function initDatabase() {
       userAgent TEXT,
       severity TEXT DEFAULT 'info'
     );
+
+    CREATE TABLE IF NOT EXISTS otps (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      code TEXT NOT NULL,
+      expiresAt TEXT NOT NULL,
+      verified INTEGER DEFAULT 0,
+      createdAt TEXT DEFAULT (datetime('now')),
+      usedAt TEXT
+    );
   `);
 
   db.exec(`
@@ -115,6 +125,8 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
     CREATE INDEX IF NOT EXISTS idx_users_resetToken ON users(resetToken);
     CREATE INDEX IF NOT EXISTS idx_users_emailVerificationToken ON users(emailVerificationToken);
+    CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+    CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
   `);
 
   logger.info({ path: DB_PATH }, 'Database initialized');

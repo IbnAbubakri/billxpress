@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, sendVerificationEmail as apiSendVerification } from '../api/client';
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, sendVerificationEmail as apiSendVerification, checkPhone as apiCheckPhone, sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp } from '../api/client';
 import type { User, ProfileUpdateData } from '../types';
 
 const AUTH_STORAGE_KEY = 'billxpress_auth';
@@ -109,7 +109,7 @@ export function useAuth() {
   });
 
   const registerMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) => apiRegister(email, password),
+    mutationFn: ({ email, password, phone, name }: { email: string; password: string; phone?: string; name?: string }) => apiRegister(email, password, { phone, name }),
     onSuccess: (data) => {
       if (data.user) {
         const u = toUser(data.user);
@@ -145,8 +145,8 @@ export function useAuth() {
     return loginMutation.mutateAsync({ email, password });
   }, [loginMutation]);
 
-  const handleRegister = useCallback(async (email: string, password: string) => {
-    return registerMutation.mutateAsync({ email, password });
+  const handleRegister = useCallback(async (data: { email: string; password: string; phone?: string; name?: string }) => {
+    return registerMutation.mutateAsync(data);
   }, [registerMutation]);
 
   const handleLogout = useCallback(async () => {
@@ -161,6 +161,18 @@ export function useAuth() {
     return apiSendVerification();
   }, []);
 
+  const handleCheckPhone = useCallback(async (phone: string) => {
+    return apiCheckPhone(phone);
+  }, []);
+
+  const handleSendOtp = useCallback(async (phone: string) => {
+    return apiSendOtp(phone);
+  }, []);
+
+  const handleVerifyOtp = useCallback(async (phone: string, code: string) => {
+    return apiVerifyOtp(phone, code);
+  }, []);
+
   return {
     user,
     isAuthenticated,
@@ -171,5 +183,8 @@ export function useAuth() {
     handleLogout,
     handleUpdateProfile,
     handleSendVerification,
+    handleCheckPhone,
+    handleSendOtp,
+    handleVerifyOtp,
   };
 }

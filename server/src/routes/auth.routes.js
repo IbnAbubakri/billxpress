@@ -5,6 +5,7 @@ import {
   handleMe, handleForgotPassword, handleResetPassword,
   handleSessions, handleDeleteSession, handleLogoutAll, handlePasswordPolicy,
   handleUpdateProfile, handleSendVerification, handleVerifyEmail,
+  handleCheckPhone, handleSendOtp, handleVerifyOtp,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { validateLogin, validateRegister, validatePasswordReset } from '../middleware/validate.middleware.js';
@@ -53,5 +54,23 @@ router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
 router.get('/sessions', authenticate, handleSessions);
 router.delete('/sessions/:sessionId', authenticate, validateCsrf, handleDeleteSession);
 router.post('/logout-all', authenticate, validateCsrf, handleLogoutAll);
+
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 3,
+  standardHeaders: true, legacyHeaders: false,
+  keyGenerator: (req) => req.body?.phone || req.ip,
+  message: { error: 'Too many OTP requests. Please wait before trying again.' },
+});
+
+const otpVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  keyGenerator: (req) => req.body?.phone || req.ip,
+  message: { error: 'Too many verification attempts. Please wait before trying again.' },
+});
+
+router.post('/check-phone', validateCsrf, handleCheckPhone);
+router.post('/send-otp', otpLimiter, validateCsrf, handleSendOtp);
+router.post('/verify-otp', otpVerifyLimiter, validateCsrf, handleVerifyOtp);
 
 export default router;

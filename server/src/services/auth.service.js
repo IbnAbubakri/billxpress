@@ -33,6 +33,16 @@ export function getPasswordPolicy() {
   };
 }
 
+export function normalizePhone(phone) {
+  let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+  if (cleaned.startsWith('0')) {
+    cleaned = '+234' + cleaned.slice(1);
+  } else if (cleaned.startsWith('234') && !cleaned.startsWith('+234')) {
+    cleaned = '+' + cleaned;
+  }
+  return cleaned;
+}
+
 export function validatePasswordComplexity(password) {
   const errors = [];
   if (password.length < PASSWORD_POLICY.minLength) {
@@ -212,11 +222,22 @@ function clearFailedAttempts(email, ip) {
   db.prepare('DELETE FROM login_attempts WHERE key = ?').run(lockoutKey(email, ip));
 }
 
-export async function register({ email, password, ip, userAgent }) {
+export async function register({ email, password, phone, name, ip, userAgent }) {
   const db = getDb();
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
   if (existing) {
     throw new AppError('Email already registered.', 409);
+  }
+  if (phone) {
+    const normalized = normalizePhone(phone);
+    const existingPhone = db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
+    if (existingPhone) throw new AppError('Phone number already registered.', 409);
+    const verifiedOtp = db.prepare(
+      'SELECT id FROM otps WHERE phone = ? AND verified = 1 AND usedAt > ?'
+    ).get(normalized, new Date(Date.now() - 15 * 60 * 1000).toISOString());
+    if (!verifiedOtp) {
+      throw new AppError('Phone number not verified. Please complete OTP verification.', 400);
+    }
   }
   const complexityErrors = validatePasswordComplexity(password);
   if (complexityErrors.length) {
@@ -234,10 +255,10 @@ export async function register({ email, password, ip, userAgent }) {
   const id = uuidv4();
   const now = new Date().toISOString();
   db.prepare(`
-    INSERT INTO users (id, email, password, role, createdAt, emailVerified, passwordChangedAt)
-    VALUES (?, ?, ?, 'user', ?, 0, ?)
-  `).run(id, email.toLowerCase(), hashedPassword, now, now);
-  logAction({ userId: id, action: 'REGISTER', details: { email: email.toLowerCase() }, ip, userAgent });
+    INSERT INTO users (id, email, password, name, phone, role, createdAt, emailVerified, passwordChangedAt)
+    VALUES (?, ?, ?, ?, ?, 'user', ?, 0, ?)
+  `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, now);
+  logAction({ userId: id, action: 'REGISTER', details: { email: email.toLowerCase(), phone: phone || '' }, ip, userAgent });
   logger.info({ userId: id }, 'User registered');
   return { id, email: email.toLowerCase(), role: 'user', emailVerified: false };
 }
@@ -439,4 +460,50 @@ export function verifyEmailToken(token) {
 
 function stubEmail(to, subject, body) {
   logger.info({ emailTo: to, subject }, `[EMAIL STUB] ${body}`);
+}
+
+export function checkPhone(phone) {
+  const db = getDb();
+  const normalized = normalizePhone(phone);
+  const user = db.prepare('SELECT id, email, name FROM users WHERE phone = ?').get(normalized);
+  if (user) {
+    return { exists: true, hasEmail: Boolean(user.email), email: user.email || undefined, name: user.name || undefined };
+  }
+  return { exists: false };
+}
+
+export function sendOtp(phone) {
+  const db = getDb();
+  const normalized = normalizePhone(phone);
+  db.prepare('DELETE FROM otps WHERE phone = ? AND expiresAt < ?').run(normalized, new Date().toISOString());
+  const recent = db.prepare(
+    'SELECT COUNT(*) as cnt FROM otps WHERE phone = ? AND createdAt > ?'
+  ).get(normalized, new Date(Date.now() - 15 * 60 * 1000).toISOString());
+  if (recent.cnt >= 3) {
+    throw new AppError('Too many OTP requests. Please wait before trying again.', 429);
+  }
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
+  stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
+  logger.info({ phone: normalized }, 'OTP sent');
+  return { message: 'OTP sent successfully', expiresIn: 600 };
+}
+
+export function verifyOtp(phone, code) {
+  const db = getDb();
+  const normalized = normalizePhone(phone);
+  const otp = db.prepare(
+    'SELECT * FROM otps WHERE phone = ? AND code = ? AND verified = 0 AND expiresAt > ? ORDER BY createdAt DESC LIMIT 1'
+  ).get(normalized, code, new Date().toISOString());
+  if (!otp) {
+    throw new AppError('Invalid or expired OTP.', 400);
+  }
+  db.prepare('UPDATE otps SET verified = 1, usedAt = ? WHERE id = ?').run(new Date().toISOString(), otp.id);
+  logger.info({ phone: normalized }, 'OTP verified');
+  return { verified: true };
+}
+
+function stubSms(to, body) {
+  logger.info({ smsTo: to }, `[SMS STUB] ${body}`);
 }

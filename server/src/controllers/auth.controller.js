@@ -1,6 +1,7 @@
 import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
   updateUserProfile, generateVerificationToken, verifyEmailToken,
+  checkPhone, sendOtp, verifyOtp,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
@@ -64,10 +65,31 @@ export async function handleLogin(req, res, next) {
 
 export async function handleRegister(req, res, next) {
   try {
-    const { email, password } = req.body;
-    const user = await register({ email, password, ip: req.clientIp, userAgent: req.clientUA });
+    const { email, password, phone, name } = req.body;
+    const user = await register({ email, password, phone, name, ip: req.clientIp, userAgent: req.clientUA });
     loginResponse(res, user, req);
     logger.info({ userId: user.id }, 'Registration successful');
+  } catch (err) { next(err); }
+}
+
+export async function handleCheckPhone(req, res, next) {
+  try {
+    const result = checkPhone(req.body.phone);
+    res.json(result);
+  } catch (err) { next(err); }
+}
+
+export async function handleSendOtp(req, res, next) {
+  try {
+    const result = sendOtp(req.body.phone);
+    res.json(result);
+  } catch (err) { next(err); }
+}
+
+export async function handleVerifyOtp(req, res, next) {
+  try {
+    const result = verifyOtp(req.body.phone, req.body.code);
+    res.json(result);
   } catch (err) { next(err); }
 }
 
