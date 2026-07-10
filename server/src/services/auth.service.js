@@ -493,13 +493,16 @@ export function sendOtp(phone) {
 export function verifyOtp(phone, code) {
   const db = getDb();
   const normalized = normalizePhone(phone);
+  const now = new Date().toISOString();
+  const all = db.prepare('SELECT id, phone, code, expiresAt, verified FROM otps WHERE phone = ? ORDER BY createdAt DESC LIMIT 5').all(normalized);
+  logger.info({ phone: normalized, code, now, all }, 'verifyOtp debug');
   const otp = db.prepare(
     'SELECT * FROM otps WHERE phone = ? AND code = ? AND verified = 0 AND expiresAt > ? ORDER BY createdAt DESC LIMIT 1'
-  ).get(normalized, code, new Date().toISOString());
+  ).get(normalized, code, now);
   if (!otp) {
     throw new AppError('Invalid or expired OTP.', 400);
   }
-  db.prepare('UPDATE otps SET verified = 1, usedAt = ? WHERE id = ?').run(new Date().toISOString(), otp.id);
+  db.prepare('UPDATE otps SET verified = 1, usedAt = ? WHERE id = ?').run(now, otp.id);
   logger.info({ phone: normalized }, 'OTP verified');
   return { verified: true };
 }
