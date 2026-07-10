@@ -15,6 +15,7 @@ const env = {
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   DATABASE_URL: process.env.DATABASE_URL,
+  SUPABASE_REGION: process.env.SUPABASE_REGION || 'eu-west-1',
   isDev: () => env.NODE_ENV === 'development',
   isProd: () => env.NODE_ENV === 'production',
 };

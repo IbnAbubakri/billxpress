@@ -1,33 +1,26 @@
 import pg from 'pg';
-import { promises as dns } from 'dns';
 import logger from './logger.js';
 
 let pool = null;
 
-function parseDbUrl(url) {
-  const u = new URL(url);
-  return {
-    host: u.hostname,
-    port: parseInt(u.port, 10) || 5432,
-    user: decodeURIComponent(u.username),
-    password: decodeURIComponent(u.password),
-    database: u.pathname.replace(/^\//, ''),
-  };
+function supabasePoolerUrl(dbUrl) {
+  const u = new URL(dbUrl);
+  // Only rewrite if it's a direct Supabase host (*.supabase.co)
+  const match = u.hostname.match(/^db\.(.+)\.supabase\.co$/);
+  if (!match) return dbUrl;
+  const projectRef = match[1];
+  const region = process.env.SUPABASE_REGION || 'eu-west-1';
+  u.hostname = `aws-0-${region}.pooler.supabase.com`;
+  u.port = '6543';
+  u.username = `${u.username}.${projectRef}`;
+  return u.toString();
 }
 
-async function createPool() {
-  const dbUrl = process.env.DATABASE_URL;
+function createPool() {
+  const dbUrl = supabasePoolerUrl(process.env.DATABASE_URL);
   if (!dbUrl) throw new Error('DATABASE_URL not set');
-  const parsed = parseDbUrl(dbUrl);
-  let addresses;
-  try { addresses = await dns.resolve6(parsed.host); }
-  catch { addresses = await dns.resolve4(parsed.host); }
   pool = new pg.Pool({
-    host: addresses[0],
-    port: parsed.port,
-    user: parsed.user,
-    password: parsed.password,
-    database: parsed.database,
+    connectionString: dbUrl,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
