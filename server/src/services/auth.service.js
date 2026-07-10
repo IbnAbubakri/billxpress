@@ -497,7 +497,6 @@ export function verifyOtp(phone, code) {
   const normalized = normalizePhone(phone);
   const now = new Date().toISOString();
   const all = db.prepare('SELECT id, phone, code, expiresAt, verified FROM otps WHERE phone = ? ORDER BY createdAt DESC LIMIT 5').all(normalized);
-  const now = new Date().toISOString();
   logger.info({ phone: normalized, code, now, all }, 'verifyOtp debug');
   const otp = db.prepare(
     'SELECT * FROM otps WHERE phone = ? AND code = ? AND verified = 0 AND expiresAt > ? ORDER BY createdAt DESC LIMIT 1'
