@@ -10,13 +10,26 @@ export default async function handler(req, res) {
   if (!ready) {
     if (!readyPromise) {
       readyPromise = (async () => {
-        await initDatabase();
-        await migrateFromJSON();
-        await seed();
-        ready = true;
+        try {
+          await initDatabase();
+          await migrateFromJSON();
+          await seed();
+          ready = true;
+        } catch (err) {
+          readyPromise = null;
+          throw err;
+        }
       })();
     }
-    await readyPromise;
+    try {
+      await readyPromise;
+    } catch (err) {
+      return res.status(500).json({
+        error: 'Server initialization failed',
+        detail: err.message,
+        stack: err.stack?.split('\n').slice(0, 6).join('\n'),
+      });
+    }
   }
   app(req, res);
 }
