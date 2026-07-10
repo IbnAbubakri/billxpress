@@ -1,18 +1,46 @@
 import pg from 'pg';
+import { promises as dns } from 'dns';
 import logger from './logger.js';
 
-const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-  family: 6,
-});
+let pool = null;
 
-let initialized = false;
+function parseDbUrl(url) {
+  const u = new URL(url);
+  return {
+    host: u.hostname,
+    port: parseInt(u.port, 10) || 5432,
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname.replace(/^\//, ''),
+  };
+}
+
+async function createPool() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) throw new Error('DATABASE_URL not set');
+  const parsed = parseDbUrl(dbUrl);
+  let addresses;
+  try { addresses = await dns.resolve6(parsed.host); }
+  catch { addresses = await dns.resolve4(parsed.host); }
+  pool = new pg.Pool({
+    host: addresses[0],
+    port: parsed.port,
+    user: parsed.user,
+    password: parsed.password,
+    database: parsed.database,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+    ssl: { rejectUnauthorized: false },
+  });
+}
+
+function ensurePool() {
+  if (!pool) throw new Error('Database not initialized. Call initDatabase() first.');
+}
 
 export async function initDatabase() {
-  if (initialized) return;
+  await createPool();
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
@@ -52,7 +80,6 @@ export async function initDatabase() {
       resetToken TEXT,
       resetTokenExpires TEXT
     );
-
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id SERIAL PRIMARY KEY,
       token TEXT UNIQUE NOT NULL,
@@ -60,7 +87,6 @@ export async function initDatabase() {
       expiresAt TEXT NOT NULL,
       createdAt TEXT DEFAULT NOW()
     );
-
     CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY,
       userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -69,7 +95,6 @@ export async function initDatabase() {
       ip TEXT,
       userAgent TEXT
     );
-
     CREATE TABLE IF NOT EXISTS login_attempts (
       id SERIAL PRIMARY KEY,
       key TEXT UNIQUE NOT NULL,
@@ -79,7 +104,6 @@ export async function initDatabase() {
       ips TEXT DEFAULT '[]',
       createdAt TEXT DEFAULT NOW()
     );
-
     CREATE TABLE IF NOT EXISTS audit_logs (
       id SERIAL PRIMARY KEY,
       timestamp TEXT NOT NULL,
@@ -90,7 +114,6 @@ export async function initDatabase() {
       userAgent TEXT,
       severity TEXT DEFAULT 'info'
     );
-
     CREATE TABLE IF NOT EXISTS otps (
       id SERIAL PRIMARY KEY,
       phone TEXT NOT NULL,
@@ -116,7 +139,6 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
   `);
 
-  initialized = true;
   logger.info('Database initialized (PostgreSQL)');
 }
 
@@ -127,6 +149,7 @@ function convertSql(sql) {
 
 const compat = {
   prepare(sql) {
+    ensurePool();
     const pgSql = convertSql(sql);
     return {
       get: (...params) => pool.query(pgSql, params).then(r => r.rows[0] || undefined),
@@ -135,6 +158,7 @@ const compat = {
     };
   },
   exec(sql) {
+    ensurePool();
     return pool.query(sql).then(r => ({ changes: r.rowCount }));
   },
 };
@@ -144,7 +168,7 @@ export function getDb() {
 }
 
 export async function closeDb() {
-  await pool.end();
+  if (pool) await pool.end();
 }
 
 export default compat;
