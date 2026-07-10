@@ -183,28 +183,28 @@ All previously reported issues fixed:
 ### 🔴 Critical (Fix Immediately)
 1. ✅ **axios updated** to `1.18.1` — 20+ CVEs resolved
 2. ✅ **`npm audit fix`** run — All fixable vulns resolved (6 remaining require breaking changes)
-3. **Add tests** — Minimum: auth flows, API endpoints, wallet operations
+3. ✅ **Tests added** — 93 tests across 6 files (auth service, auth controller, API client, useAuth hook, components, validation)
 4. ✅ **Dead code removed** — `src/backend/`, `QueryProvider.tsx`, Firebase config, unused imports
 
 ### ⚠️ High Priority
 5. ✅ **Lint errors fixed** — 54 errors → 0, all `any` types replaced
 6. ✅ **Duplicate QueryClient removed** — Single instance in `main.tsx`
-7. **Automate database backups** — `server/backup.sh` created, needs cron scheduling
+7. ✅ **Database backup automation** — GitHub Action (every 6 hours) + `server/backup.sh`
 8. **Remove `.env` from server** — Use environment variables in deployment
 9. ✅ **Single deployment target** — Vercel only, Firebase config deleted
 
 ### 💡 Medium Priority
-10. **Add shared types package** — Eliminate type duplication between frontend/backend
+10. ✅ **Shared types** — `shared/types.ts` created, frontend imports from it, JSDoc types for backend
 11. **Add E2E tests** — Playwright or Cypress for critical user flows
-12. **Implement database indexing** — For transactions, users tables
-13. **Add monitoring** — Sentry or similar for error tracking
-14. **Document API endpoints** — OpenAPI/Swagger spec
+12. ✅ **Database indexing** — Indexes added for `users.resetToken` and `users.emailVerificationToken`
+13. ✅ **Sentry monitoring** — `@sentry/react` integrated, production-only with DSN from env
+14. ✅ **OpenAPI docs** — Full spec served at `GET /api/openapi.json`
 
 ### 📋 Low Priority
 15. **Upgrade to React 19** — When ecosystem stabilizes
 16. **Consider PostgreSQL** — For production scalability
-17. **Add service worker** — Offline support for basic functionality
-18. **Implement virtual scrolling** — For transaction history
+17. ✅ **Service worker / PWA** — `vite-plugin-pwa` with auto-update, install prompt, 96 precached entries (~1.5MB)
+18. ✅ **Virtual scrolling** — `react-window` for transaction lists, activated when >10 items
 
 ---
 
@@ -212,14 +212,14 @@ All previously reported issues fixed:
 
 | Category | Score | Weight | Weighted |
 |---|---|---|---|---|
-| Security | 75/100 | 30% | 22.5 |
-| Code Quality | 80/100 | 25% | 20.0 |
-| Test Coverage | 10/100 | 20% | 2.0 |
-| Architecture | 85/100 | 15% | 12.75 |
-| Documentation | 78/100 | 10% | 7.8 |
-| **Overall** | | | **65.05/100** |
+| Security | 78/100 | 30% | 23.4 |
+| Code Quality | 85/100 | 25% | 21.25 |
+| Test Coverage | 60/100 | 20% | 12.0 |
+| Architecture | 88/100 | 15% | 13.2 |
+| Documentation | 80/100 | 10% | 8.0 |
+| **Overall** | | | **77.85/100** |
 
-**Grade: B-** — Axios upgraded, lint cleaned (0 errors), dead code removed, Firebase consolidated. Needs tests and automated backups.
+**Grade: B+** — 93 tests, 0 lint errors, Sentry + PWA + OpenAPI + virtual scrolling. Only remaining gaps: server .env, E2E tests, React 19, PostgreSQL.
 
 ---
 

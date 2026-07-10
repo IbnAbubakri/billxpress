@@ -1,9 +1,11 @@
 import { useCallback, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { ErrorBoundary as SentryErrorBoundary } from '@sentry/react';
 
 import LoadingScreen from './components/ui/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
+import PWAPrompt from './components/ui/PWAPrompt';
 import PageErrorBoundary from './components/PageErrorBoundary';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { ToastProvider, useToast } from './hooks/useToast';
@@ -183,19 +185,22 @@ function AppContent() {
       </AnimatePresence>
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <PWAPrompt />
     </Suspense>
   );
 }
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ToastProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </ToastProvider>
-    </ErrorBoundary>
+    <SentryErrorBoundary>
+      <ErrorBoundary>
+        <ToastProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </ToastProvider>
+      </ErrorBoundary>
+    </SentryErrorBoundary>
   );
 }
 

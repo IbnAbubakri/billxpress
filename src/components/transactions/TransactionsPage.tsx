@@ -3,6 +3,7 @@ import { ArrowLeft, Search, Download, Phone, Wifi, Tv, Zap, GraduationCap, Targe
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import ConfirmModal from "../ui/ConfirmModal";
+import VirtualTransactionList from "../ui/VirtualTransactionList";
 
 import type { PageProps } from '../../types/page';
 
@@ -177,45 +178,60 @@ const TransactionsPage: React.FC<PageProps> = ({
           <div className="p-4 border-b border-gray-200 dark:border-dark-700">
             <h3 className="text-base font-semibold text-black dark:text-white">Transaction History ({filteredTransactions.length})</h3>
           </div>
-          <div className="divide-y divide-gray-200">
-            {filteredTransactions.length > 0 ? (
-              filteredTransactions.map((transaction) => (
-                <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-100 dark:bg-dark-700 rounded-xl flex items-center justify-center mr-4 text-primary">
-                        {getTransactionIcon(transaction.type)}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-black dark:text-white">{transaction.description}</h4>
-                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-                          <span className="text-xs md:text-sm text-black dark:text-white">ID: {transaction.id}</span>
-                          <span className="text-xs md:text-sm text-black dark:text-white truncate max-w-[100px] md:max-w-[160px]">To: {transaction.recipient}</span>
-                          <span className="text-xs md:text-sm text-black dark:text-white whitespace-nowrap">{formatDate(transaction.date)}</span>
+          {filteredTransactions.length > 0 ? (
+            filteredTransactions.length > 10 ? (
+              <VirtualTransactionList
+                transactions={filteredTransactions.map((t) => ({
+                  id: t.id,
+                  type: t.type,
+                  amount: t.amount,
+                  status: t.status,
+                  date: t.date,
+                  description: t.description,
+                }))}
+                height={640}
+                itemSize={80}
+              />
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {filteredTransactions.map((transaction) => (
+                  <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-gray-100 dark:bg-dark-700 rounded-xl flex items-center justify-center mr-4 text-primary">
+                          {getTransactionIcon(transaction.type)}
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-black dark:text-white">{transaction.description}</h4>
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
+                            <span className="text-xs md:text-sm text-black dark:text-white">ID: {transaction.id}</span>
+                            <span className="text-xs md:text-sm text-black dark:text-white truncate max-w-[100px] md:max-w-[160px]">To: {transaction.recipient}</span>
+                            <span className="text-xs md:text-sm text-black dark:text-white whitespace-nowrap">{formatDate(transaction.date)}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-base font-semibold ${transaction.amount > 0 ? "text-green-600" : "text-black dark:text-white"}`}>
-                        {transaction.amount > 0 ? "+" : ""}₦{Math.abs(transaction.amount).toLocaleString()}
-                      </p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(transaction.status)}`}>
-                        {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
-                      </span>
+                      <div className="text-right">
+                        <p className={`text-base font-semibold ${transaction.amount > 0 ? "text-green-600" : "text-black dark:text-white"}`}>
+                          {transaction.amount > 0 ? "+" : ""}₦{Math.abs(transaction.amount).toLocaleString()}
+                        </p>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(transaction.status)}`}>
+                          {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="p-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-black dark:text-white" aria-hidden="true" />
-                </div>
-                <h3 className="text-base font-medium text-black dark:text-white mb-2">No transactions found</h3>
-                <p className="text-black dark:text-white">Try adjusting your search or filter criteria</p>
+                ))}
               </div>
-            )}
-          </div>
+            )
+          ) : (
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-black dark:text-white" aria-hidden="true" />
+              </div>
+              <h3 className="text-base font-medium text-black dark:text-white mb-2">No transactions found</h3>
+              <p className="text-black dark:text-white">Try adjusting your search or filter criteria</p>
+            </div>
+          )}
         </div>
 
         <ConfirmModal show={showLogoutModal} title="Confirm Logout" message="Are you sure you want to logout?" confirmLabel="Logout" onConfirm={handleConfirmLogout} onCancel={handleCancelLogout} />

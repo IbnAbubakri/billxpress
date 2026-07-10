@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Wifi, Phone, Zap, Tv, GraduationCap, MoreHorizontal } from 'lucide-react';
+import VirtualTransactionList from './VirtualTransactionList';
 
 const RecentTransactions = () => {
   const [showAll, setShowAll] = useState(false);
@@ -117,8 +118,6 @@ const RecentTransactions = () => {
     }
   ];
 
-  const transactions = showAll ? allTransactions : allTransactions.slice(0, 5);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Successful':
@@ -145,48 +144,65 @@ const RecentTransactions = () => {
     }
   };
 
+  const listData = allTransactions.map((t) => ({
+    id: t.id,
+    type: t.type,
+    amount: t.amount,
+    status: t.status,
+    date: `${t.date} ${t.time}`,
+    description: t.type,
+  }));
+
+  const displayData = showAll ? listData : listData.slice(0, 5);
+
   return (
     <div className="divide-y divide-gray-100">
-      {transactions.map((transaction) => {
-        const Icon = transaction.icon;
-        return (
-          <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
-            <div className="flex items-start sm:items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0 ${transaction.color}`}>
-                <Icon className="w-5 h-5" aria-hidden="true" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-medium text-black dark:text-white truncate">
-                    {transaction.type}
-                  </h4>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="font-semibold text-black dark:text-white text-sm sm:text-base">
-                      ₦{transaction.amount.toLocaleString()}
-                    </span>
-                    <button aria-label="More options" className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
-                      <MoreHorizontal className="w-4 h-4 text-black dark:text-white" aria-hidden="true" />
-                    </button>
-                  </div>
+      {listData.length > 10 ? (
+        <VirtualTransactionList
+          transactions={showAll ? listData : displayData}
+          height={showAll ? 640 : 320}
+          itemSize={64}
+        />
+      ) : (
+        displayData.map((transaction) => {
+          const original = allTransactions.find((t) => t.id === transaction.id);
+          const Icon = original?.icon ?? Wifi;
+          return (
+            <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0 ${original?.color ?? ''}`}>
+                  <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
-                <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                  <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
-                    <span className="mr-1">{getStatusIcon(transaction.status)}</span>
-                    {transaction.status}
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="font-medium text-black dark:text-white truncate">
+                      {transaction.type}
+                    </h4>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-semibold text-black dark:text-white text-sm sm:text-base">
+                        {'\u20A6'}{transaction.amount.toLocaleString()}
+                      </span>
+                      <button aria-label="More options" className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
+                        <MoreHorizontal className="w-4 h-4 text-black dark:text-white" aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
-                  <span className="text-xs text-black dark:text-white">{transaction.date}</span>
-                  <span className="text-xs text-black dark:text-white">•</span>
-                  <span className="text-xs text-black dark:text-white">{transaction.time}</span>
-                  <span className="hidden md:inline text-xs text-black dark:text-white">•</span>
-                  <span className="hidden md:inline font-mono text-xs text-black dark:text-white">{transaction.transactionId}</span>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
+                      <span className="mr-1">{getStatusIcon(transaction.status)}</span>
+                      {transaction.status}
+                    </div>
+                    <span className="text-xs text-black dark:text-white">{transaction.date}</span>
+                    <span className="hidden md:inline font-mono text-xs text-black dark:text-white">{original?.transactionId}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
-      
+          );
+        })
+      )}
+
       <div className="p-4 text-center">
         <button
           onClick={() => setShowAll(!showAll)}

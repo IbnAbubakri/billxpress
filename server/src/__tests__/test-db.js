@@ -1,29 +1,10 @@
 import Database from 'better-sqlite3';
-import { resolve, dirname, basename } from 'path';
-import { existsSync, mkdirSync } from 'fs';
-import { fileURLToPath } from 'url';
-import logger from './logger.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+export function createTestDb() {
+  const db = new Database(':memory:');
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
 
-function getDbPath() {
-  if (process.env.VERCEL) {
-    const dir = '/tmp/data';
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    return resolve(dir, 'billxpress.db');
-  }
-  const dir = resolve(__dirname, '../../data');
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  return resolve(dir, 'billxpress.db');
-}
-
-const DB_PATH = getDbPath();
-const db = new Database(DB_PATH);
-
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-export function initDatabase() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
@@ -117,16 +98,5 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_users_emailVerificationToken ON users(emailVerificationToken);
   `);
 
-  logger.info({ path: DB_PATH }, 'Database initialized');
   return db;
 }
-
-export function getDb() {
-  return db;
-}
-
-export function closeDb() {
-  db.close();
-}
-
-export default db;
