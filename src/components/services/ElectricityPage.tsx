@@ -13,9 +13,7 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
-interface ElectricityPageProps extends PageProps {}
-
-const ElectricityPage: React.FC<ElectricityPageProps> = ({
+const ElectricityPage: React.FC<PageProps> = ({
   user,
   onLogout,
 }) => {
@@ -25,7 +23,7 @@ const ElectricityPage: React.FC<ElectricityPageProps> = ({
   const [meterNumber, setMeterNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const discos = [

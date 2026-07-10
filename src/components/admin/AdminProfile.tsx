@@ -11,8 +11,6 @@ import {
   X,
   Eye,
   EyeOff,
-  Bell,
-  Settings,
   Lock
 } from 'lucide-react';
 

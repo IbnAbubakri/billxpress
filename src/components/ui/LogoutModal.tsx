@@ -1,5 +1,4 @@
 import ConfirmModal from "./ConfirmModal";
-import type { User } from "../../types";
 
 interface LogoutModalProps {
   show?: boolean;

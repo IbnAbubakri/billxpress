@@ -6,16 +6,14 @@ import { AIRTIME_NETWORKS } from "../../constants/networks";
 
 import type { PageProps } from '../../types/page';
 
-interface AirtimePageProps extends PageProps {}
-
-const AirtimePage: React.FC<AirtimePageProps> = ({ user, onLogout }) => {
+const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [selectedAmount, setSelectedAmount] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
 
   const networks = AIRTIME_NETWORKS;
 

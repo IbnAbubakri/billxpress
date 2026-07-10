@@ -9,9 +9,7 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
-interface TVSubscriptionPageProps extends PageProps {}
-
-const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
+const TVSubscriptionPage: React.FC<PageProps> = ({
   user,
   onLogout,
 }) => {
@@ -20,7 +18,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
   const [smartCardNumber, setSmartCardNumber] = useState("");
   const [selectedPackage, setSelectedPackage] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const providers = [
@@ -74,7 +72,7 @@ const TVSubscriptionPage: React.FC<TVSubscriptionPageProps> = ({
     setSmartCardNumber(cleaned);
 
     const error = validateSmartCardNumber(cleaned);
-    setErrors((prev: any) => ({ ...prev, smartCardNumber: error }));
+    setErrors((prev: Record<string, string | null>) => ({ ...prev, smartCardNumber: error }));
   };
 
   const handleProviderChange = (providerId: string) => {

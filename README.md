@@ -6,7 +6,7 @@ VTU & Digital Services Platform — Buy airtime, data, pay bills, and manage tra
 
 ## Overview
 
-BillXpress lets users purchase airtime and data bundles, subscribe to TV (DSTV/GOTV/Startimes), pay electricity bills, fund education exams (WAEC, NECO, JAMB, NABTEB), and place betting deposits. Built as a React SPA with mock/localStorage auth — no real backend.
+BillXpress lets users purchase airtime and data bundles, subscribe to TV (DSTV/GOTV/Startimes), pay electricity bills, fund education exams (WAEC, NECO, JAMB, NABTEB), and place betting deposits. React SPA with Express + SQLite backend, deployed on Vercel.
 
 ---
 
@@ -116,10 +116,8 @@ npm run preview
 
 ## Key Notes
 
-- **No backend**: All auth is localStorage-based. No real API, database, or server.
-- **PHP backend stubs**: `src/backend/` contains old PHP files (`jwt_helper.php`, `numora.sql`) but they are not connected or deployed.
-- **Firebase**: Configured for static hosting only (`firebase.json` rewrites to `index.html`). Not active.
-- **Google OAuth**: `@react-oauth/google` is in `package.json` but never initialized — dead dependency.
+- **Backend**: Express + SQLite (better-sqlite3), deployed via Vercel serverless functions.
+- **Auth**: JWT access + refresh token rotation with httpOnly cookies, CSRF double-submit cookie pattern, account lockout, MFA (TOTP + backup codes), password breach checking (HIBP).
 - **Dark mode**: Toggle in sidebar. Persists to localStorage. Respects `prefers-color-scheme`.
 - **Accessibility**: `htmlFor`/`id` on all labels, `aria-hidden` on decorative icons, `aria-label` on icon buttons, `aria-invalid`/`aria-describedby` on form errors, focus trapping in modals.
 - **Brand color**: Purple `#7C3AED` (secondary in Tailwind config).

@@ -28,8 +28,8 @@ const AdminLogin: React.FC = () => {
       } else {
         setError("Access denied. Admin credentials required.");
       }
-    } catch (err: any) {
-      setError(err?.response?.data?.error || err?.message || "Invalid credentials");
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || "Invalid credentials");
     } finally {
       setIsLoading(false);
     }

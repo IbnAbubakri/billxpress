@@ -16,7 +16,6 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({
   children,
-  user,
   onLogout,
 }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

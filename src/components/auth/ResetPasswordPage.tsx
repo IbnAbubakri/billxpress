@@ -34,8 +34,8 @@ const ResetPasswordPage = () => {
     try {
       await forgotPassword(email);
       setIsSuccess(true);
-    } catch (err: any) {
-      setGeneralError(err?.response?.data?.error || err?.message || 'Failed to send reset link');
+    } catch (err: unknown) {
+      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to send reset link');
     } finally {
       setIsLoading(false);
     }
@@ -50,8 +50,8 @@ const ResetPasswordPage = () => {
     try {
       await resetPassword(resetToken!, newPassword);
       setIsSuccess(true);
-    } catch (err: any) {
-      setPasswordError(err?.response?.data?.error || err?.message || 'Failed to reset password');
+    } catch (err: unknown) {
+      setPasswordError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to reset password');
     } finally {
       setIsLoading(false);
     }

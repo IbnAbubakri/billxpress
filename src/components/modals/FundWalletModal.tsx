@@ -11,7 +11,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
 
   const paymentMethods = [
     {

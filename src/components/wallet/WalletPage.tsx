@@ -8,9 +8,7 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
-interface WalletPageProps extends PageProps {}
-
-const WalletPage = ({ user, onLogout }: WalletPageProps) => {
+const WalletPage = ({ user, onLogout }: PageProps) => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 

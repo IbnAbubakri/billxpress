@@ -32,11 +32,11 @@ function saveStoredAuth(user: User, isAdmin: boolean) {
   try {
     const data: StoredAuth = { user, isAdmin, timestamp: Date.now() };
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
-  } catch { }
+  } catch { /* localStorage unavailable */ }
 }
 
 function clearStoredAuth() {
-  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { }
+  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* localStorage unavailable */ }
 }
 
 function toUser(data: Record<string, unknown>): User {

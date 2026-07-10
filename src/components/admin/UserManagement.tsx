@@ -3,8 +3,6 @@ import { motion } from 'framer-motion';
 import { 
   Users, 
   Search, 
-  Filter, 
-  MoreVertical,
   Eye,
   Ban,
   CheckCircle,

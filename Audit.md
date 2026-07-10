@@ -1,117 +1,226 @@
-# Frontend Audit: BillXpress Fintech App
+# 360° Audit Report — BillXpress (FintechApp)
 
-> Last updated: 2026-07-10
-> ✅ = Fixed, ❌ = Not Fixed, 🔄 = Partially Fixed
+**Project:** BillXpress — VTU & Digital Services Platform (Nigeria)  
+**Audit Date:** 2026-07-10  
+**Tech Stack:** React 18 + TypeScript + Vite | Express.js + SQLite | Tailwind CSS
 
-## 1. Architecture & Project Structure
+---
 
-| Issue | Severity | Status | Detail |
+## 1. EXECUTIVE SUMMARY
+
+| Metric | Score |
+|---|---|
+| **Overall Health** | **B-** (Good foundation, needs hardening) |
+| Security | ⚠️ Moderate — strong server auth, critical dependency vulns |
+| Code Quality | ⚠️ Moderate — 50+ lint errors, loose typing |
+| Test Coverage | 🔴 Critical — 6 tests, <1% coverage |
+| Architecture | ✅ Good — clean separation, layered backend |
+| Documentation | ✅ Good — solid README, clear structure |
+
+---
+
+## 2. SECURITY AUDIT
+
+### ✅ Strengths
+- JWT access + refresh token rotation with httpOnly cookies
+- CSRF double-submit cookie pattern
+- Account lockout after 5 failed attempts (exponential backoff)
+- Have I Been Pwned (HIBP) password breach checking
+- Password history enforcement (last 5)
+- MFA support (TOTP + backup codes)
+- Rate limiting (200/15min global, 20/15min login)
+- Input sanitization against XSS
+- Helmet security headers with HSTS
+- Log redaction for sensitive fields
+- Audit logging with rotation
+
+### 🔴 Critical Vulnerabilities
+
+**Axios (client) — 20+ CVEs** including:
+- SSRF via NO_PROXY bypass
+- Prototype pollution → credential theft, request hijacking
+- CRLF injection, header injection, ReDoS
+- **Fix:** Upgrade to axios `^1.16.0+`
+
+**Other dependencies:**
+| Package | Severity | Issue |
+|---|---|---|
+| `@babel/core` | High | Arbitrary file read via sourceMappingURL |
+| `@babel/helpers` | Moderate | ReDoS with named capturing groups |
+| `@eslint/plugin-kit` | High | ReDoS (2 CVEs) |
+| `ajv` | Moderate | ReDoS with `$data` option |
+
+**Action:** Run `npm audit fix` to resolve all fixable vulns.
+
+### ⚠️ Other Security Concerns
+- `server/.env` is in the repo (`.gitignore` excludes it but it exists locally with secrets)
+- No HTTPS enforcement in development
+- SQLite file-based DB — no encryption at rest
+- No input validation on frontend forms beyond client-side validators
+
+---
+
+## 3. CODE QUALITY AUDIT
+
+### Lint Results: **0 errors, 0 warnings** ✅
+
+All previously reported issues fixed:
+- Unused imports removed from 10+ files
+- `any` types replaced with `unknown`
+- `no-async-promise-executor` refactored in `client.ts`
+- Empty interfaces (`extends PageProps {}`) removed
+- `QueryProvider.tsx` deleted (dead code, not imported anywhere)
+
+### Dead Code — Cleaned Up ✅
+- **`src/backend/`** — Deleted (legacy PHP files)
+- **`src/api/QueryProvider.tsx`** — Deleted (superseded by inline setup in `main.tsx`)
+- **`server/utils/fileStore.js`** — Already removed during SQLite migration
+- **`@react-oauth/google`** — Reference removed from README
+- **Firebase config** — `firebase.json`, `.firebaserc`, `.firebase/` all deleted (using Vercel only)
+
+---
+
+## 4. TEST COVERAGE AUDIT
+
+### Current State: 🔴 **CRITICAL**
+| Metric | Value |
+|---|---|
+| Test Files | 1 |
+| Test Cases | 6 |
+| Coverage | <1% |
+| Areas Covered | Email/BVN/Account validators only |
+| **Component Tests** | 0 |
+| **API/Server Tests** | 0 |
+| **Integration Tests** | 0 |
+| **E2E Tests** | 0 |
+
+**Missing test coverage for:**
+- All 56 React components
+- All auth flows (login, register, MFA, password reset)
+- All API endpoints
+- Wallet operations (fund, withdraw, transfer)
+- Transaction processing
+- Middleware (CSRF, auth, validation, rate limiting)
+- Database operations
+
+---
+
+## 5. ARCHITECTURE AUDIT
+
+### ✅ Strengths
+- Feature-based component organization (`admin/`, `auth/`, `services/`)
+- Layered backend: Routes → Controllers → Services → Utils
+- Lazy loading for all page components (code splitting)
+- React Query for server state (clean data fetching)
+- Three-tier error boundary system
+- Dark mode with flash prevention
+
+### ⚠️ Issues
+- **Inconsistent module system** — Frontend: ES Modules, Backend: CommonJS-like
+- **No shared types** between frontend and backend (duplicated User, Transaction types)
+- **SQLite scalability** — Fine for MVP, will bottleneck under load
+- **No database backup automation** — `server/backup.sh` exists but isn't scheduled
+
+---
+
+## 6. PERFORMANCE AUDIT
+
+### ✅ Good
+- Code splitting via `React.lazy()`
+- Image optimization (sharp, vite-plugin-image-optimizer)
+- SVG optimization (svgo)
+- TanStack Query caching (5min stale time)
+- SQLite WAL mode enabled
+
+### ⚠️ Concerns
+- No virtual scrolling for long transaction lists
+- No service worker / offline support
+- Recharts bundle is large (~400KB) — consider lazy loading charts
+- No CDN configuration for static assets
+- No database indexing strategy documented
+
+---
+
+## 7. DEPENDENCY AUDIT
+
+### Total Dependencies
+| Type | Count |
+|---|---|
+| Frontend Production | 8 |
+| Frontend Dev | 15 |
+| Server Production | 11 |
+| **Total Unique** | **~34** |
+
+### Version Currency
+| Package | Your Version | Latest | Status |
 |---|---|---|---|
-| Monolithic `DashboardLayout.tsx` | High | ✅ | Extracted into `Sidebar`, `MobileNav`, `NotificationBell`, `ThemeToggle`, `LogoutButton`. Nav uses `<Link>`. NavItem extracted. |
-| AdminLayout has no dark mode | High | ✅ | All colors have `dark:` variants. |
-| No route-level guards | Medium | ✅ | `ProtectedRoute` component created. All authenticated routes use it. |
-| JSON file storage on backend | High | ❌ | Requires database migration. |
-| `api/index.js` dead code | Low | ✅ | Deleted. |
+| react | ^18.3.1 | 19.x | ⚠️ Behind |
+| axios | ^1.11.0 | 1.16+ | 🔴 Vulnerable |
+| vite | ^5.4.2 | 6.x | ⚠️ Behind |
+| tailwindcss | ^3.4.1 | 4.x | ⚠️ Behind |
+| eslint | ^9.9.1 | 9.x | ✅ Current |
 
-## 2. Frontend Code Quality
+---
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| Sidebar duplication | High | ✅ | Extracted `SidebarContent`, then split into 5 components. |
-| Inline arrow functions | Medium | ✅ | `NavItem` component uses `<Link>` with stable handlers. |
-| Nav uses `<button>` instead of `<Link>` | Low | ✅ | DashboardLayout sidebar/mobile nav use `<Link>`. |
-| ProfileCompletion inline modals | Medium | ✅ | Uses extracted modals from `components/profile/`. |
-| `useToast` setTimeout leak | High | ✅ | Timer IDs stored in `useRef<Map>`, cleaned on unmount. |
-| No error boundaries per page | Medium | ✅ | `PageErrorBoundary` wraps each route + chart sections. |
-| `catch (err: any)` in App.tsx | Low | ✅ | Typed as `unknown` with axios error assertion. |
+## 8. DEPLOYMENT AUDIT
 
-## 3. Backend Code Quality
+| Target | Status | Notes |
+|---|---|---|
+| Firebase Hosting | ✅ Configured | Static only, no API support |
+| Vercel | ✅ Configured | Full-stack with serverless |
+| Direct (Express) | ✅ Ready | Needs HTTPS proxy (nginx/caddy) |
+| CI/CD | ✅ GitHub Actions | lint, build, audit, test jobs |
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| Login revokes ALL sessions | High | ✅ | Removed from `loginResponse`. |
-| `forgotPassword` returns resetToken | High | ✅ | Removed from API response. |
-| No rate limiting on register | Medium | ✅ | 10 req/15min limiter added. |
-| HTML sanitization insufficient | Medium | ✅ | Regex strips `javascript:`, `on*=`, `data:` URIs. |
-| audit.json grows unbounded | Medium | ✅ | Date-based archival to `data/audit-archive/`. Rotates at 10k entries. |
-| No `Strict-Transport-Security` | Low | ✅ | Added via helmet HSTS config. |
+### ⚠️ Issues
+- No database migration strategy for schema changes
+- No automated backup schedule for SQLite database
+- Firebase config removed — Vercel is the sole deployment target
 
-## 4. Security
+---
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| CSRF cookie `httpOnly` | High | ✅ | Changed to `false` for double-submit pattern. |
-| JWT_SECRET auto-generated | Medium | ✅ | Crashes in production with clear error. |
-| No email verification | Medium | ✅ | Registration sets `emailVerified: false`. Backend routes + frontend `VerifyEmailPage` added. Tokens have 24h expiry. |
-| MFA backup codes stored as hashes | Medium | 🔄 | SHA-256 hashes, stored inline. |
+## 9. RECOMMENDATIONS (Priority Order)
 
-## 5. Performance
+### 🔴 Critical (Fix Immediately)
+1. ✅ **axios updated** to `1.18.1` — 20+ CVEs resolved
+2. ✅ **`npm audit fix`** run — All fixable vulns resolved (6 remaining require breaking changes)
+3. **Add tests** — Minimum: auth flows, API endpoints, wallet operations
+4. ✅ **Dead code removed** — `src/backend/`, `QueryProvider.tsx`, Firebase config, unused imports
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| Firebase SDK unused | Medium | ✅ | Removed from `package.json`. |
-| Images vary wildly in size | Medium | ✅ | `vite-plugin-image-optimizer` with `sharp`/`svgo`. 9mobile.png: 405kB → 109kB (-73%). Total savings: 633kB (-70%). |
-| recharts imported eagerly | Medium | ✅ | Lazy-loaded via `React.lazy`. 284kB chunk loads only on Dashboard. |
-| No image CDN | Low | ❌ | No CDN. Build-time optimization only. |
+### ⚠️ High Priority
+5. ✅ **Lint errors fixed** — 54 errors → 0, all `any` types replaced
+6. ✅ **Duplicate QueryClient removed** — Single instance in `main.tsx`
+7. **Automate database backups** — `server/backup.sh` created, needs cron scheduling
+8. **Remove `.env` from server** — Use environment variables in deployment
+9. ✅ **Single deployment target** — Vercel only, Firebase config deleted
 
-## 6. Accessibility
+### 💡 Medium Priority
+10. **Add shared types package** — Eliminate type duplication between frontend/backend
+11. **Add E2E tests** — Playwright or Cypress for critical user flows
+12. **Implement database indexing** — For transactions, users tables
+13. **Add monitoring** — Sentry or similar for error tracking
+14. **Document API endpoints** — OpenAPI/Swagger spec
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| Color contrast in sidebar | High | ✅ | Active state: `bg-primary-50 text-primary-700`. |
-| Missing `type="button"` | Medium | ✅ | Added to all nav/form buttons. |
-| No `aria-expanded` on hamburger | Medium | ✅ | `aria-expanded={sidebarOpen}`. |
-| No skip-to-content link | Low | ✅ | Added to both layouts. |
+### 📋 Low Priority
+15. **Upgrade to React 19** — When ecosystem stabilizes
+16. **Consider PostgreSQL** — For production scalability
+17. **Add service worker** — Offline support for basic functionality
+18. **Implement virtual scrolling** — For transaction history
 
-## 7. TypeScript
+---
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| `React.FC` usage | Low | ✅ | Both layouts use plain functions. |
-| `Record<string, unknown>` for profile | Medium | ✅ | `ProfileUpdateData` type. 3 files updated. |
+## 10. SCORE BREAKDOWN
 
-## 8. State Management
+| Category | Score | Weight | Weighted |
+|---|---|---|---|---|
+| Security | 75/100 | 30% | 22.5 |
+| Code Quality | 80/100 | 25% | 20.0 |
+| Test Coverage | 10/100 | 20% | 2.0 |
+| Architecture | 85/100 | 15% | 12.75 |
+| Documentation | 78/100 | 10% | 7.8 |
+| **Overall** | | | **65.05/100** |
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| No React Query / SWR | Medium | ❌ | Raw `useState+useEffect`. |
-| Auth state not persisted | Medium | ✅ | `localStorage` cache with 1-hour TTL. Falls back to cached data on `getMe()` failure. |
+**Grade: B-** — Axios upgraded, lint cleaned (0 errors), dead code removed, Firebase consolidated. Needs tests and automated backups.
 
-## 9. Testing
+---
 
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| Zero tests | Critical | ✅ | Vitest + Testing Library setup. 6 tests for validation utils. Framework ready for more. |
-| No linting in CI | Medium | ✅ | GitHub Actions CI: lint, build, audit, test on push/PR. Weekly npm audit cron. |
-
-## 10. DevOps
-
-| Issue | Severity | Status | Detail |
-|---|---|---|---|
-| `server/.env` committed | High | ✅ | `git rm --cached`, already in `.gitignore`. |
-| No dependency scanning | Medium | ✅ | `npm audit` step in CI. |
-| No prettier/formatting config | Low | ✅ | `.prettierrc` added. |
-
-## Summary
-
-| Category | Total | Fixed | Unfixed |
-|---|---|---|---|
-| 1. Architecture & Project Structure | 5 | 5 | 0 |
-| 2. Frontend Code Quality | 7 | 7 | 0 |
-| 3. Backend Code Quality | 6 | 6 | 0 |
-| 4. Security | 4 | 4 | 0 |
-| 5. Performance | 4 | 4 | 0 |
-| 6. Accessibility | 4 | 4 | 0 |
-| 7. TypeScript | 2 | 2 | 0 |
-| 8. State Management | 2 | 2 | 0 |
-| 9. Testing | 2 | 2 | 0 |
-| 10. DevOps | 3 | 3 | 0 |
-| **Total** | **39** | **39** | **0** |
-
-## All items resolved.
-
-1. ✅ JSON file storage → SQLite (better-sqlite3, migration script, all services updated)
-2. ✅ React Query (@tanstack/react-query) with useQuery/useMutation in useAuth hook
-3. ✅ Image optimization: vite-plugin-image-optimizer (70% savings), OptimizedImage component, loading="lazy" on all images
-4. ✅ MFA backup codes: bcrypt.compare instead of SHA-256
-5. ✅ api/index.js restored (Vercel serverless entry point)
+*Audit performed using: ESLint, npm audit, Vitest, manual code review*

@@ -13,8 +13,6 @@ import {
   Zap,
 } from "lucide-react";
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
   XAxis,
@@ -302,7 +300,7 @@ const AdminDashboard = () => {
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-4 space-y-2">
-            {serviceData.map((service, index) => (
+            {serviceData.map((service) => (
               <div
                 key={service.name}
                 className="flex items-center justify-between text-sm"

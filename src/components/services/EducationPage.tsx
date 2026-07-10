@@ -11,15 +11,13 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
-interface EducationPageProps extends PageProps {}
-
-const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
+const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [selectedService, setSelectedService] = useState("");
   const [examNumber, setExamNumber] = useState("");
   const [selectedPackage, setSelectedPackage] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const educationServices = [
@@ -58,7 +56,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ user, onLogout }) => {
   const handleExamNumberChange = (value: string) => {
     setExamNumber(value.toUpperCase());
     const error = validateExamNumber(value);
-    setErrors((prev: any) => ({ ...prev, examNumber: error }));
+    setErrors((prev: Record<string, string | null>) => ({ ...prev, examNumber: error }));
   };
 
   const handleServiceChange = (serviceId: string) => {

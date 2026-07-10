@@ -10,9 +10,7 @@ import BVNModal from "./BVNModal";
 import BankDetailsModal from "./BankDetailsModal";
 import BasicInfoModal from "./BasicInfoModal";
 
-interface ProfilePageProps extends PageProps {}
-
-const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfile }) => {
+const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) => {
   const fullName = (user?.name || '').split(' ');
   const defaultFirstName = fullName[0] || '';
   const defaultLastName = fullName.slice(1).join(' ') || '';
@@ -34,7 +32,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
     bankName: user?.bankName || "",
     accountName: user?.accountName || "",
   });
-  const [bankErrors, setBankErrors] = useState<any>({});
+  const [bankErrors, setBankErrors] = useState<Record<string, string | null>>({});
 
   const [showBasicInfoModal, setShowBasicInfoModal] = useState(false);
   const [basicInfo, setBasicInfo] = useState({
@@ -49,7 +47,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
     avatar: null as File | null,
     avatarPreview: "",
   });
-  const [basicInfoErrors, setBasicInfoErrors] = useState<any>({});
+  const [basicInfoErrors, setBasicInfoErrors] = useState<Record<string, string | null>>({});
 
   const [formData, setFormData] = useState({
     firstName: defaultFirstName,
@@ -61,7 +59,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onUpdateProfi
     confirmPassword: "",
     transactionPin: "",
   });
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
 
   const handleConfirmLogout = () => {
     setShowLogoutModal(false);

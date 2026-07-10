@@ -6,9 +6,7 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
-interface TransactionsPageProps extends PageProps {}
-
-const TransactionsPage: React.FC<TransactionsPageProps> = ({
+const TransactionsPage: React.FC<PageProps> = ({
   user,
   onLogout,
 }) => {

@@ -13,15 +13,13 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 import type { PageProps } from '../../types/page';
 
-interface BettingPageProps extends PageProps {}
-
-const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
+const BettingPage: React.FC<PageProps> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [userId, setUserId] = useState("");
   const [amount, setAmount] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const bettingPlatforms = [
@@ -50,14 +48,14 @@ const BettingPage: React.FC<BettingPageProps> = ({ user, onLogout }) => {
   const handleUserIdChange = (value: string) => {
     setUserId(value);
     const error = validateUserId(value);
-    setErrors((prev: any) => ({ ...prev, userId: error }));
+    setErrors((prev: Record<string, string | null>) => ({ ...prev, userId: error }));
   };
 
   const handleAmountChange = (value: string) => {
     const cleaned = value.replace(/\D/g, "");
     setAmount(cleaned);
     const error = validateAmount(cleaned);
-    setErrors((prev: any) => ({ ...prev, amount: error }));
+    setErrors((prev: Record<string, string | null>) => ({ ...prev, amount: error }));
   };
 
   const handleSubmit = () => {

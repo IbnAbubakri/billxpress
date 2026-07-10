@@ -18,7 +18,7 @@ const data = [
   { month: "Jun", spending: 41000 },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl shadow-lg px-3 py-2">

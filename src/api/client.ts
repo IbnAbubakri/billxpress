@@ -10,15 +10,16 @@ let csrfTokenPromise: Promise<string> | null = null;
 
 function getCSRFToken(): Promise<string> {
   if (csrfTokenPromise) return csrfTokenPromise;
-  csrfTokenPromise = new Promise(async (resolve, reject) => {
-    try {
-      const res = await api.get('/csrf-token');
-      csrfTokenPromise = null;
-      resolve(res.data.csrfToken);
-    } catch (err) {
-      csrfTokenPromise = null;
-      reject(err);
-    }
+  csrfTokenPromise = new Promise<string>((resolve, reject) => {
+    api.get('/csrf-token')
+      .then(res => {
+        csrfTokenPromise = null;
+        resolve(res.data.csrfToken);
+      })
+      .catch(err => {
+        csrfTokenPromise = null;
+        reject(err);
+      });
   });
   return csrfTokenPromise;
 }

@@ -23,13 +23,12 @@ interface PricingItem {
   selling_price: number;
   profit_margin: number;
   status: 'active' | 'inactive';
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<Record<string, unknown>>;
   color: string;
 }
 
 const PricingControl: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
 
@@ -172,7 +171,6 @@ const PricingControl: React.FC = () => {
             <span>Export CSV</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />

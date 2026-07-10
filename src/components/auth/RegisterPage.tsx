@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Wallet, Mail, Lock, User, Phone } from 'lucide-react';
-import { validateName, validateEmail, validatePhone } from '../../utils/validation';
+import { validateName, validateEmail } from '../../utils/validation';
 
 interface RegisterPageProps {
   onRegister: (email: string, password: string) => Promise<void>;
@@ -70,8 +70,8 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
     setIsLoading(true);
     try {
       await onRegister(formData.email, formData.password);
-    } catch (err: any) {
-      setGeneralError(err?.response?.data?.error || err?.message || 'Registration failed');
+    } catch (err: unknown) {
+      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }

@@ -9,9 +9,7 @@ import type { Network } from "../../constants/networks";
 
 import type { PageProps } from '../../types/page';
 
-interface AirtimeToCashPageProps extends PageProps {}
-
-const AirtimeToCashPage = ({ user, onLogout }: AirtimeToCashPageProps) => {
+const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
   const navigate = useNavigate();
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [amount, setAmount] = useState("");

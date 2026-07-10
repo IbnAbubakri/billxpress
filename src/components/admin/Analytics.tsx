@@ -7,12 +7,8 @@ import {
   DollarSign,
   Activity,
   Download,
-  Calendar,
-  Filter,
 } from "lucide-react";
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
   BarChart,
@@ -324,7 +320,7 @@ const Analytics: React.FC = () => {
             Service Performance
           </h3>
           <div className="space-y-3">
-            {serviceAnalytics.map((service, index) => (
+            {serviceAnalytics.map((service) => (
               <div
                 key={service.service}
                 className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl"

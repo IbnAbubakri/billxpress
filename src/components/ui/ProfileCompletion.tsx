@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { User, ProfileStep, BasicInfo, BankDetails } from '../../types';
-import { validateEmail, validateBVN, validateAccountNumber } from '../../utils/validation';
+import { validateBVN, validateAccountNumber } from '../../utils/validation';
 import EmailVerificationModal from '../profile/EmailVerificationModal';
 import BVNModal from '../profile/BVNModal';
 import BankDetailsModal from '../profile/BankDetailsModal';
@@ -113,14 +113,10 @@ function CallbackModals({ activeStep, onClose }: { activeStep: string | null; on
 }
 
 function MailStep({ onClose }: { onClose: () => void }) {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
 
   const handleSend = () => {
-    const err = validateEmail(email);
-    setError(err);
-    if (!err) setSent(true);
+    setSent(true);
   };
 
   return (

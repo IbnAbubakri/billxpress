@@ -42,8 +42,8 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
     setIsLoading(true);
     try {
       await onLogin(formData.email, formData.password);
-    } catch (err: any) {
-      setGeneralError(err?.response?.data?.error || err?.message || 'Login failed');
+    } catch (err: unknown) {
+      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }

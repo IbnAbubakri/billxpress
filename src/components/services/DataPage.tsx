@@ -6,15 +6,13 @@ import { AIRTIME_NETWORKS } from "../../constants/networks";
 
 import type { PageProps } from '../../types/page';
 
-interface DataPageProps extends PageProps {}
-
-const DataPage: React.FC<DataPageProps> = ({ user, onLogout }) => {
+const DataPage: React.FC<PageProps> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const networks = AIRTIME_NETWORKS;
