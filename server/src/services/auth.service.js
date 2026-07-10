@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import { logAction, securityAlert } from './audit.service.js';
-import { getDb } from '../utils/db.js';
+import { getDb, ensureOtpTable } from '../utils/db.js';
 import randomToken from '../utils/randomToken.js';
 
 const SALT_ROUNDS = 12;
@@ -473,6 +473,7 @@ export function checkPhone(phone) {
 }
 
 export function sendOtp(phone) {
+  ensureOtpTable();
   const db = getDb();
   const normalized = normalizePhone(phone);
   db.prepare('DELETE FROM otps WHERE phone = ? AND expiresAt < ?').run(normalized, new Date().toISOString());
@@ -491,6 +492,7 @@ export function sendOtp(phone) {
 }
 
 export function verifyOtp(phone, code) {
+  ensureOtpTable();
   const db = getDb();
   const normalized = normalizePhone(phone);
   const now = new Date().toISOString();

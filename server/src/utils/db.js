@@ -133,6 +133,24 @@ export function initDatabase() {
   return db;
 }
 
+let otpTableEnsured = false;
+export function ensureOtpTable() {
+  if (otpTableEnsured) return;
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS otps (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      code TEXT NOT NULL,
+      expiresAt TEXT NOT NULL,
+      verified INTEGER DEFAULT 0,
+      createdAt TEXT DEFAULT (datetime('now')),
+      usedAt TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
+  `);
+  otpTableEnsured = true;
+}
+
 export function getDb() {
   return db;
 }
