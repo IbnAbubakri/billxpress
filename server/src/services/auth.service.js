@@ -487,7 +487,7 @@ export function sendOtp(phone) {
   db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
   logger.info({ phone: normalized }, 'OTP sent');
-  return { message: 'OTP sent successfully', expiresIn: 600 };
+  return { message: 'OTP sent successfully', expiresIn: 600, code };
 }
 
 export function verifyOtp(phone, code) {

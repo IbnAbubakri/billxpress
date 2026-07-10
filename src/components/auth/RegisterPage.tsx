@@ -27,6 +27,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [phoneExists, setPhoneExists] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [otpDebugCode, setOtpDebugCode] = useState('');
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const inputClass = (field: string) =>
@@ -58,8 +59,9 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
   const sendOtpCode = async () => {
     setIsLoading(true);
     try {
-      await handleSendOtp(phone);
+      const result = await handleSendOtp(phone);
       setOtpSent(true);
+      setOtpDebugCode(result.code || '');
       setGeneralError('');
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to send OTP');
@@ -245,6 +247,11 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                 <button onClick={sendOtpCode} disabled={isLoading} className="text-xs text-secondary dark:text-white hover:underline block mx-auto">
                   Resend code
                 </button>
+              )}
+              {otpDebugCode && (
+                <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-2xl text-sm text-center">
+                  Demo mode: Your OTP is <strong className="text-lg tracking-widest">{otpDebugCode}</strong>
+                </div>
               )}
               <div>
                 <label className="block text-sm font-medium text-black dark:text-white mb-3 text-center">Verification Code</label>
