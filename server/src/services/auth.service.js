@@ -640,5 +640,5 @@ export async function verifyOtp(phone, code) {
 }
 
 function stubSms(to, body) {
-  logger.info({ smsTo: to }, `[SMS STUB] ${body}`);
+  logger.info({ smsTo: to }, `[DEV SMS] ${body}`);
 }
