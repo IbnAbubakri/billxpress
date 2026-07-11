@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { X, Banknote, Check } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { withdrawFunds } from '../../api/client';
 
 interface Errors {
   amount?: string | null;
@@ -101,12 +101,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const handleWithdraw = async () => {
     setStep(3);
     try {
-      await axios.post('/api/wallet/withdraw', {
-        amount: Number(amount),
-        bank: bankName,
-        accountNumber,
-        accountName,
-      }, { withCredentials: true });
+      await withdrawFunds(Number(amount), bankName, accountNumber, accountName);
       onSuccess?.();
     } catch {
       // ignore

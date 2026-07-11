@@ -14,6 +14,7 @@ import chartRoutes from './routes/chart.routes.js';
 import openapiRoutes from './routes/openapi.routes.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
+import { cache } from './middleware/cache.middleware.js';
 import logger from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -61,7 +62,7 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/charts', chartRoutes);
 app.use('/api', openapiRoutes);
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', cache(30), (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

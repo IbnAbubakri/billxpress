@@ -6,6 +6,12 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+const walletApi = axios.create({
+  baseURL: '/api',
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+});
+
 let csrfTokenPromise: Promise<string> | null = null;
 
 function getCSRFToken(): Promise<string> {
@@ -191,6 +197,22 @@ export async function disableMfa() {
 export async function deleteAccount() {
   const csrf = await ensureCSRF();
   const { data } = await api.delete('/account', {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
+export async function fundWallet(amount: number, method?: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await walletApi.post('/wallet/fund', { amount, method }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
+export async function withdrawFunds(amount: number, bank: string, accountNumber: string, accountName: string, transactionPin?: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await walletApi.post('/wallet/withdraw', { amount, bank, accountNumber, accountName, transactionPin }, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

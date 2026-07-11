@@ -19,12 +19,13 @@ function supabasePoolerUrl(dbUrl) {
 function createPool() {
   const dbUrl = supabasePoolerUrl(process.env.DATABASE_URL);
   if (!dbUrl) throw new Error('DATABASE_URL not set');
+  const isDev = process.env.NODE_ENV === 'development';
   pool = new pg.Pool({
     connectionString: dbUrl,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
-    ssl: { rejectUnauthorized: false },
+    ssl: isDev ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
   });
 }
 
@@ -42,7 +43,7 @@ export async function initDatabase() {
       role TEXT NOT NULL DEFAULT 'user',
       name TEXT DEFAULT '',
       phone TEXT DEFAULT '',
-      balance REAL DEFAULT 0,
+      balance NUMERIC(12,2) DEFAULT 0,
       hasTransactionPin INTEGER DEFAULT 0,
       transactionPin TEXT DEFAULT '',
       bvn TEXT DEFAULT '',
@@ -118,7 +119,7 @@ export async function initDatabase() {
       id SERIAL PRIMARY KEY,
       userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       type TEXT NOT NULL,
-      amount REAL NOT NULL,
+      amount NUMERIC(12,2) NOT NULL,
       status TEXT NOT NULL DEFAULT 'completed',
       description TEXT DEFAULT '',
       recipient TEXT DEFAULT '',
@@ -136,6 +137,12 @@ export async function initDatabase() {
     );
   `);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    appliedAt TEXT NOT NULL DEFAULT NOW()
+  );`);
+
   await pool.query(`
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
@@ -152,7 +159,34 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
   `);
 
+  await runMigrations(pool);
   logger.info('Database initialized (PostgreSQL)');
+}
+
+const MIGRATIONS = [
+  {
+    name: '001_balance_numeric',
+    sql: [
+      `ALTER TABLE users ALTER COLUMN balance TYPE NUMERIC(12,2) USING balance::NUMERIC(12,2)`,
+      `ALTER TABLE transactions ALTER COLUMN amount TYPE NUMERIC(12,2) USING amount::NUMERIC(12,2)`,
+    ],
+  },
+];
+
+async function runMigrations(pool) {
+  for (const m of MIGRATIONS) {
+    const existing = await pool.query('SELECT id FROM schema_migrations WHERE name = $1', [m.name]);
+    if (existing.rows.length > 0) continue;
+    for (const sql of m.sql) {
+      try {
+        await pool.query(sql);
+      } catch (err) {
+        logger.warn({ name: m.name, err: err.message }, 'Migration step failed (may be non-fatal)');
+      }
+    }
+    await pool.query('INSERT INTO schema_migrations (name) VALUES ($1)', [m.name]);
+    logger.info({ name: m.name }, 'Migration applied');
+  }
 }
 
 function convertSql(sql) {

@@ -24,11 +24,12 @@ export default async function handler(req, res) {
     try {
       await readyPromise;
     } catch (err) {
-      return res.status(500).json({
-        error: 'Server initialization failed',
-        detail: err.message,
-        stack: err.stack?.split('\n').slice(0, 6).join('\n'),
-      });
+      const body = { error: 'Server initialization failed' };
+      if (process.env.NODE_ENV !== 'production') {
+        body.detail = err.message;
+        body.stack = err.stack?.split('\n').slice(0, 6).join('\n');
+      }
+      return res.status(500).json(body);
     }
   }
   app(req, res);

@@ -52,6 +52,13 @@ export async function handleGetServiceDistribution(req, res) {
 
 export async function handleGetAdminTransactions(req, res) {
   const db = getDb();
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+  const offset = (page - 1) * limit;
+
+  const countResult = await db.prepare('SELECT COUNT(*) as count FROM transactions').get();
+  const total = Number(countResult.count);
+
   const rows = await db.prepare(`
     SELECT t.id, u.name as user_name, u.email as user_email,
       t.description as service, t.type as service_type, t.amount,
@@ -59,19 +66,35 @@ export async function handleGetAdminTransactions(req, res) {
     FROM transactions t
     JOIN users u ON u.id = t.userId
     ORDER BY t.date DESC
-    LIMIT 50
-  `).all();
-  res.json({ transactions: rows });
+    LIMIT ? OFFSET ?
+  `).all(limit, offset);
+
+  res.json({
+    transactions: rows,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 }
 
 export async function handleGetAdminUsers(req, res) {
   const db = getDb();
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+  const offset = (page - 1) * limit;
+
+  const countResult = await db.prepare('SELECT COUNT(*) as count FROM users').get();
+  const total = Number(countResult.count);
+
   const users = await db.prepare(`
     SELECT id, name, email, phone, balance, role,
       createdAt as joined_date, lastLogin as last_login
     FROM users ORDER BY createdAt DESC
-  `).all();
-  res.json({ users });
+    LIMIT ? OFFSET ?
+  `).all(limit, offset);
+
+  res.json({
+    users,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 }
 
 export async function handleGetAnalytics(req, res) {
