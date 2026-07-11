@@ -274,20 +274,20 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
 
 export async function authenticate(login, password, totpCode, ip, userAgent) {
   const isPhone = /^[\d\+\-\(\)\s]+$/.test(login) && login.replace(/[\s\-\(\)]/g, '').length >= 10;
+  const identifier = isPhone ? normalizePhone(login) : login.toLowerCase();
   let user;
   if (isPhone) {
-    const normalized = normalizePhone(login);
     const db = getDb();
-    user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(normalized);
+    user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(identifier);
   } else {
-    user = await getUserByEmailRaw(login);
+    user = await getUserByEmailRaw(identifier);
   }
   if (!user) {
     await new Promise((r) => setTimeout(r, 500));
     throw new AppError('Invalid email or password.', 401);
   }
-  if (await isAccountLocked(email, ip)) {
-    logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
+  if (await isAccountLocked(identifier, ip)) {
+    logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: identifier }, ip, userAgent, severity: 'high' });
     throw new AppError('Account temporarily locked. Try again later.', 423);
   }
   if (!user.emailVerified) {
@@ -295,7 +295,7 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
   }
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    await recordFailedAttempt(email, ip, userAgent);
+    await recordFailedAttempt(identifier, ip, userAgent);
     throw new AppError('Invalid email or password.', 401);
   }
   if (user.mfaEnabled) {
@@ -318,12 +318,12 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
         }
       }
       if (!matched) {
-        logAction({ userId: user.id, action: 'MFA_FAILED', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
+        logAction({ userId: user.id, action: 'MFA_FAILED', details: { email: identifier }, ip, userAgent, severity: 'high' });
         throw new AppError('Invalid two-factor code.', 401);
       }
     }
   }
-  await clearFailedAttempts(email, ip);
+  await clearFailedAttempts(identifier, ip);
   const db = getDb();
   const now = new Date().toISOString();
   await db.prepare('UPDATE users SET lastLogin = ?, failedLoginAttempts = 0, lockedUntil = NULL WHERE id = ?').run(now, user.id);
