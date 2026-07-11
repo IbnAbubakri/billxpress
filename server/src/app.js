@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import env from './config/env.js';
 import authRoutes from './routes/auth.routes.js';
 import openapiRoutes from './routes/openapi.routes.js';
+import { getDb } from './utils/db.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
 import logger from './utils/logger.js';
@@ -55,6 +56,15 @@ app.use('/api', openapiRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await getDb().prepare('SELECT id, email, phone, name, role, emailVerified, createdAt FROM users ORDER BY createdAt').all();
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 if (env.isProd()) {
