@@ -432,6 +432,12 @@ export async function getUserById(id) {
     homeState: user.homestate || user.homeState || '',
     homeZip: user.homezip || user.homeZip || '',
     avatar: user.avatar || '',
+    dateOfBirth: user.dateofbirth || user.dateOfBirth || '',
+    gender: user.gender || '',
+    nin: user.nin || '',
+    nextOfKin: (() => { try { return JSON.parse(user.nextofkin || user.nextOfKin || '{}'); } catch { return {}; } })(),
+    employmentStatus: user.employmentstatus || user.employmentStatus || '',
+    annualIncome: user.annualincome || user.annualIncome || '',
   };
 }
 
