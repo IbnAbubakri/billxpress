@@ -140,7 +140,7 @@ export function useAuth() {
     onSettled: () => {
       clearStoredAuth();
       queryClient.setQueryData(['auth', 'me'], { user: null, isAdmin: false, isAuthenticated: false });
-      queryClient.clear();
+      queryClient.removeQueries({ queryKey: ['auth'] });
     },
   });
 
