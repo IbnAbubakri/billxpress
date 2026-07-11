@@ -4,7 +4,6 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/(.*)\\.(js|css|png|jpg|jpeg|svg|gif|ico|webp|avif|woff2)$", "destination": "/$1.$2" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
