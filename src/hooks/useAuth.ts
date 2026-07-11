@@ -103,7 +103,7 @@ export function useAuth() {
   const { user, isAdmin, isAuthenticated } = authData || { user: null, isAdmin: false, isAuthenticated: false };
 
   const loginMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) => apiLogin(email, password),
+    mutationFn: ({ login, password }: { login: string; password: string }) => apiLogin(login, password),
     onSuccess: (data) => {
       if (data.user) {
         const u = toUser(data.user);
@@ -147,8 +147,8 @@ export function useAuth() {
     },
   });
 
-  const handleLogin = useCallback(async (email: string, password: string) => {
-    return loginMutation.mutateAsync({ email, password });
+  const handleLogin = useCallback(async (login: string, password: string) => {
+    return loginMutation.mutateAsync({ login, password });
   }, [loginMutation]);
 
   const handleRegister = useCallback(async (data: { email: string; password: string; phone?: string; name?: string }) => {

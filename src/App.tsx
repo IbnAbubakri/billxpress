@@ -66,9 +66,9 @@ function AppContent() {
   }
 
   const onLogin = useCallback(
-    async (email: string, password: string) => {
+    async (login: string, password: string) => {
       try {
-        const result = await handleLogin(email, password);
+        const result = await handleLogin(login);
         if (result.mfaRequired) {
           addToast('MFA code required', 'info');
           return;

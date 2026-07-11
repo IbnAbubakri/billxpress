@@ -55,9 +55,9 @@ api.interceptors.response.use(
   }
 );
 
-export async function login(email: string, password: string) {
+export async function login(login: string, password: string) {
   const csrf = await ensureCSRF();
-  const { data } = await api.post('/login', { email, password }, {
+  const { data } = await api.post('/login', { login, password }, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

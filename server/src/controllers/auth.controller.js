@@ -53,8 +53,8 @@ async function loginResponse(res, user, req) {
 
 export async function handleLogin(req, res, next) {
   try {
-    const { email, password, totpCode } = req.body;
-    const result = await authenticate(email, password, totpCode, req.clientIp, req.clientUA);
+    const { login, email, password, totpCode } = req.body;
+    const result = await authenticate(login || email, password, totpCode, req.clientIp, req.clientUA);
     if (result.mfaRequired) {
       return res.json({ mfaRequired: true, email: result.tempEmail });
     }

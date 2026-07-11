@@ -265,15 +265,23 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
   const now = new Date().toISOString();
   await db.prepare(`
     INSERT INTO users (id, email, password, name, phone, role, createdAt, emailVerified, passwordChangedAt)
-    VALUES (?, ?, ?, ?, ?, 'user', ?, 0, ?)
+    VALUES (?, ?, ?, ?, ?, 'user', ?, 1, ?)
   `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, now);
   logAction({ userId: id, action: 'REGISTER', details: { email: email.toLowerCase(), phone: phone || '' }, ip, userAgent });
   logger.info({ userId: id }, 'User registered');
-  return { id, email: email.toLowerCase(), role: 'user', emailVerified: false };
+  return { id, email: email.toLowerCase(), role: 'user', emailVerified: true };
 }
 
-export async function authenticate(email, password, totpCode, ip, userAgent) {
-  const user = await getUserByEmailRaw(email);
+export async function authenticate(login, password, totpCode, ip, userAgent) {
+  const isPhone = /^[\d\+\-\(\)\s]+$/.test(login) && login.replace(/[\s\-\(\)]/g, '').length >= 10;
+  let user;
+  if (isPhone) {
+    const normalized = normalizePhone(login);
+    const db = getDb();
+    user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(normalized);
+  } else {
+    user = await getUserByEmailRaw(login);
+  }
   if (!user) {
     await new Promise((r) => setTimeout(r, 500));
     throw new AppError('Invalid email or password.', 401);

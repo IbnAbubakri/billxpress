@@ -1,27 +1,37 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Phone, Lock } from 'lucide-react';
 import { Logo } from '../ui/Logo';
-import { validateEmail } from '../../utils/validation';
 
 interface LoginPageProps {
-  onLogin: (email: string, password: string) => Promise<void>;
+  onLogin: (login: string, password: string) => Promise<void>;
+}
+
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function isValidPhone(v: string) {
+  const cleaned = v.replace(/[\s\-\(\)]/g, '');
+  return cleaned.length >= 10 && /^[\d\+]+$/.test(cleaned);
 }
 
 const LoginPage = ({ onLogin }: LoginPageProps) => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ login: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const isPhone = isValidPhone(formData.login);
 
   const handleChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => {
       const next = { ...prev };
-      if (field === 'email') {
-        const err = validateEmail(value);
-        if (err) next.email = err; else delete next.email;
+      if (field === 'login') {
+        if (!value) next.login = 'Email or phone is required';
+        else if (!isValidEmail(value) && !isValidPhone(value)) next.login = 'Enter a valid email or phone number';
+        else delete next.login;
       }
       if (field === 'password') {
         if (!value) next.password = 'Password is required'; else delete next.password;
@@ -34,14 +44,14 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
     e.preventDefault();
     setGeneralError('');
     const newErrors: Record<string, string> = {};
-    const emailErr = validateEmail(formData.email);
-    if (emailErr) newErrors.email = emailErr;
+    if (!formData.login) newErrors.login = 'Email or phone is required';
+    else if (!isValidEmail(formData.login) && !isValidPhone(formData.login)) newErrors.login = 'Enter a valid email or phone number';
     if (!formData.password) newErrors.password = 'Password is required';
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
     setIsLoading(true);
     try {
-      await onLogin(formData.email, formData.password);
+      await onLogin(formData.login, formData.password);
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Login failed');
     } finally {
@@ -67,21 +77,25 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-black dark:text-white mb-2">Email Address</label>
+              <label htmlFor="login" className="block text-sm font-medium text-black dark:text-white mb-2">Email or Phone Number</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
+                {isPhone ? (
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
+                ) : (
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
+                )}
                 <input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  className={`w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.email ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
-                  placeholder="Enter your email"
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? 'email-error' : undefined}
+                  id="login"
+                  type="text"
+                  value={formData.login}
+                  onChange={(e) => handleChange('login', e.target.value)}
+                  className={`w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.login ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
+                  placeholder="Enter your email or phone number"
+                  aria-invalid={!!errors.login}
+                  aria-describedby={errors.login ? 'login-error' : undefined}
                 />
               </div>
-              {errors.email && <p id="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.login && <p id="login-error" className="mt-1 text-sm text-red-600">{errors.login}</p>}
             </div>
 
             <div>
