@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 import env from './config/env.js';
 import authRoutes from './routes/auth.routes.js';
 import openapiRoutes from './routes/openapi.routes.js';
-import { getDb } from './utils/db.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
 import logger from './utils/logger.js';
@@ -52,18 +51,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
-
-app.get('/api/verify-user', async (req, res) => {
-  try {
-    const email = req.query.email;
-    if (!email) return res.status(400).json({ error: 'email query param required' });
-    await getDb().prepare('UPDATE users SET emailVerified = 1 WHERE email = ?').run(email.toLowerCase());
-    res.json({ message: `Verified ${email}` });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 app.use('/api', openapiRoutes);
 
 app.get('/api/health', (req, res) => {
