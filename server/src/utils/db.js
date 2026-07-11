@@ -19,13 +19,12 @@ function supabasePoolerUrl(dbUrl) {
 function createPool() {
   const dbUrl = supabasePoolerUrl(process.env.DATABASE_URL);
   if (!dbUrl) throw new Error('DATABASE_URL not set');
-  const isDev = process.env.NODE_ENV === 'development';
   pool = new pg.Pool({
     connectionString: dbUrl,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
-    ssl: isDev ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
+    ssl: { rejectUnauthorized: false },
   });
 }
 
