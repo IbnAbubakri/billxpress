@@ -16,6 +16,7 @@ const env = {
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   DATABASE_URL: process.env.DATABASE_URL,
   SUPABASE_REGION: process.env.SUPABASE_REGION || 'eu-west-1',
+  DEMO_MODE: process.env.DEMO_MODE === 'true' || !process.env.SMS_PROVIDER,
   isDev: () => env.NODE_ENV === 'development',
   isProd: () => env.NODE_ENV === 'production',
 };

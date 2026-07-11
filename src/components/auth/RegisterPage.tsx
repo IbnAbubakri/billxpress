@@ -61,7 +61,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
     try {
       const result = await handleSendOtp(phone);
       setOtpSent(true);
-      // OTP debug code intentionally omitted for production
+      if (result.code) setOtpDebugCode(result.code);
       setGeneralError('');
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to send OTP');
@@ -248,7 +248,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                   Resend code
                 </button>
               )}
-              {false && otpDebugCode && (
+              {otpDebugCode && (
                 <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-2xl text-sm text-center">
                   Demo mode: Your OTP is <strong className="text-lg tracking-widest">{otpDebugCode}</strong>
                 </div>

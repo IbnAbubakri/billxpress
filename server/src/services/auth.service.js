@@ -621,7 +621,11 @@ export async function sendOtp(phone) {
   await db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
   logger.info({ phone: normalized }, 'OTP sent');
-  return { message: 'OTP sent successfully', expiresIn: 600 };
+  const response = { message: 'OTP sent successfully', expiresIn: 600 };
+  if (!process.env.SMS_PROVIDER) {
+    response.code = code;
+  }
+  return response;
 }
 
 export async function verifyOtp(phone, code) {

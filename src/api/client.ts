@@ -159,7 +159,7 @@ export async function sendOtp(phone: string) {
   const { data } = await api.post('/send-otp', { phone }, {
     headers: { 'x-csrf-token': csrf },
   });
-  return data as { message: string; expiresIn: number };
+  return data as { message: string; expiresIn: number; code?: string };
 }
 
 export async function verifyOtp(phone: string, code: string) {
