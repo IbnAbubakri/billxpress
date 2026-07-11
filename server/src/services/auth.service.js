@@ -289,6 +289,9 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
   if (isPhone) {
     const db = getDb();
     user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(identifier);
+    if (!user) {
+      user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(login.trim());
+    }
   } else {
     user = await getUserByEmailRaw(identifier);
   }
