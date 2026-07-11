@@ -24,11 +24,12 @@ export async function authenticate(req, res, next) {
       }
       const session = await getSessionById(sessionId);
       if (session) {
-        if (session.userId !== decoded.sub) {
-          logger.warn({ userId: decoded.sub, sessionUserId: session.userId }, 'Session user mismatch');
+        const sessionUserId = session.userid ?? session.userId;
+        if (sessionUserId !== decoded.sub) {
+          logger.warn({ userId: decoded.sub, sessionUserId }, 'Session user mismatch');
           return next(new AppError('Session invalid.', 401));
         }
-        const ageHours = (Date.now() - new Date(session.createdAt).getTime()) / 3600000;
+        const ageHours = (Date.now() - new Date(session.createdat ?? session.createdAt).getTime()) / 3600000;
         if (ageHours > ABSOLUTE_LIFETIME_HOURS) {
           return next(new AppError('Session lifetime exceeded. Please sign in again.', 401));
         }

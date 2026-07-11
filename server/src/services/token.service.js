@@ -43,7 +43,7 @@ export async function getStoredRefreshToken(token) {
   const db = getDb();
   const found = await db.prepare('SELECT * FROM refresh_tokens WHERE token = ?').get(token);
   if (!found) return null;
-  if (new Date(found.expiresAt) < new Date()) {
+  if (new Date(found.expiresat ?? found.expiresAt) < new Date()) {
     await db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
     return null;
   }
@@ -68,7 +68,7 @@ export async function checkSessionActivity(sessionId, idleMinutes) {
   const db = getDb();
   const s = await db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId);
   if (!s) return false;
-  const elapsed = (new Date() - new Date(s.lastActivity)) / 60000;
+  const elapsed = (new Date() - new Date(s.lastactivity ?? s.lastActivity)) / 60000;
   if (elapsed > idleMinutes) {
     await db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
     return false;

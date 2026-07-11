@@ -169,7 +169,7 @@ export async function handleDeleteSession(req, res, next) {
   try {
     const session = await getSessionById(req.params.sessionId);
     if (!session) return res.status(404).json({ error: 'Session not found.' });
-    if (session.userId !== req.user.id) {
+    if ((session.userid ?? session.userId) !== req.user.id) {
       await logAction({ userId: req.user.id, action: 'SESSION_DELETE_FOREIGN', details: { targetSessionId: req.params.sessionId }, ip: req.clientIp, userAgent: req.clientUA, severity: 'high' });
       return res.status(403).json({ error: 'Cannot delete another user\'s session.' });
     }

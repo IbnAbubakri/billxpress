@@ -140,13 +140,22 @@ function convertSql(sql) {
   return sql.replace(/\?/g, () => `$${++i}`);
 }
 
+function mapRow(row) {
+  if (!row || typeof row !== 'object') return row;
+  const out = {};
+  for (const key of Object.keys(row)) {
+    out[key] = row[key];
+  }
+  return out;
+}
+
 const compat = {
   prepare(sql) {
     ensurePool();
     const pgSql = convertSql(sql);
     return {
-      get: (...params) => pool.query(pgSql, params).then(r => r.rows[0] || undefined),
-      all: (...params) => pool.query(pgSql, params).then(r => r.rows),
+      get: (...params) => pool.query(pgSql, params).then(r => r.rows[0] ? mapRow(r.rows[0]) : undefined),
+      all: (...params) => pool.query(pgSql, params).then(r => r.rows.map(mapRow)),
       run: (...params) => pool.query(pgSql, params).then(r => ({ changes: r.rowCount })),
     };
   },
