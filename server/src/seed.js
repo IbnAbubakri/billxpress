@@ -20,6 +20,11 @@ const DEMO_TRANSACTIONS = [
 ];
 
 export default async function seed() {
+  if (process.env.NODE_ENV === 'production') {
+    logger.info('Skipping seed in production');
+    return;
+  }
+
   const db = getDb();
 
   const existingUser = await db.prepare('SELECT id FROM users WHERE email = ?').get(DEMO_EMAIL);

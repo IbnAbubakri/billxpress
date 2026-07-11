@@ -107,7 +107,7 @@ export function useAuth() {
       return { user: null, isAdmin: false, isAuthenticated: false };
     },
     staleTime: 5 * 60 * 1000,
-    retry: false,
+    retry: 1,
   });
 
   const { user, isAdmin, isAuthenticated } = authData || { user: null, isAdmin: false, isAuthenticated: false };

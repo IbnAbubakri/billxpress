@@ -47,7 +47,13 @@ const registerLimiter = rateLimit({
 router.post('/register', registerLimiter, validateCsrf, validateRegister, handleRegister);
 router.post('/login', loginLimiter, validateCsrf, validateLogin, handleLogin);
 router.post('/logout', authenticate, validateCsrf, handleLogout);
-router.post('/refresh', validateCsrf, handleRefresh);
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many refresh attempts. Please wait before trying again.' },
+});
+
+router.post('/refresh', refreshLimiter, validateCsrf, handleRefresh);
 router.get('/me', authenticate, handleMe);
 router.post('/forgot-password', forgotLimiter, validateCsrf, handleForgotPassword);
 router.post('/reset-password', resetLimiter, validateCsrf, validatePasswordReset, handleResetPassword);
