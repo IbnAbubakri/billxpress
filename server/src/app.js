@@ -7,6 +7,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import env from './config/env.js';
 import authRoutes from './routes/auth.routes.js';
+import transactionRoutes from './routes/transaction.routes.js';
 import openapiRoutes from './routes/openapi.routes.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
 app.use('/api', openapiRoutes);
 
 app.get('/api/health', (req, res) => {

@@ -1,159 +1,73 @@
 import { useState } from 'react';
-import { Wifi, Phone, Zap, Tv, GraduationCap, MoreHorizontal } from 'lucide-react';
+import { Wifi, Phone, Zap, Tv, GraduationCap, Target, RefreshCw, CreditCard, MoreHorizontal, Loader2 } from 'lucide-react';
 import VirtualTransactionList from './VirtualTransactionList';
+import { useTransactions } from '../../hooks/useTransactions';
+
+const typeIcons: Record<string, React.ReactNode> = {
+  airtime: <Phone className="w-5 h-5" aria-hidden="true" />,
+  data: <Wifi className="w-5 h-5" aria-hidden="true" />,
+  tv: <Tv className="w-5 h-5" aria-hidden="true" />,
+  electricity: <Zap className="w-5 h-5" aria-hidden="true" />,
+  education: <GraduationCap className="w-5 h-5" aria-hidden="true" />,
+  betting: <Target className="w-5 h-5" aria-hidden="true" />,
+  airtime_to_cash: <RefreshCw className="w-5 h-5" aria-hidden="true" />,
+  wallet_funding: <CreditCard className="w-5 h-5" aria-hidden="true" />,
+};
+
+const typeColors: Record<string, string> = {
+  airtime: 'text-green-600',
+  data: 'text-blue-600',
+  tv: 'text-purple-600',
+  electricity: 'text-yellow-600',
+  education: 'text-indigo-600',
+  betting: 'text-red-600',
+  airtime_to_cash: 'text-teal-600',
+  wallet_funding: 'text-emerald-600',
+};
 
 const RecentTransactions = () => {
   const [showAll, setShowAll] = useState(false);
-
-  const allTransactions = [
-    {
-      id: 1,
-      type: 'Wallet Funding',
-      amount: 50000.00,
-      status: 'Successful',
-      date: 'Jul 6, 2026',
-      time: '09:20 AM',
-      transactionId: 'BDG7XK42M1',
-      icon: Wifi,
-      color: 'text-blue-600'
-    },
-    {
-      id: 2,
-      type: 'Airtime',
-      amount: 500.00,
-      status: 'Successful',
-      date: 'Jul 5, 2026',
-      time: '06:42 AM',
-      transactionId: 'BDG4326kJ39',
-      icon: Phone,
-      color: 'text-green-600'
-    },
-    {
-      id: 3,
-      type: 'Electricity',
-      amount: 5000.00,
-      status: 'Failed',
-      date: 'Jul 4, 2026',
-      time: '11:30 AM',
-      transactionId: 'BDG48348E46',
-      icon: Zap,
-      color: 'text-yellow-600'
-    },
-    {
-      id: 4,
-      type: 'DStv Subscription',
-      amount: 12400.00,
-      status: 'Pending',
-      date: 'Jul 3, 2026',
-      time: '02:15 PM',
-      transactionId: 'BDG36661703',
-      icon: Tv,
-      color: 'text-purple-600'
-    },
-    {
-      id: 5,
-      type: 'JAMB Registration',
-      amount: 4700.00,
-      status: 'Successful',
-      date: 'Jul 2, 2026',
-      time: '04:20 PM',
-      transactionId: 'BDG15592A50',
-      icon: GraduationCap,
-      color: 'text-orange-600'
-    },
-    {
-      id: 6,
-      type: 'Data Bundle',
-      amount: 2000.00,
-      status: 'Successful',
-      date: 'Jul 1, 2026',
-      time: '10:05 AM',
-      transactionId: 'BDG78F2K19',
-      icon: Wifi,
-      color: 'text-blue-600'
-    },
-    {
-      id: 7,
-      type: 'Airtime',
-      amount: 200.00,
-      status: 'Successful',
-      date: 'Jun 29, 2026',
-      time: '08:30 PM',
-      transactionId: 'BDG91A47B32',
-      icon: Phone,
-      color: 'text-green-600'
-    },
-    {
-      id: 8,
-      type: 'Wallet Funding',
-      amount: 100000.00,
-      status: 'Successful',
-      date: 'Jun 28, 2026',
-      time: '01:45 PM',
-      transactionId: 'BDG52X8C71',
-      icon: Wifi,
-      color: 'text-blue-600'
-    },
-    {
-      id: 9,
-      type: 'Electricity',
-      amount: 3500.00,
-      status: 'Failed',
-      date: 'Jun 25, 2026',
-      time: '07:15 AM',
-      transactionId: 'BDG63D9E04',
-      icon: Zap,
-      color: 'text-yellow-600'
-    },
-    {
-      id: 10,
-      type: 'DStv Subscription',
-      amount: 8400.00,
-      status: 'Successful',
-      date: 'Jun 21, 2026',
-      time: '03:00 PM',
-      transactionId: 'BDG27H5F88',
-      icon: Tv,
-      color: 'text-purple-600'
-    }
-  ];
+  const { data: transactions, isLoading } = useTransactions();
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Successful':
+      case 'completed':
         return 'bg-green-100 text-green-800';
-      case 'Pending':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'Failed':
+      case 'failed':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 dark:bg-dark-700 text-gray-300';
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Successful':
-        return '●';
-      case 'Pending':
-        return '●';
-      case 'Failed':
-        return '●';
-      default:
-        return '●';
-    }
-  };
-
-  const listData = allTransactions.map((t) => ({
+  const listData = (transactions || []).map((t: { id: string | number; type: string; amount: number; status: string; date: string; description: string }) => ({
     id: t.id,
     type: t.type,
     amount: t.amount,
-    status: t.status,
-    date: `${t.date} ${t.time}`,
-    description: t.type,
+    status: t.status === 'completed' ? 'Successful' : t.status === 'pending' ? 'Pending' : 'Failed',
+    date: new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + new Date(t.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    description: t.description,
   }));
 
   const displayData = showAll ? listData : listData.slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (!listData.length) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-400">No transactions yet</p>
+      </div>
+    );
+  }
 
   return (
     <div className="divide-y divide-gray-100">
@@ -165,23 +79,22 @@ const RecentTransactions = () => {
         />
       ) : (
         displayData.map((transaction) => {
-          const original = allTransactions.find((t) => t.id === transaction.id);
-          const Icon = original?.icon ?? Wifi;
+          const Icon = typeIcons[transaction.type] || <CreditCard className="w-5 h-5" />;
+          const color = typeColors[transaction.type] || 'text-gray-600';
           return (
             <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
               <div className="flex items-start sm:items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0 ${original?.color ?? ''}`}>
-                  <Icon className="w-5 h-5" aria-hidden="true" />
+                <div className={`w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0 ${color}`}>
+                  {Icon}
                 </div>
-
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="font-medium text-black dark:text-white truncate">
-                      {transaction.type}
+                      {transaction.description}
                     </h4>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="font-semibold text-black dark:text-white text-sm sm:text-base">
-                        {'\u20A6'}{transaction.amount.toLocaleString()}
+                        {'\u20A6'}{Math.abs(transaction.amount).toLocaleString()}
                       </span>
                       <button aria-label="More options" className="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
                         <MoreHorizontal className="w-4 h-4 text-black dark:text-white" aria-hidden="true" />
@@ -190,11 +103,10 @@ const RecentTransactions = () => {
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 mt-1">
                     <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
-                      <span className="mr-1">{getStatusIcon(transaction.status)}</span>
+                      <span className="mr-1">{'\u25CF'}</span>
                       {transaction.status}
                     </div>
                     <span className="text-xs text-black dark:text-white">{transaction.date}</span>
-                    <span className="hidden md:inline font-mono text-xs text-black dark:text-white">{original?.transactionId}</span>
                   </div>
                 </div>
               </div>
@@ -202,15 +114,16 @@ const RecentTransactions = () => {
           );
         })
       )}
-
-      <div className="p-4 text-center">
-        <button
-          onClick={() => setShowAll(!showAll)}
-          className="text-secondary dark:text-white hover:underline font-medium"
-        >
-          {showAll ? 'Show less' : 'View all transactions'}
-        </button>
-      </div>
+      {listData.length > 5 && (
+        <div className="p-4 text-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-secondary dark:text-white hover:underline font-medium"
+          >
+            {showAll ? 'Show less' : 'View all transactions'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

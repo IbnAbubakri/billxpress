@@ -107,6 +107,17 @@ export async function initDatabase() {
       userAgent TEXT,
       severity TEXT DEFAULT 'info'
     );
+    CREATE TABLE IF NOT EXISTS transactions (
+      id SERIAL PRIMARY KEY,
+      userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      amount REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'completed',
+      description TEXT DEFAULT '',
+      recipient TEXT DEFAULT '',
+      date TEXT NOT NULL,
+      createdAt TEXT DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS otps (
       id SERIAL PRIMARY KEY,
       phone TEXT NOT NULL,
@@ -130,6 +141,8 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_users_emailVerificationToken ON users(emailVerificationToken);
     CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
     CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
+    CREATE INDEX IF NOT EXISTS idx_transactions_userId ON transactions(userId);
+    CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
   `);
 
   logger.info('Database initialized (PostgreSQL)');

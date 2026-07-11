@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { ArrowLeft, Search, Download, Phone, Wifi, Tv, Zap, GraduationCap, Target, RefreshCw, CreditCard } from "lucide-react";
+import { ArrowLeft, Search, Download, Phone, Wifi, Tv, Zap, GraduationCap, Target, RefreshCw, CreditCard, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import ConfirmModal from "../ui/ConfirmModal";
 import VirtualTransactionList from "../ui/VirtualTransactionList";
+import { useTransactions } from "../../hooks/useTransactions";
 
 import type { PageProps } from '../../types/page';
 
@@ -19,18 +20,8 @@ const TransactionsPage: React.FC<PageProps> = ({
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
 
-  const transactions = [
-    { id: "TXN001", type: "airtime", description: "MTN Airtime Purchase - ₦500", amount: -500, status: "completed", date: "2026-07-09T08:30:00Z", recipient: "08035792046" },
-    { id: "TXN002", type: "data", description: "Glo 2GB Data Bundle", amount: -1500, status: "completed", date: "2026-07-08T15:45:00Z", recipient: "08035792046" },
-    { id: "TXN003", type: "wallet_funding", description: "Wallet Funding via Bank Transfer", amount: 50000, status: "completed", date: "2026-07-06T09:20:00Z", recipient: "Self" },
-    { id: "TXN004", type: "tv", description: "DStv Premium Subscription - Jul", amount: -12400, status: "pending", date: "2026-07-05T14:15:00Z", recipient: "DSTV/123456789" },
-    { id: "TXN005", type: "electricity", description: "IKEDC Prepaid Meter", amount: -5000, status: "failed", date: "2026-07-04T11:30:00Z", recipient: "MTR/IK/4782910345" },
-    { id: "TXN006", type: "education", description: "JAMB Registration Fee", amount: -4700, status: "completed", date: "2026-07-02T16:20:00Z", recipient: "JAMB/REG/AB/67291" },
-    { id: "TXN007", type: "betting", description: "Bet9ja Wallet Funding", amount: -5000, status: "completed", date: "2026-06-30T13:45:00Z", recipient: "BET9JA/ACCT/89012" },
-    { id: "TXN008", type: "airtime_to_cash", description: "Airtime to Cash - MTN", amount: 3400, status: "completed", date: "2026-06-28T12:10:00Z", recipient: "Self" },
-    { id: "TXN009", type: "wallet_funding", description: "Wallet Funding via Card", amount: 20000, status: "completed", date: "2026-06-25T10:05:00Z", recipient: "Self" },
-    { id: "TXN010", type: "airtime", description: "Airtel Airtime Purchase", amount: -200, status: "completed", date: "2026-06-24T07:15:00Z", recipient: "08035792046" },
-  ];
+  const { data: transactionsData, isLoading } = useTransactions();
+  const transactions = transactionsData || [];
 
   const getTransactionIcon = (type: string) => {
     const icons: Record<string, React.ReactNode> = {
@@ -178,7 +169,11 @@ const TransactionsPage: React.FC<PageProps> = ({
           <div className="p-4 border-b border-gray-200 dark:border-dark-700">
             <h3 className="text-base font-semibold text-black dark:text-white">Transaction History ({filteredTransactions.length})</h3>
           </div>
-          {filteredTransactions.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+          ) : filteredTransactions.length > 0 ? (
             filteredTransactions.length > 10 ? (
               <VirtualTransactionList
                 transactions={filteredTransactions.map((t) => ({
