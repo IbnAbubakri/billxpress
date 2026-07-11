@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+import { walletApi } from '../../api/client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useDarkMode } from "../../hooks/useDarkMode";
 
@@ -31,7 +32,7 @@ const TransactionChart = () => {
   const { data: apiData } = useQuery({
     queryKey: ['charts', 'weekly'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/charts/weekly', { withCredentials: true });
+      const { data } = await walletApi.get('/charts/weekly');
       return data.data as Array<{ day_idx: number; amount: number }>;
     },
     staleTime: 2 * 60 * 1000,

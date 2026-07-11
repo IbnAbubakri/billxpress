@@ -6,7 +6,7 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-const walletApi = axios.create({
+export const walletApi = axios.create({
   baseURL: '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
@@ -53,6 +53,32 @@ api.interceptors.response.use(
         const token = await getCSRFToken();
         originalRequest.headers['x-csrf-token'] = token;
         return api(originalRequest);
+      } catch {
+        return Promise.reject(error);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+walletApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/refresh') &&
+      !originalRequest.url?.includes('/csrf-token') &&
+      !originalRequest.url?.includes('/me')
+    ) {
+      originalRequest._retry = true;
+      try {
+        const csrf = await getCSRFToken();
+        await api.post('/refresh', {}, { headers: { 'x-csrf-token': csrf } });
+        const token = await getCSRFToken();
+        originalRequest.headers['x-csrf-token'] = token;
+        return walletApi(originalRequest);
       } catch {
         return Promise.reject(error);
       }

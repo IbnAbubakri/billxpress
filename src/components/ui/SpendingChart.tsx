@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useDarkMode } from "../../hooks/useDarkMode";
 
@@ -24,12 +23,14 @@ const formatYAxis = (value: number) => {
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+import { walletApi } from '../../api/client';
+
 const SpendingChart = () => {
   const { isDark } = useDarkMode();
   const { data: apiData } = useQuery({
     queryKey: ['charts', 'monthly'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/charts/monthly', { withCredentials: true });
+      const { data } = await walletApi.get('/charts/monthly');
       return data.data as Array<{ month: string; spending: number }>;
     },
     staleTime: 2 * 60 * 1000,
