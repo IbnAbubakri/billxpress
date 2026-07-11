@@ -114,6 +114,12 @@ function rowToUser(row) {
     homeState: row.homestate || row.homeState || '',
     homeZip: row.homezip || row.homeZip || '',
     avatar: row.avatar || '',
+    dateOfBirth: row.dateofbirth || row.dateOfBirth || '',
+    gender: row.gender || '',
+    nin: row.nin || '',
+    nextOfKin: (() => { try { return JSON.parse(row.nextofkin || row.nextOfKin || '{}'); } catch { return {}; } })(),
+    employmentStatus: row.employmentstatus || row.employmentStatus || '',
+    annualIncome: row.annualincome || row.annualIncome || '',
     emailVerified: Boolean(row.emailverified ?? row.emailVerified),
     emailVerificationToken: row.emailverificationtoken ?? row.emailVerificationToken,
     emailVerificationExpires: row.emailverificationexpires ?? row.emailVerificationExpires,
@@ -329,6 +335,15 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
   await clearFailedAttempts(identifier, ip);
   const db = getDb();
   const now = new Date().toISOString();
+
+  if (user.passwordChangedAt) {
+    const changed = new Date(user.passwordChangedAt).getTime();
+    const elapsed = Date.now() - changed;
+    if (elapsed > PASSWORD_POLICY.expiryDays * 24 * 60 * 60 * 1000) {
+      throw new AppError('Your password has expired. Please reset it.', 403);
+    }
+  }
+
   await db.prepare('UPDATE users SET lastLogin = ?, failedLoginAttempts = 0, lockedUntil = NULL WHERE id = ?').run(now, user.id);
   logAction({ userId: user.id, action: 'LOGIN', details: { email: user.email }, ip, userAgent });
   logger.info({ userId: user.id }, 'User authenticated');
@@ -429,6 +444,7 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
     'name', 'phone', 'bvn', 'accountNumber', 'bankName', 'accountName',
     'billingStreet', 'billingCity', 'billingState', 'billingCountry',
     'homeStreet', 'homeCity', 'homeState', 'homeZip', 'avatar',
+    'email', 'dateOfBirth', 'gender', 'nin', 'nextOfKin', 'employmentStatus', 'annualIncome',
   ];
 
   const updates = [];
@@ -499,6 +515,51 @@ export async function setTransactionPin(id, pin, ip, userAgent) {
   return { success: true };
 }
 
+export async function generateMfaSecret(id) {
+  const { authenticator } = await import('otplib');
+  const secret = authenticator.generateSecret();
+  const db = getDb();
+  await db.prepare('UPDATE users SET mfaSecret = ?, updatedAt = ? WHERE id = ?')
+    .run(secret, new Date().toISOString(), id);
+  const user = await db.prepare('SELECT email FROM users WHERE id = ?').get(id);
+  const uri = authenticator.keyuri(user.email, 'BillXpress', secret);
+  return { secret, uri };
+}
+
+export async function verifyMfaSetup(id, token) {
+  const { authenticator } = await import('otplib');
+  const db = getDb();
+  const user = await db.prepare('SELECT mfaSecret FROM users WHERE id = ?').get(id);
+  if (!user || !user.mfaSecret) throw new AppError('MFA not initialized. Generate a secret first.', 400);
+  const isValid = authenticator.check(token, user.mfaSecret);
+  if (!isValid) throw new AppError('Invalid verification code.', 400);
+  const backupCodes = Array.from({ length: 8 }, () => {
+    const code = crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 8);
+    return { code, hash: bcrypt.hashSync(code, 8), used: false };
+  });
+  await db.prepare('UPDATE users SET mfaEnabled = 1, mfaBackupCodes = ?, updatedAt = ? WHERE id = ?')
+    .run(JSON.stringify(backupCodes.map(({ hash, used }) => ({ hash, used }))), new Date().toISOString(), id);
+  const plainCodes = backupCodes.map((bc) => bc.code);
+  return { success: true, backupCodes: plainCodes };
+}
+
+export async function disableMfa(id) {
+  const db = getDb();
+  await db.prepare('UPDATE users SET mfaSecret = NULL, mfaEnabled = 0, mfaBackupCodes = ?, updatedAt = ? WHERE id = ?')
+    .run('[]', new Date().toISOString(), id);
+  return { success: true };
+}
+
+export async function deleteAccount(id) {
+  const db = getDb();
+  await db.prepare('DELETE FROM sessions WHERE userId = ?').run(id);
+  await db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(id);
+  await db.prepare('DELETE FROM transactions WHERE userId = ?').run(id);
+  await db.prepare('DELETE FROM otps WHERE userId = ?').catch(() => {}); /* no userId col on otps */
+  await db.prepare('DELETE FROM users WHERE id = ?').run(id);
+  return { success: true };
+}
+
 export async function getUserByEmail(email) {
   return getUserByEmailRaw(email);
 }
@@ -554,7 +615,7 @@ export async function sendOtp(phone) {
   await db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
   logger.info({ phone: normalized }, 'OTP sent');
-  return { message: 'OTP sent successfully', expiresIn: 600, code };
+  return { message: 'OTP sent successfully', expiresIn: 600 };
 }
 
 export async function verifyOtp(phone, code) {

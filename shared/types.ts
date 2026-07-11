@@ -20,6 +20,15 @@ export interface User {
   homeZip?: string;
   avatar?: string;
   mfaEnabled?: boolean;
+  dateOfBirth?: string;
+  gender?: string;
+  nin?: string;
+  nextOfKin?: Record<string, string>;
+  employmentStatus?: string;
+  annualIncome?: string;
+  createdAt?: string;
+  lastLogin?: string;
+  passwordChangedAt?: string;
 }
 
 export interface Transaction {
@@ -41,5 +50,6 @@ export interface AdminUser {
 export type ProfileUpdateData = Partial<Pick<User,
   'name' | 'phone' | 'bvn' | 'accountNumber' | 'bankName' | 'accountName' |
   'billingStreet' | 'billingCity' | 'billingState' | 'billingCountry' |
-  'homeStreet' | 'homeCity' | 'homeState' | 'homeZip' | 'avatar'
+  'homeStreet' | 'homeCity' | 'homeState' | 'homeZip' | 'avatar' |
+  'email' | 'dateOfBirth' | 'gender' | 'nin' | 'employmentStatus' | 'annualIncome' | 'nextOfKin'
 >>;

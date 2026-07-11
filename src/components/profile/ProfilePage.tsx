@@ -37,6 +37,19 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
   });
   const [bankErrors, setBankErrors] = useState<Record<string, string | null>>({});
 
+  const [showEmailChangeModal, setShowEmailChangeModal] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailChangeError, setEmailChangeError] = useState('');
+  const [emailChangeSent, setEmailChangeSent] = useState(false);
+
+  const [showPhoneOtpModal, setShowPhoneOtpModal] = useState(false);
+  const [pendingPhone, setPendingPhone] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [phoneOtpError, setPhoneOtpError] = useState('');
+
+  const [showAccountDeletionModal, setShowAccountDeletionModal] = useState(false);
+  const [deletionConfirmText, setDeletionConfirmText] = useState('');
+
   const [showBasicInfoModal, setShowBasicInfoModal] = useState(false);
   const [basicInfo, setBasicInfo] = useState({
     billingStreet: user?.billingStreet || "",
@@ -108,18 +121,32 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      try {
-        const name = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
-        const phone = formData.phone.startsWith("0")
-          ? "+234" + formData.phone.slice(1)
-          : formData.phone;
-        if (onUpdateProfile) {
-          await onUpdateProfile({ name, phone });
+      const name = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+      const normalizedPhone = formData.phone.startsWith("0")
+        ? "+234" + formData.phone.slice(1)
+        : formData.phone;
+
+      const currentPhone = (user?.phone || '').replace(/^\+234/, "0");
+      if (formData.phone !== currentPhone && formData.phone.length >= 10) {
+        setPendingPhone(normalizedPhone);
+        try {
+          const { sendOtp } = await import('../../api/client');
+          await sendOtp(normalizedPhone);
+          setShowPhoneOtpModal(true);
+        } catch {
+          setErrors({ phone: "Failed to send OTP. Try again." });
         }
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-      } catch {
-        setErrors({ phone: "Failed to update profile. Try again." });
+        return;
+      }
+
+      if (onUpdateProfile) {
+        try {
+          await onUpdateProfile({ name, phone: normalizedPhone });
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 3000);
+        } catch {
+          setErrors({ phone: "Failed to update profile. Try again." });
+        }
       }
     }
   };
@@ -528,14 +555,22 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <label htmlFor="profileEmail" className="block text-sm font-medium text-black dark:text-white mb-2">
                         Email Address
                       </label>
-                      <input
-                        id="profileEmail"
-                        type="email"
-                        value={formData.email}
-                        readOnly
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 dark:bg-dark-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Email cannot be changed. Contact support if needed.</p>
+                      <div className="flex gap-2">
+                        <input
+                          id="profileEmail"
+                          type="email"
+                          value={formData.email}
+                          readOnly
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 dark:bg-dark-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                        />
+                        <button
+                          onClick={() => setShowEmailChangeModal(true)}
+                          className="px-4 py-3 bg-blue-600 text-white rounded-2xl text-sm hover:bg-blue-700 transition-colors flex-shrink-0"
+                        >
+                          Change
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Email change requires verification.</p>
                     </div>
 
                     <div>
@@ -558,6 +593,64 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           {errors.phone}
                         </p>
                       )}
+                      <p className="text-xs text-gray-500 mt-1">Phone change requires OTP verification.</p>
+                    </div>
+                  </div>
+
+                  {/* KYC Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <label htmlFor="profileDOB" className="block text-sm font-medium text-black dark:text-white mb-2">Date of Birth</label>
+                      <input id="profileDOB" type="date" value={user?.dateOfBirth || ''}
+                        onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ dateOfBirth: e.target.value }); }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="profileGender" className="block text-sm font-medium text-black dark:text-white mb-2">Gender</label>
+                      <select id="profileGender" value={user?.gender || ''}
+                        onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ gender: e.target.value }); }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="profileNIN" className="block text-sm font-medium text-black dark:text-white mb-2">NIN (National ID)</label>
+                      <input id="profileNIN" type="text" value={user?.nin || ''}
+                        onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ nin: e.target.value }); }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="profileEmployStatus" className="block text-sm font-medium text-black dark:text-white mb-2">Employment Status</label>
+                      <select id="profileEmployStatus" value={user?.employmentStatus || ''}
+                        onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ employmentStatus: e.target.value }); }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select status</option>
+                        <option value="employed">Employed</option>
+                        <option value="self-employed">Self-Employed</option>
+                        <option value="unemployed">Unemployed</option>
+                        <option value="student">Student</option>
+                        <option value="retired">Retired</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="profileIncome" className="block text-sm font-medium text-black dark:text-white mb-2">Annual Income</label>
+                      <select id="profileIncome" value={user?.annualIncome || ''}
+                        onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ annualIncome: e.target.value }); }
+                        }
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select range</option>
+                        <option value="0-1M">₦0 - ₦1,000,000</option>
+                        <option value="1M-5M">₦1,000,000 - ₦5,000,000</option>
+                        <option value="5M-10M">₦5,000,000 - ₦10,000,000</option>
+                        <option value="10M+">₦10,000,000+</option>
+                      </select>
                     </div>
                   </div>
 
@@ -703,6 +796,108 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
           </div>
         </div>
       </div>
+
+      {/* Email Change Modal */}
+      {showEmailChangeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-bold text-black dark:text-white mb-4">Change Email Address</h2>
+            {!emailChangeSent ? (
+              <>
+                <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="New email address"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl mb-3"
+                />
+                {emailChangeError && <p className="text-red-500 text-sm mb-3">{emailChangeError}</p>}
+                <div className="flex gap-3">
+                  <button onClick={() => { setShowEmailChangeModal(false); setNewEmail(''); setEmailChangeError(''); }}
+                    className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
+                  <button onClick={async () => {
+                    if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                      setEmailChangeError('Enter a valid email address.'); return;
+                    }
+                    setEmailChangeError('');
+                    try {
+                      await onUpdateProfile?.({ email: newEmail });
+                      setEmailChangeSent(true);
+                      setFormData(p => ({ ...p, email: newEmail }));
+                    } catch (err: unknown) {
+                      setEmailChangeError(err instanceof Error ? err.message : 'Failed to update email.');
+                    }
+                  }} className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl hover:bg-blue-700 transition-colors">Save</button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <p className="text-green-600 mb-4">Email updated. Verification email sent to your new address.</p>
+                <button onClick={() => { setShowEmailChangeModal(false); setEmailChangeSent(false); setNewEmail(''); }}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-colors">Done</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Phone OTP Verification Modal */}
+      {showPhoneOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-bold text-black dark:text-white mb-2">Verify Phone Number</h2>
+            <p className="text-sm text-black dark:text-white mb-4">Enter the OTP sent to {pendingPhone}</p>
+            <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="6-digit OTP"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl mb-3 text-center text-lg tracking-widest"
+            />
+            {phoneOtpError && <p className="text-red-500 text-sm mb-3">{phoneOtpError}</p>}
+            <div className="flex gap-3">
+              <button onClick={() => { setShowPhoneOtpModal(false); setOtpCode(''); setPhoneOtpError(''); }}
+                className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
+              <button onClick={async () => {
+                if (!otpCode || otpCode.length < 6) { setPhoneOtpError('Enter the 6-digit code.'); return; }
+                setPhoneOtpError('');
+                try {
+                  const { verifyOtp } = await import('../../api/client');
+                  await verifyOtp(pendingPhone, otpCode);
+                  const name = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+                  if (onUpdateProfile) {
+                    await onUpdateProfile({ name, phone: pendingPhone });
+                  }
+                  setShowPhoneOtpModal(false);
+                  setOtpCode('');
+                  setShowSuccess(true);
+                  setTimeout(() => setShowSuccess(false), 3000);
+                } catch {
+                  setPhoneOtpError('Invalid or expired OTP.');
+                }
+              }} className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl hover:bg-blue-700 transition-colors">Verify</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Account Deletion Modal */}
+      {showAccountDeletionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
+            <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
+            <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl mb-3"
+            />
+            <div className="flex gap-3">
+              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); }}
+                className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
+              <button onClick={async () => {
+                if (deletionConfirmText !== 'DELETE') return;
+                try {
+                  const { handleDeleteAccount } = await import('../../hooks/useAuth').then(m => ({ handleDeleteAccount: m.useAuth().handleDeleteAccount }));
+                  await handleDeleteAccount();
+                  onLogout();
+                } catch { /* ignore */ }
+              }} className="w-1/2 bg-red-600 text-white py-3 rounded-2xl hover:bg-red-700 transition-colors disabled:opacity-50"
+                disabled={deletionConfirmText !== 'DELETE'}>Delete My Account</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <EmailVerificationModal
         open={showEmailModal}

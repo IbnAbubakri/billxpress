@@ -2,6 +2,7 @@ import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
   updateUserProfile, generateVerificationToken, verifyEmailToken,
   checkPhone, sendOtp, verifyOtp, changePassword, setTransactionPin,
+  generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
@@ -237,6 +238,37 @@ export async function handleSetTransactionPin(req, res, next) {
     const { pin } = req.body;
     await setTransactionPin(req.user.id, pin, req.clientIp, req.clientUA);
     res.json({ message: 'Transaction PIN set successfully.' });
+  } catch (err) { next(err); }
+}
+
+export async function handleGenerateMfaSecret(req, res, next) {
+  try {
+    const result = await generateMfaSecret(req.user.id);
+    res.json(result);
+  } catch (err) { next(err); }
+}
+
+export async function handleVerifyMfaSetup(req, res, next) {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Verification code required.' });
+    const result = await verifyMfaSetup(req.user.id, token);
+    res.json(result);
+  } catch (err) { next(err); }
+}
+
+export async function handleDisableMfa(req, res, next) {
+  try {
+    const result = await disableMfa(req.user.id);
+    res.json(result);
+  } catch (err) { next(err); }
+}
+
+export async function handleDeleteAccount(req, res, next) {
+  try {
+    await deleteAccount(req.user.id);
+    clearAuthCookies(res);
+    res.json({ message: 'Account deleted.' });
   } catch (err) { next(err); }
 }
 

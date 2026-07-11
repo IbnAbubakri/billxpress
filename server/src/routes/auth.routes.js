@@ -7,6 +7,8 @@ import {
   handleUpdateProfile, handleSendVerification, handleVerifyEmail,
   handleCheckPhone, handleSendOtp, handleVerifyOtp,
   handleChangePassword, handleSetTransactionPin,
+  handleGenerateMfaSecret, handleVerifyMfaSetup, handleDisableMfa,
+  handleDeleteAccount,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { validateLogin, validateRegister, validatePasswordReset } from '../middleware/validate.middleware.js';
@@ -57,6 +59,10 @@ router.put('/transaction-pin', authenticate, validateCsrf, handleSetTransactionP
 router.get('/sessions', authenticate, handleSessions);
 router.delete('/sessions/:sessionId', authenticate, validateCsrf, handleDeleteSession);
 router.post('/logout-all', authenticate, validateCsrf, handleLogoutAll);
+router.post('/mfa/generate', authenticate, validateCsrf, handleGenerateMfaSecret);
+router.post('/mfa/verify', authenticate, validateCsrf, handleVerifyMfaSetup);
+router.post('/mfa/disable', authenticate, validateCsrf, handleDisableMfa);
+router.delete('/account', authenticate, validateCsrf, handleDeleteAccount);
 
 const otpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 3,

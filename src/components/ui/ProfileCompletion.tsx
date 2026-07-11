@@ -45,9 +45,9 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
     ...s,
     completed: s.icon === 'UserPlus' ? true
       : s.icon === 'Mail' ? !!user?.emailVerified
-      : s.icon === 'Info' ? !!(user?.billingStreet && user?.billingCity)
+      : s.icon === 'Info' ? !!(user?.billingStreet && user?.billingCity && user?.homeStreet && user?.homeCity)
       : s.icon === 'Fingerprint' ? !!user?.bvn
-      : s.icon === 'Banknote' ? !!(user?.accountNumber && user?.bankName)
+      : s.icon === 'Banknote' ? !!(user?.accountNumber && user?.bankName && user?.name && user?.phone)
       : s.completed,
   }));
 

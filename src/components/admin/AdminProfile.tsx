@@ -15,10 +15,12 @@ import {
   Camera
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
 import type { ProfileUpdateData } from '../../types';
 
 const AdminProfile: React.FC = () => {
-  const { user, handleUpdateProfile, handleChangePassword } = useAuth();
+  const { user, handleUpdateProfile, handleChangePassword, handleGenerateMfaSecret, handleVerifyMfaSetup, handleDisableMfa, handleDeleteAccount } = useAuth();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +29,14 @@ const AdminProfile: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [showMFAModal, setShowMFAModal] = useState(false);
+  const [showAccountDeletionModal, setShowAccountDeletionModal] = useState(false);
+  const [deletionConfirmText, setDeletionConfirmText] = useState('');
+  const [mfaSecret, setMfaSecret] = useState('');
+  const [mfaUri, setMfaUri] = useState('');
+  const [mfaToken, setMfaToken] = useState('');
+  const [mfaError, setMfaError] = useState('');
+  const [mfaBackupCodes, setMfaBackupCodes] = useState<string[]>([]);
+  const [mfaStep, setMfaStep] = useState<'initial' | 'setup' | 'verify' | 'done'>('initial');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [adminData, setAdminData] = useState({
@@ -295,7 +305,17 @@ const AdminProfile: React.FC = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => setShowMFAModal(true)}
+                  onClick={async () => {
+                    if (!user?.mfaEnabled) {
+                      try {
+                        const result = await handleGenerateMfaSecret();
+                        setMfaSecret(result.secret);
+                        setMfaUri(result.uri);
+                        setMfaStep('setup');
+                      } catch { setMfaError('Failed to generate secret.'); }
+                    }
+                    setShowMFAModal(true);
+                  }}
                   className="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors"
                 >
                   {user?.mfaEnabled ? 'Manage 2FA' : 'Enable 2FA'}
@@ -394,8 +414,51 @@ const AdminProfile: React.FC = () => {
               ))}
             </div>
           </motion.div>
+
+          {/* Account Actions */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
+          >
+            <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Account Actions</h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => setShowAccountDeletionModal(true)}
+                className="w-full px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors text-sm font-medium"
+              >
+                Delete Account
+              </button>
+            </div>
+          </motion.div>
         </div>
       </div>
+
+      {/* Account Deletion Modal */}
+      {showAccountDeletionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-ginto font-semibold text-red-600 mb-2">Delete Account</h3>
+            <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
+            <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-3" />
+            <div className="flex gap-3">
+              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); }}
+                className="w-1/2 bg-gray-200 text-black py-3 rounded-xl hover:bg-gray-300 transition-colors">Cancel</button>
+              <button onClick={async () => {
+                if (deletionConfirmText !== 'DELETE') return;
+                try {
+                  await handleDeleteAccount();
+                  window.location.href = '/';
+                } catch { /* ignore */ }
+              }} className="w-1/2 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
+                disabled={deletionConfirmText !== 'DELETE'}>Delete My Account</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* MFA Modal */}
       {showMFAModal && (
@@ -406,28 +469,70 @@ const AdminProfile: React.FC = () => {
             exit={{ opacity: 0, scale: 0.95 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full p-6"
           >
-            <div className="text-center">
-              <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
-              <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">
-                {user?.mfaEnabled ? 'Two-Factor Authentication' : 'Enable Two-Factor Authentication'}
-              </h3>
-              <p className="text-black dark:text-white mb-4">
-                {user?.mfaEnabled
-                  ? 'Two-factor authentication is currently enabled on your account.'
-                  : 'Two-factor authentication setup is coming soon. This feature will add an extra layer of security to your account.'}
-              </p>
-              {user?.mfaEnabled && (
-                <p className="text-sm text-black dark:text-white mb-4">
-                  You will be prompted for a verification code from your authenticator app when signing in.
-                </p>
-              )}
-              <button
-                onClick={() => setShowMFAModal(false)}
-                className="premium-button w-full"
-              >
-                Close
-              </button>
-            </div>
+            {user?.mfaEnabled && mfaStep === 'initial' ? (
+              <div className="text-center">
+                <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
+                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Two-Factor Authentication</h3>
+                <p className="text-black dark:text-white mb-4">2FA is currently enabled on your account.</p>
+                <button onClick={async () => {
+                  try {
+                    await handleDisableMfa();
+                    queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+                    setShowMFAModal(false);
+                  } catch { setMfaError('Failed to disable 2FA.'); }
+                }} className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 mb-2 w-full">Disable 2FA</button>
+                <button onClick={() => setShowMFAModal(false)} className="premium-button w-full">Close</button>
+                {mfaError && <p className="text-red-500 text-sm mt-2">{mfaError}</p>}
+              </div>
+            ) : mfaStep === 'setup' || mfaStep === 'initial' ? (
+              <div className="text-center">
+                <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
+                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Set Up Two-Factor Authentication</h3>
+                <p className="text-black dark:text-white mb-4">Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.).</p>
+                {mfaUri && (
+                  <div className="bg-white p-4 rounded-xl inline-block mb-4">
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mfaUri)}`} alt="MFA QR Code" className="w-48 h-48 mx-auto" />
+                  </div>
+                )}
+                <p className="text-xs text-black dark:text-white mb-4 break-all">Or enter this key manually: <code className="font-mono bg-neutral-100 dark:bg-dark-700 px-2 py-1 rounded">{mfaSecret}</code></p>
+                <input type="text" value={mfaToken} onChange={(e) => setMfaToken(e.target.value)} placeholder="Enter 6-digit code"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-3 text-center text-lg tracking-widest"
+                />
+                {mfaError && <p className="text-red-500 text-sm mb-3">{mfaError}</p>}
+                <div className="flex gap-3">
+                  <button onClick={() => { setShowMFAModal(false); setMfaStep('initial'); setMfaToken(''); setMfaError(''); }}
+                    className="w-1/2 bg-gray-200 text-black py-3 rounded-xl hover:bg-gray-300 transition-colors">Cancel</button>
+                  <button onClick={async () => {
+                    if (!mfaToken || mfaToken.length < 6) { setMfaError('Enter a valid 6-digit code.'); return; }
+                    setMfaError('');
+                    try {
+                      const result = await handleVerifyMfaSetup(mfaToken);
+                      setMfaBackupCodes(result.backupCodes);
+                      setMfaStep('done');
+                      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+                    } catch (err: unknown) {
+                      setMfaError(err instanceof Error ? err.message : 'Verification failed.');
+                    }
+                  }} className="w-1/2 bg-primary-600 text-white py-3 rounded-xl hover:bg-primary-700 transition-colors">Verify</button>
+                </div>
+              </div>
+            ) : mfaStep === 'done' ? (
+              <div className="text-center">
+                <Key className="w-12 h-12 text-green-600 mx-auto mb-4" aria-hidden="true" />
+                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">2FA Enabled Successfully</h3>
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-4 mb-4">
+                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">Save these backup codes:</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {mfaBackupCodes.map((code, i) => (
+                      <code key={i} className="font-mono text-sm bg-white dark:bg-dark-700 px-2 py-1 rounded text-black dark:text-white">{code}</code>
+                    ))}
+                  </div>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-2">Each code can only be used once. Store them safely.</p>
+                </div>
+                <button onClick={() => { setShowMFAModal(false); setMfaStep('initial'); setMfaToken(''); setMfaBackupCodes([]); }}
+                  className="premium-button w-full">Done</button>
+              </div>
+            ) : null}
           </motion.div>
         </div>
       )}

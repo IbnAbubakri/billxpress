@@ -153,7 +153,7 @@ export async function sendOtp(phone: string) {
   const { data } = await api.post('/send-otp', { phone }, {
     headers: { 'x-csrf-token': csrf },
   });
-  return data as { message: string; expiresIn: number; code?: string };
+  return data as { message: string; expiresIn: number };
 }
 
 export async function verifyOtp(phone: string, code: string) {
@@ -162,6 +162,38 @@ export async function verifyOtp(phone: string, code: string) {
     headers: { 'x-csrf-token': csrf },
   });
   return data as { verified: boolean };
+}
+
+export async function generateMfaSecret() {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/mfa/generate', {}, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { secret: string; uri: string };
+}
+
+export async function verifyMfaSetup(token: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/mfa/verify', { token }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { success: boolean; backupCodes: string[] };
+}
+
+export async function disableMfa() {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/mfa/disable', {}, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
+export async function deleteAccount() {
+  const csrf = await ensureCSRF();
+  const { data } = await api.delete('/account', {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
 }
 
 export default api;

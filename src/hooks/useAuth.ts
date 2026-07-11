@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, changePassword as apiChangePassword, setTransactionPin as apiSetTransactionPin, sendVerificationEmail as apiSendVerification, checkPhone as apiCheckPhone, sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp } from '../api/client';
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, changePassword as apiChangePassword, setTransactionPin as apiSetTransactionPin, sendVerificationEmail as apiSendVerification, checkPhone as apiCheckPhone, sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp, generateMfaSecret as apiGenerateMfaSecret, verifyMfaSetup as apiVerifyMfaSetup, disableMfa as apiDisableMfa, deleteAccount as apiDeleteAccount } from '../api/client';
 import type { User, ProfileUpdateData } from '../types';
 
 const AUTH_STORAGE_KEY = 'billxpress_auth';
@@ -62,6 +62,15 @@ function toUser(data: Record<string, unknown>): User {
     homeZip: (data.homeZip as string) || '',
     avatar: (data.avatar as string) || '',
     mfaEnabled: (data.mfaEnabled as boolean) ?? false,
+    dateOfBirth: (data.dateOfBirth as string) || '',
+    gender: (data.gender as string) || '',
+    nin: (data.nin as string) || '',
+    nextOfKin: (data.nextOfKin as Record<string, string>) || {},
+    employmentStatus: (data.employmentStatus as string) || '',
+    annualIncome: (data.annualIncome as string) || '',
+    createdAt: (data.createdAt as string) || '',
+    lastLogin: (data.lastLogin as string) || '',
+    passwordChangedAt: (data.passwordChangedAt as string) || '',
   };
 }
 
@@ -188,6 +197,22 @@ export function useAuth() {
     return apiVerifyOtp(phone, code);
   }, []);
 
+  const handleGenerateMfaSecret = useCallback(async () => {
+    return apiGenerateMfaSecret();
+  }, []);
+
+  const handleVerifyMfaSetup = useCallback(async (token: string) => {
+    return apiVerifyMfaSetup(token);
+  }, []);
+
+  const handleDisableMfa = useCallback(async () => {
+    return apiDisableMfa();
+  }, []);
+
+  const handleDeleteAccount = useCallback(async () => {
+    return apiDeleteAccount();
+  }, []);
+
   return {
     user,
     isAuthenticated,
@@ -203,5 +228,9 @@ export function useAuth() {
     handleCheckPhone,
     handleSendOtp,
     handleVerifyOtp,
+    handleGenerateMfaSecret,
+    handleVerifyMfaSetup,
+    handleDisableMfa,
+    handleDeleteAccount,
   };
 }

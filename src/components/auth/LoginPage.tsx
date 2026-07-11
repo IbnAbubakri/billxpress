@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Phone, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Phone, Lock, Send } from 'lucide-react';
 import { Logo } from '../ui/Logo';
+import { sendVerificationEmail } from '../../api/client';
 
 interface LoginPageProps {
   onLogin: (login: string, password: string) => Promise<void>;
@@ -22,6 +23,8 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
   const isPhone = isValidPhone(formData.login);
 
   const handleChange = useCallback((field: string, value: string) => {
@@ -74,6 +77,26 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {generalError && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">{generalError}</div>
+            )}
+            {generalError.toLowerCase().includes('verify your email') && !verificationSent && (
+              <button
+                onClick={async () => {
+                  setResendingVerification(true);
+                  try {
+                    await sendVerificationEmail();
+                    setVerificationSent(true);
+                  } catch { /* ignore */ }
+                  setResendingVerification(false);
+                }}
+                disabled={resendingVerification}
+                className="flex items-center justify-center w-full text-sm text-secondary dark:text-white hover:underline font-medium mt-2"
+              >
+                <Send className="w-4 h-4 mr-1" aria-hidden="true" />
+                {resendingVerification ? 'Sending...' : 'Resend verification email'}
+              </button>
+            )}
+            {verificationSent && (
+              <p className="text-sm text-green-600 text-center mt-2">Verification email sent. Check your inbox.</p>
             )}
 
             <div>
