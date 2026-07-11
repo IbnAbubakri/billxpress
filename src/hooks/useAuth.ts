@@ -61,6 +61,7 @@ function toUser(data: Record<string, unknown>): User {
     homeState: (data.homeState as string) || '',
     homeZip: (data.homeZip as string) || '',
     avatar: (data.avatar as string) || '',
+    mfaEnabled: (data.mfaEnabled as boolean) ?? false,
   };
 }
 

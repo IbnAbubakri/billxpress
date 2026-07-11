@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -11,17 +11,23 @@ import {
   X,
   Eye,
   EyeOff,
-  Lock
+  Lock,
+  Camera
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import type { ProfileUpdateData } from '../../types';
 
 const AdminProfile: React.FC = () => {
-  const { user } = useAuth();
+  const { user, handleUpdateProfile, handleChangePassword } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [showMFAModal, setShowMFAModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [adminData, setAdminData] = useState({
     id: 1,
@@ -54,13 +60,14 @@ const AdminProfile: React.FC = () => {
     weekly_reports: true
   });
 
-  const handleSaveProfile = () => {
-    setAdminData(prev => ({
-      ...prev,
-      ...editForm
-    }));
-    setIsEditing(false);
-    // Here you would typically make an API call to update the profile
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      await handleUpdateProfile({ name: editForm.name, phone: editForm.phone });
+      setAdminData(prev => ({ ...prev, ...editForm }));
+      setIsEditing(false);
+    } catch { /* error handled by mutation */ }
+    setSaving(false);
   };
 
   const handleCancelEdit = () => {
@@ -72,27 +79,25 @@ const AdminProfile: React.FC = () => {
     setIsEditing(false);
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (passwordForm.new_password !== passwordForm.confirm_password) {
-      alert('New passwords do not match');
+      setPasswordError('New passwords do not match');
       return;
     }
-    // Here you would typically make an API call to change the password
-    console.log('Password change requested');
-    setShowPasswordModal(false);
-    setPasswordForm({
-      current_password: '',
-      new_password: '',
-      confirm_password: ''
-    });
+    setPasswordError('');
+    setSaving(true);
+    try {
+      await handleChangePassword(passwordForm.current_password, passwordForm.new_password);
+      setShowPasswordModal(false);
+      setPasswordForm({ current_password: '', new_password: '', confirm_password: '' });
+    } catch (err: unknown) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password.');
+    }
+    setSaving(false);
   };
 
   const handleNotificationChange = (key: string, value: boolean) => {
-    setNotifications(prev => ({
-      ...prev,
-      [key]: value
-    }));
-    // Here you would typically make an API call to update notification preferences
+    setNotifications(prev => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -153,7 +158,31 @@ const AdminProfile: React.FC = () => {
                 <div>
                   <h4 className="text-base font-semibold text-black dark:text-white">{adminData.name}</h4>
                   <p className="text-black dark:text-white">{adminData.role}</p>
-                  <button className="text-sm text-primary-600 hover:text-primary-700 mt-1">
+                  {user?.avatar && (
+                    <img src={user.avatar} alt="Avatar" className="w-20 h-20 rounded-2xl object-cover mb-2" />
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onloadend = async () => {
+                        try {
+                          await handleUpdateProfile({ avatar: reader.result as string });
+                        } catch { /* error handled by mutation */ }
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center text-sm text-primary-600 hover:text-primary-700 mt-1"
+                  >
+                    <Camera className="w-4 h-4 mr-1" aria-hidden="true" />
                     Change Photo
                   </button>
                 </div>
@@ -265,8 +294,11 @@ const AdminProfile: React.FC = () => {
                     <p className="text-sm text-black dark:text-white">Add an extra layer of security</p>
                   </div>
                 </div>
-                <button className="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors">
-                  Enable 2FA
+                <button
+                  onClick={() => setShowMFAModal(true)}
+                  className="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors"
+                >
+                  {user?.mfaEnabled ? 'Manage 2FA' : 'Enable 2FA'}
                 </button>
               </div>
             </div>
@@ -365,6 +397,41 @@ const AdminProfile: React.FC = () => {
         </div>
       </div>
 
+      {/* MFA Modal */}
+      {showMFAModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full p-6"
+          >
+            <div className="text-center">
+              <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
+              <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">
+                {user?.mfaEnabled ? 'Two-Factor Authentication' : 'Enable Two-Factor Authentication'}
+              </h3>
+              <p className="text-black dark:text-white mb-4">
+                {user?.mfaEnabled
+                  ? 'Two-factor authentication is currently enabled on your account.'
+                  : 'Two-factor authentication setup is coming soon. This feature will add an extra layer of security to your account.'}
+              </p>
+              {user?.mfaEnabled && (
+                <p className="text-sm text-black dark:text-white mb-4">
+                  You will be prompted for a verification code from your authenticator app when signing in.
+                </p>
+              )}
+              <button
+                onClick={() => setShowMFAModal(false)}
+                className="premium-button w-full"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
@@ -456,12 +523,16 @@ const AdminProfile: React.FC = () => {
                 </div>
               </div>
 
+              {passwordError && (
+                <p className="text-red-500 text-sm">{passwordError}</p>
+              )}
               <div className="flex items-center space-x-3 pt-4">
                 <button
                   onClick={handlePasswordChange}
-                  className="flex-1 premium-button"
+                  disabled={saving}
+                  className="flex-1 premium-button disabled:opacity-50"
                 >
-                  Change Password
+                  {saving ? 'Changing...' : 'Change Password'}
                 </button>
                 <button
                   onClick={() => setShowPasswordModal(false)}

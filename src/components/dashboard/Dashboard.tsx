@@ -7,14 +7,15 @@ import RecentTransactions from '../ui/RecentTransactions';
 import ProfileCompletion from '../ui/ProfileCompletion';
 import LogoutModal from '../ui/LogoutModal';
 import PageErrorBoundary from '../PageErrorBoundary';
-import type { User } from '../../types';
+import type { User, ProfileUpdateData } from '../../types';
 
 interface DashboardProps {
   user: User | null;
   onLogout: () => void;
+  onUpdateProfile?: (data: ProfileUpdateData) => Promise<User>;
 }
 
-const Dashboard = ({ user, onLogout }: DashboardProps) => {
+const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
   const [showLogout, setShowLogout] = useState(false);
 
   const profileComplete = !!(
@@ -40,7 +41,7 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
             <p className="text-xs text-black dark:text-white">{user?.email || ''}</p>
           </div>
         </div>
-        {!profileComplete && <ProfileCompletion user={user} />}
+        {!profileComplete && <ProfileCompletion user={user} onUpdateProfile={onUpdateProfile} />}
 
         <div className="mb-6">
           <WalletCard user={user} />

@@ -134,7 +134,7 @@ function AppContent() {
 
           <Route path="/dashboard" element={
             <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
-              <PageErrorBoundary pageName="Dashboard"><Dashboard user={user} onLogout={handleLogout} /></PageErrorBoundary>
+              <PageErrorBoundary pageName="Dashboard"><Dashboard user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} /></PageErrorBoundary>
             </ProtectedRoute>
           } />
           <Route path="/airtime" element={

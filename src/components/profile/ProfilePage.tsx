@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ArrowLeft, User, Lock, Check, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
@@ -18,6 +18,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
   const defaultLastName = fullName.slice(1).join(' ') || '';
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -437,16 +438,40 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
                   {/* Profile Picture */}
                   <div className="flex items-center mb-6">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-6">
-                      {formData.firstName.charAt(0)}
-                      {formData.lastName.charAt(0)}
-                    </div>
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="Avatar" className="w-20 h-20 rounded-full object-cover mr-6" />
+                    ) : (
+                      <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-6">
+                        {formData.firstName.charAt(0)}
+                        {formData.lastName.charAt(0)}
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-medium text-black dark:text-white">
                         {formData.firstName} {formData.lastName}
                       </h3>
                       <p className="text-black dark:text-white mb-2">{formData.email}</p>
-                      <button className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium">
+                      <input
+                        ref={photoInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file || !onUpdateProfile) return;
+                          const reader = new FileReader();
+                          reader.onloadend = async () => {
+                            try {
+                              await onUpdateProfile({ avatar: reader.result as string });
+                            } catch { /* error handled upstream */ }
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                      <button
+                        onClick={() => photoInputRef.current?.click()}
+                        className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
                         <Camera className="w-4 h-4 mr-1" aria-hidden="true" />
                         Change Photo
                       </button>

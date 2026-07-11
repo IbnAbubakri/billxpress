@@ -19,6 +19,7 @@ export interface User {
   homeState?: string;
   homeZip?: string;
   avatar?: string;
+  mfaEnabled?: boolean;
 }
 
 export interface Transaction {
@@ -40,5 +41,5 @@ export interface AdminUser {
 export type ProfileUpdateData = Partial<Pick<User,
   'name' | 'phone' | 'bvn' | 'accountNumber' | 'bankName' | 'accountName' |
   'billingStreet' | 'billingCity' | 'billingState' | 'billingCountry' |
-  'homeStreet' | 'homeCity' | 'homeState' | 'homeZip'
+  'homeStreet' | 'homeCity' | 'homeState' | 'homeZip' | 'avatar'
 >>;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { User, ProfileStep, BasicInfo, BankDetails } from '../../types';
+import type { User, ProfileStep, BasicInfo, BankDetails, ProfileUpdateData } from '../../types';
 import { validateBVN, validateAccountNumber } from '../../utils/validation';
 import EmailVerificationModal from '../profile/EmailVerificationModal';
 import BVNModal from '../profile/BVNModal';
@@ -37,9 +37,10 @@ function StepIcon({ icon, className }: { icon: string; className?: string }) {
 
 interface ProfileCompletionProps {
   user: User | null;
+  onUpdateProfile?: (data: ProfileUpdateData) => Promise<User>;
 }
 
-function ProfileCompletion({ user }: ProfileCompletionProps) {
+function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
   const steps = STEPS.map((s) => ({
     ...s,
     completed: s.icon === 'UserPlus' ? true
@@ -97,18 +98,18 @@ function ProfileCompletion({ user }: ProfileCompletionProps) {
         </ul>
       )}
 
-      <CallbackModals activeStep={activeStep} onClose={() => setActiveStep(null)} />
+      <CallbackModals activeStep={activeStep} onClose={() => setActiveStep(null)} onUpdateProfile={onUpdateProfile} />
     </div>
   );
 }
 
 export default ProfileCompletion;
 
-function CallbackModals({ activeStep, onClose }: { activeStep: string | null; onClose: () => void }) {
+function CallbackModals({ activeStep, onClose, onUpdateProfile }: { activeStep: string | null; onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
   if (activeStep === 'Mail') return <MailStep onClose={onClose} />;
-  if (activeStep === 'Info') return <InfoStep onClose={onClose} />;
-  if (activeStep === 'Fingerprint') return <FingerprintStep onClose={onClose} />;
-  if (activeStep === 'Banknote') return <BanknoteStep onClose={onClose} />;
+  if (activeStep === 'Info') return <InfoStep onClose={onClose} onUpdateProfile={onUpdateProfile} />;
+  if (activeStep === 'Fingerprint') return <FingerprintStep onClose={onClose} onUpdateProfile={onUpdateProfile} />;
+  if (activeStep === 'Banknote') return <BanknoteStep onClose={onClose} onUpdateProfile={onUpdateProfile} />;
   return null;
 }
 
@@ -129,20 +130,47 @@ function MailStep({ onClose }: { onClose: () => void }) {
   );
 }
 
-function InfoStep({ onClose }: { onClose: () => void }) {
+function InfoStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
   const [info, setInfo] = useState<BasicInfo>({ billingStreet: '', billingCity: '', billingState: '', billingCountry: '', homeStreet: '', homeCity: '', homeState: '', homeZip: '', avatar: null, avatarPreview: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (field: string, value: string | File | null) => setInfo((p) => ({ ...p, [field]: value }));
+  const handleChange = (field: string, value: string | File | null) => {
+    if (field === 'avatar' && value instanceof File) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInfo((p) => ({ ...p, avatarPreview: reader.result as string }));
+      };
+      reader.readAsDataURL(value);
+      setInfo((p) => ({ ...p, avatar: value }));
+      return;
+    }
+    setInfo((p) => ({ ...p, [field]: value }));
+  };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const errs: Record<string, string> = {};
     if (!info.billingStreet) errs.billingStreet = 'Required';
     if (!info.billingCity) errs.billingCity = 'Required';
     if (!info.homeStreet) errs.homeStreet = 'Required';
     if (!info.homeZip) errs.homeZip = 'Required';
     setErrors(errs);
-    if (Object.keys(errs).length === 0) onClose();
+    if (Object.keys(errs).length === 0 && onUpdateProfile) {
+      try {
+        const payload: ProfileUpdateData = {
+          billingStreet: info.billingStreet,
+          billingCity: info.billingCity,
+          billingState: info.billingState,
+          billingCountry: info.billingCountry,
+          homeStreet: info.homeStreet,
+          homeCity: info.homeCity,
+          homeState: info.homeState,
+          homeZip: info.homeZip,
+        };
+        if (info.avatarPreview) payload.avatar = info.avatarPreview;
+        await onUpdateProfile(payload);
+        onClose();
+      } catch { /* error handled by mutation */ }
+    }
   };
 
   return (
@@ -157,14 +185,19 @@ function InfoStep({ onClose }: { onClose: () => void }) {
   );
 }
 
-function FingerprintStep({ onClose }: { onClose: () => void }) {
+function FingerprintStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
   const [bvn, setBvn] = useState('');
   const [error, setError] = useState('');
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const err = validateBVN(bvn);
     setError(err);
-    if (!err) onClose();
+    if (!err && onUpdateProfile) {
+      try {
+        await onUpdateProfile({ bvn });
+        onClose();
+      } catch { /* error handled by mutation */ }
+    }
   };
 
   return (
@@ -179,20 +212,29 @@ function FingerprintStep({ onClose }: { onClose: () => void }) {
   );
 }
 
-function BanknoteStep({ onClose }: { onClose: () => void }) {
+function BanknoteStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
   const [details, setDetails] = useState<BankDetails>({ accountNumber: '', bankName: '', accountName: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (f: string, v: string) => setDetails((p) => ({ ...p, [f]: v }));
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const errs: Record<string, string> = {};
     const acctErr = validateAccountNumber(details.accountNumber);
     if (acctErr) errs.accountNumber = acctErr;
     if (!details.bankName) errs.bankName = 'Required';
     if (!details.accountName) errs.accountName = 'Required';
     setErrors(errs);
-    if (Object.keys(errs).length === 0) onClose();
+    if (Object.keys(errs).length === 0 && onUpdateProfile) {
+      try {
+        await onUpdateProfile({
+          accountNumber: details.accountNumber,
+          bankName: details.bankName,
+          accountName: details.accountName,
+        });
+        onClose();
+      } catch { /* error handled by mutation */ }
+    }
   };
 
   return (
