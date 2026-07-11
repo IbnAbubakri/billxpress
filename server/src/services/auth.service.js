@@ -263,13 +263,16 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const id = uuidv4();
   const now = new Date().toISOString();
+  const verificationToken = randomToken(32);
+  const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   await db.prepare(`
-    INSERT INTO users (id, email, password, name, phone, role, createdAt, emailVerified, passwordChangedAt)
-    VALUES (?, ?, ?, ?, ?, 'user', ?, 1, ?)
-  `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, now);
+    INSERT INTO users (id, email, password, name, phone, role, createdAt, emailVerified, emailVerificationToken, emailVerificationExpires, passwordChangedAt)
+    VALUES (?, ?, ?, ?, ?, 'user', ?, 0, ?, ?, ?)
+  `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, verificationToken, verificationExpires, now);
+  stubEmail(email.toLowerCase(), 'Verify Your Email', `Verification token: ${verificationToken}`);
   logAction({ userId: id, action: 'REGISTER', details: { email: email.toLowerCase(), phone: phone || '' }, ip, userAgent });
   logger.info({ userId: id }, 'User registered');
-  return { id, email: email.toLowerCase(), role: 'user', emailVerified: true };
+  return { id, email: email.toLowerCase(), role: 'user', emailVerified: false };
 }
 
 export async function authenticate(login, password, totpCode, ip, userAgent) {
@@ -447,6 +450,53 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
   logAction({ userId: id, action: 'PROFILE_UPDATED', details: {}, ip, userAgent });
   logger.info({ userId: id }, 'User profile updated');
   return getUserById(id);
+}
+
+export async function changePassword(id, currentPassword, newPassword, ip, userAgent) {
+  const db = getDb();
+  const user = await db.prepare('SELECT id, password FROM users WHERE id = ?').get(id);
+  if (!user) throw new AppError('User not found.', 404);
+
+  const match = await bcrypt.compare(currentPassword, user.password);
+  if (!match) throw new AppError('Current password is incorrect.', 400);
+
+  const complexityErrors = validatePasswordComplexity(newPassword);
+  if (complexityErrors.length) throw new AppError(complexityErrors.join(' '), 400);
+
+  const pwned = await checkHIBP(newPassword);
+  if (pwned === true) throw new AppError('Password has been exposed in a data breach. Choose a different one.', 400);
+  if (pwned === null) throw new AppError('Cannot verify password security. Please try again later.', 503);
+
+  const passwordHistory = user.passwordHistory ? JSON.parse(user.passwordHistory) : [];
+  for (const oldHash of passwordHistory) {
+    if (await bcrypt.compare(newPassword, oldHash)) throw new AppError('Cannot reuse a recent password.', 400);
+  }
+  passwordHistory.push(user.password);
+  if (passwordHistory.length > PASSWORD_POLICY.historySize) passwordHistory.shift();
+
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  const now = new Date().toISOString();
+  await db.prepare(`
+    UPDATE users SET password = ?, passwordChangedAt = ?, passwordHistory = ?, updatedAt = ? WHERE id = ?
+  `).run(hashedPassword, now, JSON.stringify(passwordHistory), now, id);
+
+  logAction({ userId: id, action: 'PASSWORD_CHANGED', details: {}, ip, userAgent, severity: 'high' });
+  logger.info({ userId: id }, 'Password changed');
+  return { success: true };
+}
+
+export async function setTransactionPin(id, pin, ip, userAgent) {
+  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) throw new AppError('PIN must be exactly 4 digits.', 400);
+
+  const db = getDb();
+  const hashedPin = await bcrypt.hash(pin, 10);
+  const now = new Date().toISOString();
+  await db.prepare('UPDATE users SET transactionPin = ?, hasTransactionPin = 1, updatedAt = ? WHERE id = ?')
+    .run(hashedPin, now, id);
+
+  logAction({ userId: id, action: 'TRANSACTION_PIN_SET', details: {}, ip, userAgent });
+  logger.info({ userId: id }, 'Transaction PIN set');
+  return { success: true };
 }
 
 export async function getUserByEmail(email) {

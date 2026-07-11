@@ -3,6 +3,7 @@ import { ArrowLeft, User, Lock, Check, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import LogoutModal from "../ui/LogoutModal";
+import { useAuth } from "../../hooks/useAuth";
 
 import type { PageProps } from '../../types/page';
 import EmailVerificationModal from "./EmailVerificationModal";
@@ -11,6 +12,7 @@ import BankDetailsModal from "./BankDetailsModal";
 import BasicInfoModal from "./BasicInfoModal";
 
 const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) => {
+  const { handleChangePassword, handleSetTransactionPin } = useAuth();
   const fullName = (user?.name || '').split(' ');
   const defaultFirstName = fullName[0] || '';
   const defaultLastName = fullName.slice(1).join(' ') || '';
@@ -67,17 +69,9 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
   };
 
   const profileCompletion = (() => {
-    let filled = 0;
-    const total = 8;
-    if (user?.name) filled++;
-    if (user?.phone) filled++;
-    if (user?.accountNumber) filled++;
-    if (user?.bvn) filled++;
-    if (user?.billingStreet) filled++;
-    if (user?.homeStreet) filled++;
-    if (user?.emailVerified) filled++;
-    if (user?.hasTransactionPin) filled++;
-    return Math.round((filled / total) * 100);
+    const fields: (keyof typeof user)[] = ['name', 'phone', 'accountNumber', 'bankName', 'bvn', 'billingStreet', 'billingCity', 'homeStreet', 'homeCity'];
+    const filled = fields.filter(f => user?.[f]).length;
+    return Math.round((filled / fields.length) * 100);
   })();
 
   const handleInputChange = (field: string, value: string) => {
@@ -129,7 +123,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const newErrors: Record<string, string | null> = {};
 
     if (!formData.currentPassword)
@@ -145,18 +139,24 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      setShowSuccess(true);
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-      setTimeout(() => setShowSuccess(false), 3000);
+      try {
+        await handleChangePassword(formData.currentPassword, formData.newPassword);
+        setShowSuccess(true);
+        setFormData((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+        setTimeout(() => setShowSuccess(false), 3000);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to change password.';
+        setErrors({ currentPassword: msg });
+      }
     }
   };
 
-  const handlePinChange = () => {
+  const handlePinChange = async () => {
     const newErrors: Record<string, string | null> = {};
 
     if (!formData.transactionPin)
@@ -169,9 +169,15 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      setShowSuccess(true);
-      setFormData((prev) => ({ ...prev, transactionPin: "" }));
-      setTimeout(() => setShowSuccess(false), 3000);
+      try {
+        await handleSetTransactionPin(formData.transactionPin);
+        setShowSuccess(true);
+        setFormData((prev) => ({ ...prev, transactionPin: "" }));
+        setTimeout(() => setShowSuccess(false), 3000);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to set PIN.';
+        setErrors({ transactionPin: msg });
+      }
     }
   };
 
@@ -280,7 +286,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     if (Object.keys(errors).length === 0) {
       try {
         if (onUpdateProfile) {
-          await onUpdateProfile({
+          const payload: Record<string, string> = {
             billingStreet: basicInfo.billingStreet,
             billingCity: basicInfo.billingCity,
             billingState: basicInfo.billingState,
@@ -289,7 +295,9 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
             homeCity: basicInfo.homeCity,
             homeState: basicInfo.homeState,
             homeZip: basicInfo.homeZip,
-          });
+          };
+          if (basicInfo.avatarPreview) payload.avatar = basicInfo.avatarPreview;
+          await onUpdateProfile(payload);
         }
         setShowBasicInfoModal(false);
         setShowSuccess(true);
@@ -499,18 +507,10 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         id="profileEmail"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.email ? "border-red-500" : "border-gray-300"
-                        }`}
-                        aria-invalid={!!errors.email}
-                        aria-describedby={errors.email ? 'profileEmail-error' : undefined}
+                        readOnly
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-gray-50 dark:bg-dark-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       />
-                      {errors.email && (
-                        <p id="profileEmail-error" className="text-red-500 text-sm mt-1">
-                          {errors.email}
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-500 mt-1">Email cannot be changed. Contact support if needed.</p>
                     </div>
 
                     <div>

@@ -108,6 +108,22 @@ export async function updateProfile(profileData: import('../types').ProfileUpdat
   return data;
 }
 
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.put('/password', { currentPassword, newPassword }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
+export async function setTransactionPin(pin: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.put('/transaction-pin', { pin }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
 export async function sendVerificationEmail() {
   const csrf = await ensureCSRF();
   const { data } = await api.post('/send-verification', {}, {

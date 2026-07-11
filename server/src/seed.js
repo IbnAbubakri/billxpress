@@ -51,9 +51,9 @@ export default async function seed() {
 
     const adminPassword = await bcrypt.hash('Admin@123Xpress', SALT_ROUNDS);
     await db.prepare(`
-      INSERT INTO users (id, email, password, role, emailVerified, createdAt, passwordChangedAt, passwordHistory)
-      VALUES (?, ?, ?, 'admin', 1, ?, ?, '[]')
-    `).run(uuidv4(), 'admin@billxpress.com', adminPassword, now, now);
+      INSERT INTO users (id, email, password, role, name, phone, emailVerified, createdAt, passwordChangedAt, passwordHistory)
+      VALUES (?, ?, ?, 'admin', ?, ?, 1, ?, ?, '[]')
+    `).run(uuidv4(), 'admin@billxpress.com', adminPassword, 'Admin User', '+2348000000000', now, now);
 
     logger.info({ email: DEMO_EMAIL }, 'Seeded demo user');
     logger.info({ email: 'admin@billxpress.com' }, 'Seeded admin user');

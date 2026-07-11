@@ -44,6 +44,7 @@ export async function initDatabase() {
       phone TEXT DEFAULT '',
       balance REAL DEFAULT 0,
       hasTransactionPin INTEGER DEFAULT 0,
+      transactionPin TEXT DEFAULT '',
       bvn TEXT DEFAULT '',
       accountNumber TEXT DEFAULT '',
       bankName TEXT DEFAULT '',

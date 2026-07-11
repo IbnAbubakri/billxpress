@@ -1,7 +1,7 @@
 import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
   updateUserProfile, generateVerificationToken, verifyEmailToken,
-  checkPhone, sendOtp, verifyOtp,
+  checkPhone, sendOtp, verifyOtp, changePassword, setTransactionPin,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
@@ -220,6 +220,23 @@ export async function handleUpdateProfile(req, res, next) {
   try {
     const user = await updateUserProfile(req.user.id, req.body, req.clientIp, req.clientUA);
     res.json({ user });
+  } catch (err) { next(err); }
+}
+
+export async function handleChangePassword(req, res, next) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both current and new password are required.' });
+    await changePassword(req.user.id, currentPassword, newPassword, req.clientIp, req.clientUA);
+    res.json({ message: 'Password changed successfully.' });
+  } catch (err) { next(err); }
+}
+
+export async function handleSetTransactionPin(req, res, next) {
+  try {
+    const { pin } = req.body;
+    await setTransactionPin(req.user.id, pin, req.clientIp, req.clientUA);
+    res.json({ message: 'Transaction PIN set successfully.' });
   } catch (err) { next(err); }
 }
 

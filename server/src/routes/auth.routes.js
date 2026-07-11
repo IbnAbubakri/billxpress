@@ -6,6 +6,7 @@ import {
   handleSessions, handleDeleteSession, handleLogoutAll, handlePasswordPolicy,
   handleUpdateProfile, handleSendVerification, handleVerifyEmail,
   handleCheckPhone, handleSendOtp, handleVerifyOtp,
+  handleChangePassword, handleSetTransactionPin,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { validateLogin, validateRegister, validatePasswordReset } from '../middleware/validate.middleware.js';
@@ -51,6 +52,8 @@ router.post('/reset-password', resetLimiter, validateCsrf, validatePasswordReset
 router.post('/send-verification', authenticate, validateCsrf, handleSendVerification);
 router.post('/verify-email', validateCsrf, handleVerifyEmail);
 router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
+router.put('/password', authenticate, validateCsrf, handleChangePassword);
+router.put('/transaction-pin', authenticate, validateCsrf, handleSetTransactionPin);
 router.get('/sessions', authenticate, handleSessions);
 router.delete('/sessions/:sessionId', authenticate, validateCsrf, handleDeleteSession);
 router.post('/logout-all', authenticate, validateCsrf, handleLogoutAll);

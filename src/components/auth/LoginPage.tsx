@@ -119,11 +119,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               {errors.password && <p id="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-<input id="remember-me" type="checkbox" className="h-4 w-4 text-secondary dark:text-white focus:ring-secondary border-gray-300 dark:border-dark-700 rounded" />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-black dark:text-white">Remember me</label>
-              </div>
+            <div className="flex items-center justify-end">
               <Link to="/reset-password" className="text-sm text-secondary dark:text-white hover:underline font-medium">Forgot password?</Link>
             </div>
 
