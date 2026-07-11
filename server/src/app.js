@@ -52,20 +52,22 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api', openapiRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.post('/api/verify-user', async (req, res) => {
+app.get('/api/verify-user', async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.query.email;
+    if (!email) return res.status(400).json({ error: 'email query param required' });
     await getDb().prepare('UPDATE users SET emailVerified = 1 WHERE email = ?').run(email.toLowerCase());
     res.json({ message: `Verified ${email}` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.use('/api', openapiRoutes);
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 if (env.isProd()) {
