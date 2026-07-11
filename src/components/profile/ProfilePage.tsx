@@ -516,8 +516,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         type="text"
                         value={formData.firstName}
                         onChange={(e) => handleInputChange("firstName", e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.firstName ? "border-red-500" : "border-gray-300"
+                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          errors.firstName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                         }`}
                         aria-invalid={!!errors.firstName}
                         aria-describedby={errors.firstName ? 'profileFirstName-error' : undefined}
@@ -538,8 +538,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         type="text"
                         value={formData.lastName}
                         onChange={(e) => handleInputChange("lastName", e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.lastName ? "border-red-500" : "border-gray-300"
+                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          errors.lastName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                         }`}
                         aria-invalid={!!errors.lastName}
                         aria-describedby={errors.lastName ? 'profileLastName-error' : undefined}
@@ -582,8 +582,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").substring(0, 11))}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.phone ? "border-red-500" : "border-gray-300"
+                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          errors.phone ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                         }`}
                         aria-invalid={!!errors.phone}
                         aria-describedby={errors.phone ? 'profilePhone-error' : undefined}
@@ -603,14 +603,14 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <label htmlFor="profileDOB" className="block text-sm font-medium text-black dark:text-white mb-2">Date of Birth</label>
                       <input id="profileDOB" type="date" value={user?.dateOfBirth || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ dateOfBirth: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       />
                     </div>
                     <div>
                       <label htmlFor="profileGender" className="block text-sm font-medium text-black dark:text-white mb-2">Gender</label>
                       <select id="profileGender" value={user?.gender || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ gender: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       >
                         <option value="">Select gender</option>
                         <option value="male">Male</option>
@@ -621,14 +621,14 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <label htmlFor="profileNIN" className="block text-sm font-medium text-black dark:text-white mb-2">NIN (National ID)</label>
                       <input id="profileNIN" type="text" value={user?.nin || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ nin: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       />
                     </div>
                     <div>
                       <label htmlFor="profileEmployStatus" className="block text-sm font-medium text-black dark:text-white mb-2">Employment Status</label>
                       <select id="profileEmployStatus" value={user?.employmentStatus || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ employmentStatus: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       >
                         <option value="">Select status</option>
                         <option value="employed">Employed</option>
@@ -643,7 +643,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <select id="profileIncome" value={user?.annualIncome || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ annualIncome: e.target.value }); }
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       >
                         <option value="">Select range</option>
                         <option value="0-1M">₦0 - ₦1,000,000</option>
@@ -684,8 +684,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           type="password"
                           value={formData.currentPassword}
                           onChange={(e) => handleInputChange("currentPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.currentPassword ? "border-red-500" : "border-gray-300"
+                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                            errors.currentPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.currentPassword}
                           aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
@@ -706,8 +706,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           type="password"
                           value={formData.newPassword}
                           onChange={(e) => handleInputChange("newPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.newPassword ? "border-red-500" : "border-gray-300"
+                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                            errors.newPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.newPassword}
                           aria-describedby={errors.newPassword ? 'newPassword-error' : undefined}
@@ -728,8 +728,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           type="password"
                           value={formData.confirmPassword}
                           onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                            errors.confirmPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.confirmPassword}
                           aria-describedby={errors.confirmPassword ? 'profileConfirmPassword-error' : undefined}
@@ -769,8 +769,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                             handleInputChange("transactionPin", e.target.value.replace(/\D/g, "").substring(0, 4))
                           }
                           placeholder="Enter 4-digit PIN"
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.transactionPin ? "border-red-500" : "border-gray-300"
+                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                            errors.transactionPin ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.transactionPin}
                           aria-describedby={errors.transactionPin ? 'transactionPin-error' : undefined}
@@ -805,7 +805,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
             {!emailChangeSent ? (
               <>
                 <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="New email address"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl mb-3"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
                 />
                 {emailChangeError && <p className="text-red-500 text-sm mb-3">{emailChangeError}</p>}
                 <div className="flex gap-3">
@@ -844,7 +844,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
             <h2 className="text-lg font-bold text-black dark:text-white mb-2">Verify Phone Number</h2>
             <p className="text-sm text-black dark:text-white mb-4">Enter the OTP sent to {pendingPhone}</p>
             <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="6-digit OTP"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl mb-3 text-center text-lg tracking-widest"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-center text-lg tracking-widest text-black dark:text-white bg-white dark:bg-dark-800"
             />
             {phoneOtpError && <p className="text-red-500 text-sm mb-3">{phoneOtpError}</p>}
             <div className="flex gap-3">
@@ -880,7 +880,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
             <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
             <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
             <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl mb-3"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
             />
             <div className="flex gap-3">
               <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); }}

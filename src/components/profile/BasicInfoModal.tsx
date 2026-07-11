@@ -82,7 +82,7 @@ const BasicInfoModal = ({
                 value={info.billingStreet}
                 onChange={(e) => onChange("billingStreet", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.billingStreet ? "border-red-500" : "border-gray-300"
+                  errors.billingStreet ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingStreet}
                 aria-describedby={errors.billingStreet ? 'billingStreet-error' : undefined}
@@ -103,7 +103,7 @@ const BasicInfoModal = ({
                 value={info.billingCity}
                 onChange={(e) => onChange("billingCity", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.billingCity ? "border-red-500" : "border-gray-300"
+                  errors.billingCity ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingCity}
                 aria-describedby={errors.billingCity ? 'billingCity-error' : undefined}
@@ -124,7 +124,7 @@ const BasicInfoModal = ({
                 value={info.billingState}
                 onChange={(e) => onChange("billingState", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.billingState ? "border-red-500" : "border-gray-300"
+                  errors.billingState ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingState}
                 aria-describedby={errors.billingState ? 'billingState-error' : undefined}
@@ -145,7 +145,7 @@ const BasicInfoModal = ({
                 value={info.billingCountry}
                 onChange={(e) => onChange("billingCountry", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.billingCountry ? "border-red-500" : "border-gray-300"
+                  errors.billingCountry ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingCountry}
                 aria-describedby={errors.billingCountry ? 'billingCountry-error' : undefined}
@@ -168,7 +168,7 @@ const BasicInfoModal = ({
                 value={info.homeStreet}
                 onChange={(e) => onChange("homeStreet", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.homeStreet ? "border-red-500" : "border-gray-300"
+                  errors.homeStreet ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeStreet}
                 aria-describedby={errors.homeStreet ? 'homeStreet-error' : undefined}
@@ -189,7 +189,7 @@ const BasicInfoModal = ({
                 value={info.homeCity}
                 onChange={(e) => onChange("homeCity", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.homeCity ? "border-red-500" : "border-gray-300"
+                  errors.homeCity ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeCity}
                 aria-describedby={errors.homeCity ? 'homeCity-error' : undefined}
@@ -210,7 +210,7 @@ const BasicInfoModal = ({
                 value={info.homeState}
                 onChange={(e) => onChange("homeState", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.homeState ? "border-red-500" : "border-gray-300"
+                  errors.homeState ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeState}
                 aria-describedby={errors.homeState ? 'homeState-error' : undefined}
@@ -231,7 +231,7 @@ const BasicInfoModal = ({
                 value={info.homeZip}
                 onChange={(e) => onChange("homeZip", e.target.value)}
                 className={`w-full px-4 py-2 border rounded-xl ${
-                  errors.homeZip ? "border-red-500" : "border-gray-300"
+                  errors.homeZip ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeZip}
                 aria-describedby={errors.homeZip ? 'homeZip-error' : undefined}

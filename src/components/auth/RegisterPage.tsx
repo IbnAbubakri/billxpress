@@ -298,7 +298,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-black dark:text-white mb-2">Last Name</label>
-                  <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={`w-full px-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.lastName ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Last name" aria-invalid={!!errors.lastName} />
+                  <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={`w-full px-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.lastName ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Last name" aria-invalid={!!errors.lastName} />
                   {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
                 </div>
               </div>
