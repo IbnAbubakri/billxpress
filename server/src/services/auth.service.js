@@ -263,6 +263,7 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
     logAction({ userId: null, action: 'REGISTER_BREACHED_PASSWORD', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
     throw new AppError('Password has been exposed in a data breach. Choose a different one.', 400);
   }
+  const isDemo = !process.env.SMS_PROVIDER;
   if (pwned === null) {
     throw new AppError('Cannot verify password security. Please try again later.', 503);
   }
@@ -273,12 +274,12 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
   const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   await db.prepare(`
     INSERT INTO users (id, email, password, name, phone, role, createdAt, emailVerified, emailVerificationToken, emailVerificationExpires, passwordChangedAt)
-    VALUES (?, ?, ?, ?, ?, 'user', ?, 0, ?, ?, ?)
-  `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, verificationToken, verificationExpires, now);
+    VALUES (?, ?, ?, ?, ?, 'user', ?, ?, ?, ?, ?)
+  `).run(id, email.toLowerCase(), hashedPassword, name || '', phone ? normalizePhone(phone) : '', now, isDemo ? 1 : 0, verificationToken, verificationExpires, now);
   stubEmail(email.toLowerCase(), 'Verify Your Email', `Verification token: ${verificationToken}`);
   logAction({ userId: id, action: 'REGISTER', details: { email: email.toLowerCase(), phone: phone || '' }, ip, userAgent });
   logger.info({ userId: id }, 'User registered');
-  return { id, email: email.toLowerCase(), role: 'user', emailVerified: false };
+  return { id, email: email.toLowerCase(), role: 'user', emailVerified: Boolean(isDemo) };
 }
 
 export async function authenticate(login, password, totpCode, ip, userAgent) {
