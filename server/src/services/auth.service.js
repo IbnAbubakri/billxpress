@@ -468,6 +468,7 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
   const values = [];
   for (const field of allowedFields) {
     if (profileData[field] !== undefined) {
+      if (!/^[a-zA-Z]+$/.test(field)) continue;
       updates.push(`${field} = ?`);
       values.push(profileData[field]);
     }

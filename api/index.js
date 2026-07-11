@@ -1,5 +1,5 @@
 import app from '../server/src/app.js';
-import { initDatabase } from '../server/src/utils/db.js';
+import { initDatabase, closeDb } from '../server/src/utils/db.js';
 import { migrateFromJSON } from '../server/src/utils/migrate.js';
 import seed from '../server/src/seed.js';
 
@@ -33,4 +33,12 @@ export default async function handler(req, res) {
     }
   }
   app(req, res);
+}
+
+export async function cleanup() {
+  if (ready) {
+    await closeDb();
+    ready = false;
+    readyPromise = null;
+  }
 }

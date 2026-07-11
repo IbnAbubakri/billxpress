@@ -1,11 +1,63 @@
 import Database from 'better-sqlite3';
 
-export function createTestDb() {
-  const db = new Database(':memory:');
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+function createCompat(raw) {
+  const stmtCache = {};
+  function prepare(sql) {
+    if (stmtCache[sql]) return stmtCache[sql];
+    const stmt = {
+      get: (...params) => {
+        const row = raw.prepare(sql).get(...params);
+        return row || undefined;
+      },
+      all: (...params) => raw.prepare(sql).all(...params),
+      run: (...params) => {
+        const info = raw.prepare(sql).run(...params);
+        return { changes: info.changes };
+      },
+    };
+    stmtCache[sql] = stmt;
+    return stmt;
+  }
+  function makeTx(rawTx) {
+    return {
+      get(sql, ...params) {
+        const cleaned = sql.replace(/\s+FOR\s+UPDATE\s*$/i, '');
+        const row = rawTx.prepare(cleaned).get(...params);
+        return row || undefined;
+      },
+      run(sql, ...params) {
+        const info = rawTx.prepare(sql).run(...params);
+        return { changes: info.changes };
+      },
+    };
+  }
+  return {
+    prepare,
+    async transaction(callback) {
+      raw.exec('BEGIN');
+      try {
+        const tx = makeTx(raw);
+        const result = await callback(tx);
+        raw.exec('COMMIT');
+        return result;
+      } catch (err) {
+        raw.exec('ROLLBACK');
+        throw err;
+      }
+    },
+    exec(sql) {
+      raw.exec(sql);
+      return { changes: 0 };
+    },
+  };
+}
 
-  db.exec(`
+export function createTestDb() {
+  const raw = new Database(':memory:');
+  raw.pragma('journal_mode = WAL');
+  raw.pragma('foreign_keys = ON');
+
+  raw.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -29,6 +81,12 @@ export function createTestDb() {
       homeState TEXT DEFAULT '',
       homeZip TEXT DEFAULT '',
       avatar TEXT DEFAULT '',
+      dateOfBirth TEXT DEFAULT '',
+      gender TEXT DEFAULT '',
+      nin TEXT DEFAULT '',
+      nextOfKin TEXT DEFAULT '{}',
+      employmentStatus TEXT DEFAULT '',
+      annualIncome TEXT DEFAULT '',
       emailVerified INTEGER DEFAULT 0,
       emailVerificationToken TEXT,
       emailVerificationExpires TEXT,
@@ -85,9 +143,32 @@ export function createTestDb() {
       userAgent TEXT,
       severity TEXT DEFAULT 'info'
     );
+
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId TEXT NOT NULL,
+      type TEXT NOT NULL,
+      amount NUMERIC(12,2) NOT NULL,
+      status TEXT NOT NULL DEFAULT 'completed',
+      description TEXT DEFAULT '',
+      recipient TEXT DEFAULT '',
+      date TEXT NOT NULL,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS otps (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      code TEXT NOT NULL,
+      expiresAt TEXT NOT NULL,
+      verified INTEGER DEFAULT 0,
+      createdAt TEXT DEFAULT (datetime('now')),
+      usedAt TEXT
+    );
   `);
 
-  db.exec(`
+  raw.exec(`
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_userId ON refresh_tokens(userId);
@@ -97,7 +178,11 @@ export function createTestDb() {
     CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
     CREATE INDEX IF NOT EXISTS idx_users_resetToken ON users(resetToken);
     CREATE INDEX IF NOT EXISTS idx_users_emailVerificationToken ON users(emailVerificationToken);
+    CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+    CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
+    CREATE INDEX IF NOT EXISTS idx_transactions_userId ON transactions(userId);
+    CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
   `);
 
-  return db;
+  return createCompat(raw);
 }

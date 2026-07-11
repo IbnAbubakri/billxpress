@@ -100,6 +100,7 @@ export async function handleLogout(req, res, next) {
     if (refreshToken) await revokeRefreshToken(refreshToken);
     const sessionId = req.cookies?.sessionId;
     if (sessionId) await deleteSession(sessionId);
+    clearAuthCookies(res);
     await logAction({ userId: req.user?.id, action: 'LOGOUT', details: {}, ip: req.clientIp, userAgent: req.clientUA });
     logger.info('Logout successful');
     res.json({ message: 'Logged out.' });

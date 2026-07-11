@@ -202,6 +202,20 @@ function mapRow(row) {
   return out;
 }
 
+function makeTx(client) {
+  return {
+    get(sql, ...params) {
+      return client.query(convertSql(sql), params).then(r => r.rows[0] ? mapRow(r.rows[0]) : undefined);
+    },
+    all(sql, ...params) {
+      return client.query(convertSql(sql), params).then(r => r.rows.map(mapRow));
+    },
+    run(sql, ...params) {
+      return client.query(convertSql(sql), params).then(r => ({ changes: r.rowCount }));
+    },
+  };
+}
+
 const compat = {
   prepare(sql) {
     ensurePool();
@@ -215,6 +229,21 @@ const compat = {
   exec(sql) {
     ensurePool();
     return pool.query(sql).then(r => ({ changes: r.rowCount }));
+  },
+  async transaction(callback) {
+    ensurePool();
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await callback(makeTx(client));
+      await client.query('COMMIT');
+      return result;
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
   },
 };
 

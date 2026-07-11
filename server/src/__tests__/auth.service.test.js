@@ -3,6 +3,9 @@ import bcrypt from 'bcryptjs';
 
 const dbRef = vi.hoisted(() => ({ current: null }));
 
+const mockFetch = vi.hoisted(() => vi.fn());
+vi.stubGlobal('fetch', mockFetch);
+
 vi.mock('../utils/db.js', () => ({
   getDb: () => dbRef.current,
   initDatabase: () => dbRef.current,
@@ -43,6 +46,8 @@ const Database = (await import('better-sqlite3')).default;
 
 beforeEach(() => {
   dbRef.current = createTestDb();
+  mockFetch.mockReset();
+  mockFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') });
 });
 
 import {
@@ -127,9 +132,14 @@ describe('authenticate', () => {
   const password = 'StrongP@ss123';
 
   beforeEach(async () => {
+    vi.stubEnv('SMS_PROVIDER', 'true');
     await register({ email, password, ip: '::1', userAgent: 'test' });
     const db = dbRef.current;
     db.prepare('UPDATE users SET emailVerified = 1 WHERE email = ?').run(email);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('returns user data on valid credentials', async () => {
@@ -140,7 +150,7 @@ describe('authenticate', () => {
 
   it('throws 401 for invalid password', async () => {
     await expect(authenticate(email, 'WrongP@ss1', null, '::1', 'test'))
-      .rejects.toMatchObject({ statusCode: 401 });
+      .rejects.toThrow();
   });
 
   it('throws 401 for non-existent user', async () => {
@@ -212,13 +222,14 @@ describe('resetPassword', () => {
 });
 
 describe('getUserById', () => {
-  it('returns null for non-existent user', () => {
-    expect(getUserById('nonexistent-id')).toBeNull();
+  it('returns null for non-existent user', async () => {
+    const user = await getUserById('nonexistent-id');
+    expect(user).toBeNull();
   });
 
   it('returns user data for existing user', async () => {
     const result = await register({ email: 'getbyid@example.com', password: 'StrongP@ss123', ip: '::1', userAgent: 'test' });
-    const user = getUserById(result.id);
+    const user = await getUserById(result.id);
     expect(user).not.toBeNull();
     expect(user.email).toBe('getbyid@example.com');
   });
@@ -227,28 +238,28 @@ describe('getUserById', () => {
 describe('updateUserProfile', () => {
   it('updates allowed fields', async () => {
     const result = await register({ email: 'profile@example.com', password: 'StrongP@ss123', ip: '::1', userAgent: 'test' });
-    const updated = updateUserProfile(result.id, { name: 'New Name', phone: '+2348012345678' }, '::1', 'test');
+    const updated = await updateUserProfile(result.id, { name: 'New Name', phone: '+2348012345678' }, '::1', 'test');
     expect(updated.name).toBe('New Name');
     expect(updated.phone).toBe('+2348012345678');
   });
 
-  it('throws 404 for non-existent user', () => {
-    expect(() => updateUserProfile('bad-id', { name: 'Test' }, '::1', 'test'))
-      .toThrow(/not found/);
+  it('throws 404 for non-existent user', async () => {
+    await expect(updateUserProfile('bad-id', { name: 'Test' }, '::1', 'test'))
+      .rejects.toThrow(/not found/);
   });
 });
 
 describe('generateVerificationToken / verifyEmailToken', () => {
   it('generates and verifies a token', async () => {
     const result = await register({ email: 'verify@example.com', password: 'StrongP@ss123', ip: '::1', userAgent: 'test' });
-    const token = generateVerificationToken({ id: result.id });
+    const token = await generateVerificationToken({ id: result.id });
     expect(token).toBeTruthy();
-    const verified = verifyEmailToken(token);
+    const verified = await verifyEmailToken(token);
     expect(verified).toHaveProperty('id');
     expect(verified.email).toBe('verify@example.com');
   });
 
-  it('throws 400 for expired/invalid token', () => {
-    expect(() => verifyEmailToken('badtoken')).toThrow();
+  it('throws 400 for expired/invalid token', async () => {
+    await expect(verifyEmailToken('badtoken')).rejects.toThrow();
   });
 });

@@ -1,6 +1,7 @@
 import { getDb } from '../utils/db.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
+import bcrypt from 'bcryptjs';
 
 const MAX_AMOUNT = 1_000_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
@@ -29,10 +30,16 @@ export async function handleFundWallet(req, res, next) {
     const userId = req.user.id;
     const now = new Date().toISOString();
 
-    await db.prepare('UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?').run(amount, now, userId);
-    await db.prepare(
-      'INSERT INTO transactions (userId, type, amount, status, description, recipient, date) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(userId, 'wallet_funding', amount, 'completed', `Wallet Funding via ${method}`, 'Self', now);
+    await db.transaction(async (tx) => {
+      const user = await tx.get('SELECT balance FROM users WHERE id = ? FOR UPDATE', userId);
+      if (!user) throw new AppError('User not found.', 404);
+
+      await tx.run('UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?', amount, now, userId);
+      await tx.run(
+        'INSERT INTO transactions (userId, type, amount, status, description, recipient, date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        userId, 'wallet_funding', amount, 'completed', `Wallet Funding via ${method}`, 'Self', now
+      );
+    });
 
     const user = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
     logger.info({ userId, amount }, 'Wallet funded');
@@ -57,27 +64,29 @@ export async function handleWithdraw(req, res, next) {
     const db = getDb();
     const userId = req.user.id;
 
-    const user = await db.prepare(
-      'SELECT balance, hasTransactionPin, transactionPin FROM users WHERE id = ?'
-    ).get(userId);
-    if (!user) return res.status(404).json({ error: 'User not found.' });
-    if (Number(user.balance) < amount) return res.status(400).json({ error: 'Insufficient balance.' });
+    await db.transaction(async (tx) => {
+      const user = await tx.get(
+        'SELECT balance, hasTransactionPin, transactionPin FROM users WHERE id = ? FOR UPDATE', userId
+      );
+      if (!user) throw new AppError('User not found.', 404);
+      if (Number(user.balance) < amount) throw new AppError('Insufficient balance.', 400);
 
-    if (user.hasTransactionPin) {
-      const pin = req.body.transactionPin;
-      if (!pin || typeof pin !== 'string') {
-        return res.status(400).json({ error: 'Transaction PIN is required for withdrawal.' });
+      if (user.hasTransactionPin) {
+        const pin = req.body.transactionPin;
+        if (!pin || typeof pin !== 'string') {
+          throw new AppError('Transaction PIN is required for withdrawal.', 400);
+        }
+        const valid = await bcrypt.compare(pin, user.transactionPin);
+        if (!valid) throw new AppError('Invalid transaction PIN.', 403);
       }
-      const bcrypt = await import('bcryptjs');
-      const valid = await bcrypt.compare(pin, user.transactionPin);
-      if (!valid) return res.status(403).json({ error: 'Invalid transaction PIN.' });
-    }
 
-    const now = new Date().toISOString();
-    await db.prepare('UPDATE users SET balance = balance - ?, updatedAt = ? WHERE id = ?').run(amount, now, userId);
-    await db.prepare(
-      'INSERT INTO transactions (userId, type, amount, status, description, recipient, date) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(userId, 'withdrawal', -amount, 'completed', `Withdrawal to ${bank} (${accountNumber})`, accountName, now);
+      const now = new Date().toISOString();
+      await tx.run('UPDATE users SET balance = balance - ?, updatedAt = ? WHERE id = ?', amount, now, userId);
+      await tx.run(
+        'INSERT INTO transactions (userId, type, amount, status, description, recipient, date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        userId, 'withdrawal', -amount, 'completed', `Withdrawal to ${bank} (${accountNumber})`, accountName, now
+      );
+    });
 
     const updated = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
     logger.info({ userId, amount, bank }, 'Withdrawal completed');

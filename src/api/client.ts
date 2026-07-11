@@ -35,35 +35,13 @@ async function ensureCSRF() {
   return token;
 }
 
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes('/refresh') &&
-      !originalRequest.url?.includes('/csrf-token') &&
-      !originalRequest.url?.includes('/me')
-    ) {
-      originalRequest._retry = true;
-      try {
-        const csrf = await getCSRFToken();
-        await api.post('/refresh', {}, { headers: { 'x-csrf-token': csrf } });
-        const token = await getCSRFToken();
-        originalRequest.headers['x-csrf-token'] = token;
-        return api(originalRequest);
-      } catch {
-        return Promise.reject(error);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+async function refreshSession() {
+  const csrf = await getCSRFToken();
+  await api.post('/refresh', {}, { headers: { 'x-csrf-token': csrf } });
+}
 
-walletApi.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+function createRetryInterceptor(instance: typeof api) {
+  return async (error: any) => {
     const originalRequest = error.config;
     if (
       error.response?.status === 401 &&
@@ -74,18 +52,20 @@ walletApi.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const csrf = await getCSRFToken();
-        await api.post('/refresh', {}, { headers: { 'x-csrf-token': csrf } });
+        await refreshSession();
         const token = await getCSRFToken();
         originalRequest.headers['x-csrf-token'] = token;
-        return walletApi(originalRequest);
+        return instance(originalRequest);
       } catch {
         return Promise.reject(error);
       }
     }
     return Promise.reject(error);
-  }
-);
+  };
+}
+
+api.interceptors.response.use((response) => response, createRetryInterceptor(api));
+walletApi.interceptors.response.use((response) => response, createRetryInterceptor(walletApi));
 
 export async function login(login: string, password: string) {
   const csrf = await ensureCSRF();

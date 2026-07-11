@@ -23,6 +23,18 @@ const app = express();
 
 app.use(helmet({
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'", "https://billxpress1.vercel.app"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+    },
+  },
 }));
 
 const globalLimiter = rateLimit({
