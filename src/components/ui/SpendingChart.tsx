@@ -1,22 +1,7 @@
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useDarkMode } from "../../hooks/useDarkMode";
-
-const data = [
-  { month: "Jan", spending: 32000 },
-  { month: "Feb", spending: 28000 },
-  { month: "Mar", spending: 45000 },
-  { month: "Apr", spending: 38000 },
-  { month: "May", spending: 52000 },
-  { month: "Jun", spending: 41000 },
-];
 
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
   if (active && payload && payload.length) {
@@ -37,18 +22,36 @@ const formatYAxis = (value: number) => {
   return `₦${value}`;
 };
 
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 const SpendingChart = () => {
   const { isDark } = useDarkMode();
+  const { data: apiData } = useQuery({
+    queryKey: ['charts', 'monthly'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/charts/monthly', { withCredentials: true });
+      return data.data as Array<{ month: string; spending: number }>;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const data = apiData && apiData.length > 0
+    ? apiData.map((d: { month: string; spending: number }) => {
+        const m = months[parseInt(d.month.split('-')[1], 10) - 1] || d.month;
+        return { month: m, spending: Number(d.spending) };
+      })
+    : [];
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const gridColor = isDark ? "#334155" : "#e2e8f0";
+  const total = data.reduce((s: number, d: { spending: number }) => s + d.spending, 0);
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-black dark:text-white">Spending Overview</span>
         <span className="text-xs text-black dark:text-white">
-          Total: ₦{data.reduce((s, d) => s + d.spending, 0).toLocaleString()}
+          Total: ₦{total.toLocaleString()}
         </span>
       </div>
       <ResponsiveContainer width="100%" height={220}>

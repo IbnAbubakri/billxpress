@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Wallet, Plus, ArrowUpRight, Eye, EyeOff } from 'lucide-react';
 import FundWalletModal from '../modals/FundWalletModal';
 import WithdrawModal from '../modals/WithdrawModal';
@@ -9,9 +10,12 @@ interface WalletCardProps {
 }
 
 const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
+  const queryClient = useQueryClient();
   const [showBalance, setShowBalance] = useState(true);
   const [showFundModal, setShowFundModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+
+  const refreshUser = () => queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
 
   return (
     <>
@@ -73,11 +77,11 @@ const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
       </div>
 
       {showFundModal && (
-        <FundWalletModal onClose={() => setShowFundModal(false)} />
+        <FundWalletModal onClose={() => setShowFundModal(false)} onSuccess={refreshUser} />
       )}
 
       {showWithdrawModal && (
-        <WithdrawModal user={user} onClose={() => setShowWithdrawModal(false)} />
+        <WithdrawModal user={user} onClose={() => setShowWithdrawModal(false)} onSuccess={refreshUser} />
       )}
     </>
   );

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { X, Banknote, Check } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -13,9 +14,10 @@ interface Errors {
 interface WithdrawModalProps {
   user: User | null;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-const WithdrawModal = ({ user, onClose }: WithdrawModalProps) => {
+const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const containerRef = useFocusTrap(true, onClose);
   const [amount, setAmount] = useState('');
   const [bankName, setBankName] = useState('');
@@ -96,11 +98,20 @@ const WithdrawModal = ({ user, onClose }: WithdrawModalProps) => {
     }
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     setStep(3);
-    closeTimerRef.current = setTimeout(() => {
-      onClose();
-    }, 2000);
+    try {
+      await axios.post('/api/wallet/withdraw', {
+        amount: Number(amount),
+        bank: bankName,
+        accountNumber,
+        accountName,
+      }, { withCredentials: true });
+      onSuccess?.();
+    } catch {
+      // ignore
+    }
+    closeTimerRef.current = setTimeout(() => onClose(), 2000);
   };
 
   const withdrawalFee = amount ? Math.max(50, Number(amount) * 0.01) : 0;

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { X, CreditCard, Banknote, Smartphone, Check } from 'lucide-react';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface FundWalletModalProps {
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
+const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess }) => {
   const containerRef = useFocusTrap(true, onClose);
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
@@ -69,12 +71,15 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose }) => {
     }
   };
 
-  const handlePayment = () => {
-    // Simulate payment processing
+  const handlePayment = async () => {
     setStep(3);
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    try {
+      await axios.post('/api/wallet/fund', { amount: Number(amount), method: selectedMethod }, { withCredentials: true });
+      onSuccess?.();
+    } catch {
+      // ignore
+    }
+    setTimeout(() => onClose(), 2000);
   };
 
   return (

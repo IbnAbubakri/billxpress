@@ -13,23 +13,24 @@ import {
   EyeOff,
   Lock
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 const AdminProfile: React.FC = () => {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Mock admin data - replace with actual data from localStorage or API
   const [adminData, setAdminData] = useState({
     id: 1,
-    name: 'Kabir Acid',
-    email: 'admin@billxpress.com',
-    phone: '+234 800 123 4567',
+    name: user?.name || 'Admin',
+    email: user?.email || 'admin@billxpress.com',
+    phone: user?.phone || '+234 800 000 0000',
     role: 'Super Admin',
-    created_at: '2023-12-01',
-    last_login: '2024-01-20 14:30:00',
+    created_at: '2024-01-01',
+    last_login: new Date().toISOString(),
     permissions: ['users', 'transactions', 'pricing', 'analytics', 'settings']
   });
 

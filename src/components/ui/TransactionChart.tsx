@@ -1,22 +1,11 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useDarkMode } from "../../hooks/useDarkMode";
 
-const data = [
-  { day: "Mon", amount: 12350 },
-  { day: "Tue", amount: 8400 },
-  { day: "Wed", amount: 5500 },
-  { day: "Thu", amount: 7200 },
-  { day: "Fri", amount: 9500 },
-  { day: "Sat", amount: 4800 },
-  { day: "Sun", amount: 3200 },
-];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const emptyData = DAYS.map(day => ({ day, amount: 0 }));
 
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
   if (active && payload && payload.length) {
@@ -39,6 +28,21 @@ const formatYAxis = (value: number) => {
 
 const TransactionChart = () => {
   const { isDark } = useDarkMode();
+  const { data: apiData } = useQuery({
+    queryKey: ['charts', 'weekly'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/charts/weekly', { withCredentials: true });
+      return data.data as Array<{ day_idx: number; amount: number }>;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const data = apiData && apiData.length > 0
+    ? DAYS.map((day, i) => {
+        const match = apiData.find((d: { day_idx: number }) => Number(d.day_idx) === i);
+        return { day, amount: match ? Number(match.amount) : 0 };
+      })
+    : emptyData;
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const total = data.reduce((sum, d) => sum + d.amount, 0);

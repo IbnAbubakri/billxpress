@@ -1,420 +1,201 @@
-import { motion } from "framer-motion";
-import { colors } from "../../constants/theme";
+import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { colors } from '../../constants/theme';
 import {
-  Users,
-  DollarSign,
-  CreditCard,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  Activity,
-  Smartphone,
-  Wifi,
-  Zap,
-} from "lucide-react";
+  Users, DollarSign, CreditCard, TrendingUp,
+  ArrowUpRight, Activity, Smartphone, Wifi, Zap,
+} from 'lucide-react';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell,
+} from 'recharts';
 
 const AdminDashboard = () => {
-  // Mock data - replace with actual API calls
+  const { data: statsData } = useQuery({
+    queryKey: ['admin', 'stats'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/admin/stats', { withCredentials: true });
+      return data.stats;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const { data: revenueChart } = useQuery({
+    queryKey: ['admin', 'revenue-chart'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/admin/revenue-chart', { withCredentials: true });
+      return data.data;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const { data: serviceDist } = useQuery({
+    queryKey: ['admin', 'service-distribution'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/admin/service-distribution', { withCredentials: true });
+      return data.data as Array<{ name: string; value: number }>;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const { data: recentTxns } = useQuery({
+    queryKey: ['admin', 'transactions'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/admin/transactions', { withCredentials: true });
+      return data.transactions;
+    },
+    staleTime: 60 * 1000,
+  });
+
   const stats = [
-    {
-      title: "Total Revenue",
-      value: "₦2,847,500",
-      change: "+12.5%",
-      trend: "up",
-      icon: DollarSign,
-      color: "success",
-    },
-    {
-      title: "Active Users",
-      value: "1,247",
-      change: "+8.2%",
-      trend: "up",
-      icon: Users,
-      color: "primary",
-    },
-    {
-      title: "Transactions",
-      value: "8,432",
-      change: "+15.3%",
-      trend: "up",
-      icon: CreditCard,
-      color: "accent",
-    },
-    {
-      title: "Success Rate",
-      value: "98.7%",
-      change: "+0.5%",
-      trend: "up",
-      icon: TrendingUp,
-      color: "info",
-    },
-  ];
-
-  const revenueData = [
-    { name: "Jan", revenue: 1200000, transactions: 450 },
-    { name: "Feb", revenue: 1350000, transactions: 520 },
-    { name: "Mar", revenue: 1180000, transactions: 480 },
-    { name: "Apr", revenue: 1680000, transactions: 650 },
-    { name: "May", revenue: 1920000, transactions: 720 },
-    { name: "Jun", revenue: 2100000, transactions: 820 },
-    { name: "Jul", revenue: 2847500, transactions: 950 },
-  ];
-
-  const serviceData = [
-    { name: "Airtime", value: 35, color: colors.primary },
-    { name: "Data", value: 28, color: "#d946ef" },
-    { name: "Electricity", value: 20, color: "#22c55e" },
-    { name: "Cable TV", value: 12, color: "#f59e0b" },
-    { name: "Others", value: 5, color: "#ef4444" },
-  ];
-
-  const recentTransactions = [
-    {
-      id: 1,
-      user: "Chidi Okonkwo",
-      service: "MTN Airtime",
-      amount: 5000,
-      status: "completed",
-      time: "2 mins ago",
-    },
-    {
-      id: 2,
-      user: "Ngozi Obi",
-      service: "GLO Data",
-      amount: 2500,
-      status: "completed",
-      time: "5 mins ago",
-    },
-    {
-      id: 3,
-      user: "Emeka Okafor",
-      service: "PHCN Bill",
-      amount: 15000,
-      status: "pending",
-      time: "8 mins ago",
-    },
-    {
-      id: 4,
-      user: "Amina Mohammed",
-      service: "DSTV Subscription",
-      amount: 8500,
-      status: "completed",
-      time: "12 mins ago",
-    },
-    {
-      id: 5,
-      user: "Oluwaseun Adeyemi",
-      service: "Airtel Data",
-      amount: 3000,
-      status: "failed",
-      time: "15 mins ago",
-    },
+    { title: 'Total Revenue', value: statsData ? `₦${Number(statsData.totalRevenue).toLocaleString()}` : '—', change: '', trend: 'up', icon: DollarSign, color: 'success' },
+    { title: 'Active Users', value: statsData ? Number(statsData.totalUsers).toLocaleString() : '—', change: '', trend: 'up', icon: Users, color: 'primary' },
+    { title: 'Transactions', value: statsData ? Number(statsData.totalTransactions).toLocaleString() : '—', change: '', trend: 'up', icon: CreditCard, color: 'accent' },
+    { title: 'Success Rate', value: statsData ? `${statsData.successRate}%` : '—', change: '', trend: 'up', icon: TrendingUp, color: 'info' },
   ];
 
   const getColorClasses = (color: string) => {
-    const colors = {
-      success: "bg-success-500 text-white",
-      primary: "bg-primary-500 text-white",
-      accent: "bg-accent-500 text-white",
-      info: "bg-info-500 text-white",
-    };
-    return colors[color as keyof typeof colors] || colors.primary;
+    const m: Record<string, string> = { success: 'bg-success-500 text-white', primary: 'bg-primary-500 text-white', accent: 'bg-accent-500 text-white', info: 'bg-info-500 text-white' };
+    return m[color] || m.primary;
   };
 
   const getStatusColor = (status: string) => {
-    const colors = {
-      completed: "bg-success-100 dark:bg-success-900/30 text-success-700",
-      pending: "bg-warning-100 dark:bg-warning-900/30 text-warning-700",
-      failed: "bg-error-100 dark:bg-error-900/30 text-error-700",
-    };
-    return colors[status as keyof typeof colors] || colors.pending;
+    const m: Record<string, string> = { completed: 'bg-success-100 dark:bg-success-900/30 text-success-700', pending: 'bg-warning-100 dark:bg-warning-900/30 text-warning-700', failed: 'bg-error-100 dark:bg-error-900/30 text-error-700' };
+    return m[status] || m.pending;
   };
+
+  const serviceColors = [colors.primary, '#d946ef', '#22c55e', '#f59e0b', '#ef4444'];
+
+  const transactions = Array.isArray(recentTxns) ? recentTxns : [];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">
-            Dashboard Overview
-          </h1>
-          <p className="text-black dark:text-white mt-1">
-            Monitor your VTU platform performance
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <select className="px-4 py-2 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-            <option>Last 7 days</option>
-            <option>Last 30 days</option>
-            <option>Last 3 months</option>
-          </select>
+          <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">Dashboard Overview</h1>
+          <p className="text-black dark:text-white mt-1">Monitor your VTU platform performance</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="stats-card group hover:scale-105"
-          >
+          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="stats-card group hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-black dark:text-white">
-                  {stat.title}
-                </p>
-                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">
-                  {stat.value}
-                </p>
-                <div className="flex items-center mt-2">
-                  {stat.trend === "up" ? (
-                    <ArrowUpRight className="w-4 h-4 text-success-500" aria-hidden="true" />
-                  ) : (
-                    <ArrowDownRight className="w-4 h-4 text-error-500" aria-hidden="true" />
-                  )}
-                  <span
-                    className={`text-sm font-medium ml-1 ${
-                      stat.trend === "up"
-                        ? "text-success-600"
-                        : "text-error-600"
-                    }`}
-                  >
-                    {stat.change}
-                  </span>
-                </div>
+                <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>
+                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{stat.value}</p>
+                {stat.change && (
+                  <div className="flex items-center mt-2">
+                    <ArrowUpRight className="w-4 h-4 text-success-500" />
+                    <span className="text-sm font-medium ml-1 text-success-600">{stat.change}</span>
+                  </div>
+                )}
               </div>
-              <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center ${getColorClasses(
-                  stat.color
-                )}`}
-              >
-                <stat.icon className="w-6 h-6" aria-hidden="true" />
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${getColorClasses(stat.color)}`}>
+                <stat.icon className="w-6 h-6" />
               </div>
             </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Revenue Chart */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="lg:col-span-2 chart-container"
-        >
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 chart-container">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white">
-              Revenue Trend
-            </h3>
-            <div className="flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-primary-500 rounded-full"></div>
-                <span className="text-black dark:text-white">Revenue</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-accent-500 rounded-full"></div>
-                <span className="text-black dark:text-white">Transactions</span>
-              </div>
-            </div>
+            <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Revenue Trend</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={revenueData}>
+            <AreaChart data={revenueChart || []}>
               <defs>
-                <linearGradient
-                  id="revenueGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+                <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3} />
                   <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
+              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
               <YAxis stroke="#64748b" fontSize={12} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "white",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "12px",
-                  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="revenue"
-                stroke={colors.primary}
-                fillOpacity={1}
-                fill="url(#revenueGradient)"
-                strokeWidth={2}
-              />
+              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px' }} />
+              <Area type="monotone" dataKey="revenue" stroke={colors.primary} fillOpacity={1} fill="url(#revenueGradient)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Service Distribution */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="chart-container"
-        >
-          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">
-            Service Distribution
-          </h3>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="chart-container">
+          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Service Distribution</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie
-                data={serviceData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
-                dataKey="value"
-              >
-                {serviceData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+              <Pie data={serviceDist || []} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                {(serviceDist || []).map((_entry: { name: string; value: number }, index: number) => (
+                  <Cell key={`cell-${index}`} fill={serviceColors[index] || colors.primary} />
                 ))}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-4 space-y-2">
-            {serviceData.map((service) => (
-              <div
-                key={service.name}
-                className="flex items-center justify-between text-sm"
-              >
+            {(serviceDist || []).map((service: { name: string; value: number }, index: number) => (
+              <div key={service.name} className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: service.color }}
-                  ></div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: serviceColors[index] || colors.primary }} />
                   <span className="text-black dark:text-white">{service.name}</span>
                 </div>
-                <span className="font-medium text-black dark:text-white">
-                  {service.value}%
-                </span>
+                <span className="font-medium text-black dark:text-white">{service.value}</span>
               </div>
             ))}
           </div>
         </motion.div>
       </div>
 
-      {/* Recent Transactions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700"
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700">
         <div className="p-4 border-b border-neutral-100 dark:border-dark-700">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white">
-              Recent Transactions
-            </h3>
-            <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-              View All
-            </button>
-          </div>
+          <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Recent Transactions</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
-                  Service
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">
-                  Time
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">Service</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-black dark:text-white uppercase tracking-wider">Time</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
-              {recentTransactions.map((transaction) => (
-                <tr
-                  key={transaction.id}
-                  className="hover:bg-neutral-50 dark:hover:bg-dark-700 transition-colors"
-                >
+              {transactions.map((tx: { id: number; user_name: string; service: string; amount: number; status: string; created_at: string }) => (
+                <tr key={tx.id} className="hover:bg-neutral-50 dark:hover:bg-dark-700 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">
-                          {transaction.user.charAt(0)}
-                        </span>
+                        <span className="text-white text-sm font-medium">{tx.user_name?.charAt(0)}</span>
                       </div>
                       <div className="ml-3">
-                        <p className="text-sm font-medium text-black dark:text-white">
-                          {transaction.user}
-                        </p>
+                        <p className="text-sm font-medium text-black dark:text-white">{tx.user_name}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
-                      {transaction.service.includes("Airtime") && (
-                        <Smartphone className="w-4 h-4 text-primary-500" aria-hidden="true" />
-                      )}
-                      {transaction.service.includes("Data") && (
-                        <Wifi className="w-4 h-4 text-accent-500" aria-hidden="true" />
-                      )}
-                      {transaction.service.includes("PHCN") && (
-                        <Zap className="w-4 h-4 text-warning-500" aria-hidden="true" />
-                      )}
-                      {transaction.service.includes("DSTV") && (
-                        <Activity className="w-4 h-4 text-info-500" aria-hidden="true" />
-                      )}
-                      <span className="text-sm text-black dark:text-white">
-                        {transaction.service}
-                      </span>
+                      {(tx.service || '').toLowerCase().includes('airtime') && <Smartphone className="w-4 h-4 text-primary-500" />}
+                      {(tx.service || '').toLowerCase().includes('data') && <Wifi className="w-4 h-4 text-accent-500" />}
+                      {(tx.service || '').toLowerCase().includes('electricity') && <Zap className="w-4 h-4 text-warning-500" />}
+                      <span className="text-sm text-black dark:text-white">{tx.service}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black dark:text-white">
-                    ₦{transaction.amount.toLocaleString()}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black dark:text-white">₦{Number(tx.amount).toLocaleString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        transaction.status
-                      )}`}
-                    >
-                      {transaction.status}
-                    </span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(tx.status)}`}>{tx.status}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black dark:text-white">
-                    {transaction.time}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black dark:text-white">{new Date(tx.created_at).toLocaleString()}</td>
                 </tr>
               ))}
+              {transactions.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-black dark:text-white">No transactions found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
