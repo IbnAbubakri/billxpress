@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 import env from './config/env.js';
 import authRoutes from './routes/auth.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import walletRoutes from './routes/wallet.routes.js';
+import chartRoutes from './routes/chart.routes.js';
 import openapiRoutes from './routes/openapi.routes.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
@@ -53,6 +56,9 @@ app.use((req, res, next) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/charts', chartRoutes);
 app.use('/api', openapiRoutes);
 
 app.get('/api/health', (req, res) => {
