@@ -13,8 +13,8 @@ function isValidEmail(v: string) {
 }
 
 function isValidPhone(v: string) {
-  const cleaned = v.replace(/[\s\-\(\)]/g, '');
-  return cleaned.length >= 10 && /^[\d\+]+$/.test(cleaned);
+  const cleaned = v.replace(/[\s\-()]/g, '');
+  return cleaned.length >= 10 && /^[\d+]+$/.test(cleaned);
 }
 
 const LoginPage = ({ onLogin }: LoginPageProps) => {

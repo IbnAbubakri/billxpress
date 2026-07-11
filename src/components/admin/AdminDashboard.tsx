@@ -4,7 +4,7 @@ import axios from 'axios';
 import { colors } from '../../constants/theme';
 import {
   Users, DollarSign, CreditCard, TrendingUp,
-  ArrowUpRight, Activity, Smartphone, Wifi, Zap,
+  ArrowUpRight, Smartphone, Wifi, Zap,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,

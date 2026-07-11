@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Users, Search, CheckCircle, XCircle, Ban } from 'lucide-react';
+import { Users, Search, CheckCircle, XCircle } from 'lucide-react';
 
 interface AppUser {
   id: number;

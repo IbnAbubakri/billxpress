@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
-import type { ProfileUpdateData } from '../../types';
 
 const AdminProfile: React.FC = () => {
   const { user, handleUpdateProfile, handleChangePassword, handleGenerateMfaSecret, handleVerifyMfaSetup, handleDisableMfa, handleDeleteAccount } = useAuth();
