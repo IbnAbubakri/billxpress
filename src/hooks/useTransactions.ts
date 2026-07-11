@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { getTransactions } from '../api/client';
 
 export interface Transaction {
   id: string;
@@ -15,7 +15,7 @@ export function useTransactions() {
   return useQuery<Transaction[]>({
     queryKey: ['transactions'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/transactions', { withCredentials: true });
+      const data = await getTransactions();
       return data.transactions as Transaction[];
     },
     staleTime: 2 * 60 * 1000,

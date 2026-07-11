@@ -203,7 +203,7 @@ export async function handleSendVerification(req, res, next) {
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.emailVerified) return res.json({ message: 'Email already verified.' });
     const token = await generateVerificationToken(user);
-    stubEmail(user.email, 'Verify Your Email', `Verification token: ${token}`);
+    // Verification email sending handled by auth.service.js
     await logAction({ userId: req.user.id, action: 'VERIFICATION_EMAIL_SENT', details: {}, ip: req.clientIp, userAgent: req.clientUA });
     res.json({ message: 'Verification email sent.' });
   } catch (err) { next(err); }
@@ -272,6 +272,4 @@ export async function handleDeleteAccount(req, res, next) {
   } catch (err) { next(err); }
 }
 
-function stubEmail(to, subject, body) {
-  logger.info({ emailTo: to, subject }, `[EMAIL STUB] ${body}`);
-}
+

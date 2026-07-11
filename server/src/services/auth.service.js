@@ -561,7 +561,7 @@ export async function deleteAccount(id) {
   await db.prepare('DELETE FROM sessions WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM transactions WHERE userId = ?').run(id);
-  await db.prepare('DELETE FROM otps WHERE userId = ?').catch(() => {}); /* no userId col on otps */
+  await db.prepare('DELETE FROM otps WHERE phone = (SELECT phone FROM users WHERE id = ?)').run(user.id).catch(() => {});
   await db.prepare('DELETE FROM users WHERE id = ?').run(id);
   return { success: true };
 }

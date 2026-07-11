@@ -202,6 +202,12 @@ export async function deleteAccount() {
   return data;
 }
 
+export async function getTransactions(params?: { page?: number; limit?: number }) {
+  const csrf = await ensureCSRF();
+  const { data } = await walletApi.get('/transactions', { params, headers: { 'x-csrf-token': csrf } });
+  return data;
+}
+
 export async function fundWallet(amount: number, method?: string) {
   const csrf = await ensureCSRF();
   const { data } = await walletApi.post('/wallet/fund', { amount, method }, {

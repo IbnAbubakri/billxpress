@@ -1,19 +1,24 @@
 name: Database Backup
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
-  workflow_dispatch:  # Manual trigger
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create backup placeholder
+      - name: Run pg_dump backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           mkdir -p backups
-          echo "Backup timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" > backups/README.md
-          echo "Automated SQLite backups would be triggered here" >> backups/README.md
+          pg_dump "${DATABASE_URL}" | gzip > "backups/billxpress_$(date -u +%Y%m%d_%H%M%S).sql.gz"
+          echo "Backup created"
+      - name: Prune old backups (keep last 14)
+        run: |
+          ls -t backups/billxpress_*.sql.gz 2>/dev/null | tail -n +15 | xargs -r rm
       - name: Commit backup
         run: |
           git config user.name "backup-bot"
