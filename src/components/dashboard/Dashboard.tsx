@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, X } from 'lucide-react';
+import { Mail, X, PartyPopper } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
 import DashboardLayout from '../layout/DashboardLayout';
 import WalletCard from '../ui/WalletCard';
@@ -95,7 +95,7 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
           <div className="mb-6">
             <div className="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-dark-800 dark:to-dark-800 rounded-2xl border border-dashed border-primary-200 dark:border-dark-700 p-6 text-center mb-4">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg">
-                <span className="text-3xl">🎉</span>
+                <PartyPopper className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 Welcome to BillXpress!
