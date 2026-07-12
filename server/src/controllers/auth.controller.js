@@ -2,8 +2,9 @@ import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
   updateUserProfile, generateVerificationToken, verifyEmailToken,
   checkPhone, checkEmail, sendOtp, verifyOtp, changePassword, setTransactionPin,
-  generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount,
+  generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount, normalizePhone,
 } from '../services/auth.service.js';
+import { getDb } from '../utils/db.js';
 import {
   generateAccessToken, generateRefreshToken,
   rotateRefreshToken, revokeRefreshToken,
@@ -207,12 +208,23 @@ export async function handlePasswordPolicy(req, res, next) {
 
 export async function handleSendVerification(req, res, next) {
   try {
-    const user = await getUserById(req.user.id);
+    const identifier = req.body?.email || req.body?.login;
+    let user = identifier
+      ? getDb().prepare('SELECT * FROM users WHERE email = ?').get(identifier.toLowerCase())
+      : null;
+    if (identifier && !user) {
+      user = getDb().prepare('SELECT * FROM users WHERE phone = ?').get(normalizePhone(identifier));
+    }
+    if (!user && req.user?.id) {
+      user = await getUserById(req.user.id);
+    }
     if (!user) return res.status(404).json({ error: 'User not found.' });
-    if (user.emailVerified) return res.json({ message: 'Email already verified.' });
+    if (user.emailverified ?? user.emailVerified) return res.json({ message: 'Email already verified.' });
     const token = await generateVerificationToken(user);
-    // Verification email sending handled by auth.service.js
-    await logAction({ userId: req.user.id, action: 'VERIFICATION_EMAIL_SENT', details: {}, ip: req.clientIp, userAgent: req.clientUA });
+    if (!process.env.SMS_PROVIDER) {
+      return res.json({ message: 'Verification email sent.', token });
+    }
+    await logAction({ userId: user.id, action: 'VERIFICATION_EMAIL_SENT', details: {}, ip: req.clientIp, userAgent: req.clientUA });
     res.json({ message: 'Verification email sent.' });
   } catch (err) { next(err); }
 }

@@ -140,9 +140,9 @@ export async function setTransactionPin(pin: string) {
   return data;
 }
 
-export async function sendVerificationEmail() {
+export async function sendVerificationEmail(email?: string) {
   const csrf = await ensureCSRF();
-  const { data } = await api.post('/send-verification', {}, {
+  const { data } = await api.post('/send-verification', { email }, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

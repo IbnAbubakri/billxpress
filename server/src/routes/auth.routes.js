@@ -57,7 +57,7 @@ router.post('/refresh', refreshLimiter, validateCsrf, handleRefresh);
 router.get('/me', authenticate, handleMe);
 router.post('/forgot-password', forgotLimiter, validateCsrf, handleForgotPassword);
 router.post('/reset-password', resetLimiter, validateCsrf, validatePasswordReset, handleResetPassword);
-router.post('/send-verification', authenticate, validateCsrf, handleSendVerification);
+router.post('/send-verification', validateCsrf, handleSendVerification);
 router.post('/verify-email', validateCsrf, handleVerifyEmail);
 router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
 router.put('/password', authenticate, validateCsrf, handleChangePassword);

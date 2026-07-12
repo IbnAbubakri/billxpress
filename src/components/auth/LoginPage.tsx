@@ -85,7 +85,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                 onClick={async () => {
                   setResendingVerification(true);
                   try {
-                    await sendVerificationEmail();
+                    await sendVerificationEmail(formData.login);
                     setVerificationSent(true);
                   } catch { /* ignore */ }
                   setResendingVerification(false);
