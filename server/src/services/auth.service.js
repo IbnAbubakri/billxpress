@@ -150,6 +150,11 @@ function getLockoutDuration(attemptCount) {
   return extraAttempts > 0 ? base * Math.pow(2, extraAttempts) : base;
 }
 
+function sanitizeValue(val) {
+  if (typeof val !== 'string') return val;
+  return val.trim().replace(/<[^>]*>/g, '');
+}
+
 function lockoutKey(email) {
   return email.toLowerCase();
 }
@@ -275,14 +280,7 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
     throw new AppError('Account temporarily locked. Try again later.', 423);
   }
   if (!user.emailVerified) {
-    const isDemo = !process.env.SMS_PROVIDER;
-    if (isDemo) {
-      const db = getDb();
-      await db.prepare('UPDATE users SET emailVerified = 1, emailVerificationToken = NULL, emailVerificationExpires = NULL WHERE id = ?').run(user.id);
-      user.emailVerified = 1;
-    } else {
-      throw new AppError('Please verify your email before signing in.', 403);
-    }
+    throw new AppError('Please verify your email before signing in.', 403);
   }
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
@@ -441,7 +439,7 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
     if (profileData[field] !== undefined) {
       if (!/^[a-zA-Z]+$/.test(field)) continue;
       updates.push(`${field} = ?`);
-      values.push(profileData[field]);
+      values.push(sanitizeValue(profileData[field]));
     }
   }
 

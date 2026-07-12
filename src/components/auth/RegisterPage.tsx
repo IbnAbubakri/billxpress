@@ -10,14 +10,14 @@ type Step = 'phone' | 'otp' | 'kyc' | 'password';
 
 const STORAGE_KEY = 'billxpress_reg_progress';
 
-function persistProgress(data: { step: Step; phone: string; firstName: string; lastName: string; email: string }) {
-  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* noop */ }
+function persistProgress(step: Step) {
+  try { sessionStorage.setItem(STORAGE_KEY, step); } catch { /* noop */ }
 }
 
-function loadProgress(): { step: Step; phone: string; firstName: string; lastName: string; email: string } | null {
+function loadProgress(): Step | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    return (raw && ['phone', 'otp', 'kyc', 'password'].includes(raw)) ? raw as Step : null;
   } catch { return null; }
 }
 
@@ -48,12 +48,12 @@ const RegisterPage = () => {
   const { handleRegister, handleCheckPhone, handleSendOtp, handleVerifyOtp } = useAuth();
   const navigate = useNavigate();
   const saved = loadProgress();
-  const [step, setStep] = useState<Step>(saved?.step || 'phone');
-  const [phone, setPhone] = useState(saved?.phone || '');
+  const [step, setStep] = useState<Step>(saved || 'phone');
+  const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
-  const [firstName, setFirstName] = useState(saved?.firstName || '');
-  const [lastName, setLastName] = useState(saved?.lastName || '');
-  const [email, setEmail] = useState(saved?.email || '');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -76,8 +76,8 @@ const RegisterPage = () => {
   }, [countdown]);
 
   useEffect(() => {
-    persistProgress({ step, phone, firstName, lastName, email });
-  }, [step, phone, firstName, lastName, email]);
+    persistProgress(step);
+  }, [step]);
 
   const inputClass = (field: string) =>
     `w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
@@ -95,7 +95,7 @@ const RegisterPage = () => {
       } else {
         setPhoneExists(false);
         setStep('otp');
-        trackEvent('registration_started', { phone });
+        trackEvent('registration_started');
         await sendOtpCode();
       }
     } catch (err: unknown) {
@@ -181,7 +181,7 @@ const RegisterPage = () => {
     try {
       await handleRegister({ email, password, phone, name: `${firstName} ${lastName}` });
       clearProgress();
-      trackEvent('registration_completed', { email, phone });
+      trackEvent('registration_completed');
       setShowWelcome(true);
     } catch (err: unknown) {
       setGeneralError(getErrorMessage(err, 'Registration failed'));
@@ -191,9 +191,14 @@ const RegisterPage = () => {
   };
 
   const goBack = useCallback(() => {
-    if (step === 'otp') setStep('phone');
-    else if (step === 'kyc') setStep('phone');
-    else if (step === 'password') setStep('kyc');
+    if (step === 'otp') {
+      setStep('phone');
+      setOtpCode(['', '', '', '', '', '']);
+    } else if (step === 'kyc') {
+      setStep('otp');
+    } else if (step === 'password') {
+      setStep('kyc');
+    }
     setGeneralError('');
     setErrors({});
   }, [step]);

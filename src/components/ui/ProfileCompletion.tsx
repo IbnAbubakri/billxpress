@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { UserPlus, Mail, Info, Fingerprint, Banknote, Check, ChevronRight, X } from 'lucide-react';
+import { UserPlus, Mail, Info, Fingerprint, Banknote, Check, ChevronRight, X, Loader2 } from 'lucide-react';
 import type { User, ProfileStep, BasicInfo, BankDetails, ProfileUpdateData } from '../../types';
 import { validateBVN, validateAccountNumber } from '../../utils/validation';
 import { trackEvent } from '../../utils/analytics';
+import { useAuth } from '../../hooks/useAuth';
 import EmailVerificationModal from '../profile/EmailVerificationModal';
 import BVNModal from '../profile/BVNModal';
 import BankDetailsModal from '../profile/BankDetailsModal';
@@ -29,15 +30,31 @@ interface ProfileCompletionProps {
   onUpdateProfile?: (data: ProfileUpdateData) => Promise<User>;
 }
 
+function ProfileCompletionSkeleton() {
+  return (
+    <div className="mb-6 w-full bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 relative animate-pulse">
+      <div className="h-5 bg-gray-200 dark:bg-dark-700 rounded w-3/4 mb-3" />
+      <div className="h-2 bg-gray-200 dark:bg-dark-700 rounded-full mb-4" />
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-4 p-3 mb-2">
+          <div className="w-10 h-10 bg-gray-200 dark:bg-dark-700 rounded-xl" />
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 dark:bg-dark-700 rounded w-1/2 mb-1" />
+            <div className="h-3 bg-gray-200 dark:bg-dark-700 rounded w-2/3" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
+  const { handleSendVerification } = useAuth();
   const [dismissed, setDismissed] = useState(() => {
-    try {
-      const stored = localStorage.getItem('profileCompletionDismissed');
-      if (!stored) return false;
-      return Date.now() - Number(stored) < 86400000;
-    }
+    try { return localStorage.getItem('profileCompletionDismissed') === 'true'; }
     catch { return false; }
   });
+  const [showDismissConfirm, setShowDismissConfirm] = useState(false);
 
   const steps = STEPS.map((s) => ({
     ...s,
@@ -56,15 +73,16 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
 
   const handleDismiss = () => {
     setDismissed(true);
-    try { localStorage.setItem('profileCompletionDismissed', String(Date.now())); } catch { /* noop */ }
+    try { localStorage.setItem('profileCompletionDismissed', 'true'); } catch { /* noop */ }
   };
 
+  if (!user) return <ProfileCompletionSkeleton />;
   if (dismissed || steps.every(s => s.completed)) return null;
 
   return (
     <div className="mb-6 w-full bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 relative">
       <button
-        onClick={handleDismiss}
+        onClick={() => setShowDismissConfirm(true)}
         className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
         aria-label="Dismiss profile completion"
         title="Skip for now"
@@ -78,66 +96,86 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
         </div>
         <span className="text-sm font-bold text-secondary dark:text-white flex-shrink-0">{percent}% complete</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-        <div className="bg-secondary h-2 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
+      <div className="w-full bg-gray-200 dark:bg-dark-700 rounded-full h-2 mb-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={`Profile ${percent}% complete`}>
+        <div className="bg-secondary h-2 rounded-full transition-all duration-300 dark:bg-secondary" style={{ width: `${percent}%` }} />
       </div>
       <div className="flex items-center justify-between mb-4">
         <button className="text-xs text-black dark:text-white hover:underline" onClick={() => setCollapsed((p) => !p)}>
           {collapsed ? 'Show more' : 'Show less'}
         </button>
-        <button onClick={handleDismiss} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <button onClick={() => setShowDismissConfirm(true)} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
           Skip for now
         </button>
       </div>
       {!collapsed && (
         <ul className="space-y-3">
           {steps.map((step, idx) => (
-            <li
-              key={idx}
-              role={step.completed ? 'listitem' : 'button'}
-              tabIndex={step.completed ? undefined : 0}
-              onKeyDown={step.completed ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') setActiveStep(step.icon); }}
-              className={`flex items-center gap-4 p-3 bg-white dark:bg-dark-800 rounded-xl border border-gray-100 dark:border-dark-700 shadow-sm ${!step.completed ? 'cursor-pointer hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700' : 'opacity-60'}`}
-              onClick={() => { if (!step.completed) setActiveStep(step.icon); }}
-            >
-              <div className="bg-gray-100 dark:bg-dark-700 rounded-xl p-2">
-                <StepIcon icon={step.icon} />
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-secondary dark:text-white">{step.label}</div>
-                <div className="text-sm text-black dark:text-white">{step.description}</div>
-              </div>
-              <div className={step.completed ? 'text-green-500' : 'text-gray-300'}>
-                {step.completed ? (
+            <li key={idx}>
+              {step.completed ? (
+                <div className="flex items-center gap-4 p-3 bg-white dark:bg-dark-800 rounded-xl border border-gray-100 dark:border-dark-700 shadow-sm opacity-60">
+                  <div className="bg-gray-100 dark:bg-dark-700 rounded-xl p-2">
+                    <StepIcon icon={step.icon} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-secondary dark:text-white">{step.label}</div>
+                    <div className="text-sm text-black dark:text-white">{step.description}</div>
+                  </div>
                   <Check className="w-5 h-5 text-green-500" />
-                ) : (
+                </div>
+              ) : (
+                <button
+                  onClick={() => setActiveStep(step.icon)}
+                  className="flex items-center gap-4 p-3 w-full text-left bg-white dark:bg-dark-800 rounded-xl border border-gray-100 dark:border-dark-700 shadow-sm cursor-pointer hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700"
+                >
+                  <div className="bg-gray-100 dark:bg-dark-700 rounded-xl p-2">
+                    <StepIcon icon={step.icon} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-secondary dark:text-white">{step.label}</div>
+                    <div className="text-sm text-black dark:text-white">{step.description}</div>
+                  </div>
                   <ChevronRight className="w-5 h-5 text-gray-300" />
-                )}
-              </div>
+                </button>
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      <CallbackModals activeStep={activeStep} onClose={() => setActiveStep(null)} onUpdateProfile={onUpdateProfile} />
+      {activeStep && (
+        <CallbackModals activeStep={activeStep} onClose={() => setActiveStep(null)} onUpdateProfile={onUpdateProfile} handleSendVerification={handleSendVerification} />
+      )}
+
+      {showDismissConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Skip profile setup?">
+          <div className="bg-white dark:bg-dark-800 rounded-2xl p-6 max-w-xs w-full mx-4 shadow-2xl">
+            <p className="text-sm text-black dark:text-white mb-4">Are you sure you want to skip profile setup? You can complete it later.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDismissConfirm(false)} className="w-1/2 bg-gray-200 dark:bg-dark-700 text-black dark:text-white py-2 rounded-xl font-medium hover:bg-gray-300 transition-colors text-sm">Cancel</button>
+              <button onClick={handleDismiss} className="w-1/2 bg-blue-600 text-white py-2 rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm">Skip</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default ProfileCompletion;
 
-function CallbackModals({ activeStep, onClose, onUpdateProfile }: { activeStep: string | null; onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
-  if (activeStep === 'Mail') return <MailStep onClose={onClose} />;
+function CallbackModals({ activeStep, onClose, onUpdateProfile, handleSendVerification }: { activeStep: string | null; onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User>; handleSendVerification: () => Promise<void> }) {
+  if (activeStep === 'Mail') return <MailStep onClose={onClose} handleSendVerification={handleSendVerification} />;
   if (activeStep === 'Info') return <InfoStep onClose={onClose} onUpdateProfile={onUpdateProfile} />;
   if (activeStep === 'Fingerprint') return <FingerprintStep onClose={onClose} onUpdateProfile={onUpdateProfile} />;
   if (activeStep === 'Banknote') return <BanknoteStep onClose={onClose} onUpdateProfile={onUpdateProfile} />;
   return null;
 }
 
-function MailStep({ onClose }: { onClose: () => void }) {
+function MailStep({ onClose, handleSendVerification }: { onClose: () => void; handleSendVerification: () => Promise<void> }) {
   const [sent, setSent] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    await handleSendVerification();
     setSent(true);
     trackEvent('email_verified');
   };
@@ -187,8 +225,8 @@ function InfoStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateP
           homeCity: info.homeCity,
           homeState: info.homeState,
           homeZip: info.homeZip,
+          avatar: info.avatarPreview,
         };
-        if (info.avatarPreview) payload.avatar = info.avatarPreview;
         await onUpdateProfile(payload);
         trackEvent('profile_step_completed', { step: 'basic_info' });
         onClose();

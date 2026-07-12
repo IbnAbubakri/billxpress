@@ -3,7 +3,9 @@ type EventName =
   | 'registration_step_completed'
   | 'registration_completed'
   | 'email_verified'
-  | 'profile_step_completed';
+  | 'profile_step_completed'
+  | 'quick_action'
+  | 'resend_verification';
 
 export function trackEvent(name: EventName, data?: Record<string, unknown>) {
   if (import.meta.env.DEV) {
