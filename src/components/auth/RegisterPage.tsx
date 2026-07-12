@@ -1,17 +1,15 @@
-import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Wallet, Mail, Lock, User, Phone, ArrowLeft, CheckCircle2, Smartphone } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Wallet, Mail, Lock, User, Phone, ArrowLeft, CheckCircle2, Smartphone, PartyPopper, Sparkles } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { validateName, validateEmail, validatePhone } from '../../utils/validation';
-
-interface RegisterPageProps {
-  onRegister: (data: { email: string; password: string; phone?: string; name?: string }) => Promise<void>;
-}
+import { validateName, validateEmail, validatePhone, validatePassword } from '../../utils/validation';
+import { trackEvent } from '../../utils/analytics';
 
 type Step = 'phone' | 'otp' | 'kyc' | 'password';
 
-const RegisterPage = ({ onRegister }: RegisterPageProps) => {
-  const { handleCheckPhone, handleSendOtp, handleVerifyOtp } = useAuth();
+const RegisterPage = () => {
+  const { handleRegister, handleCheckPhone, handleSendOtp, handleVerifyOtp } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
@@ -28,7 +26,17 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
   const [phoneExists, setPhoneExists] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpDebugCode, _setOtpDebugCode] = useState('');
+  const [acceptedTos, setAcceptedTos] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [showWelcome, setShowWelcome] = useState(false);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [countdown]);
 
   const inputClass = (field: string) =>
     `w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
@@ -47,6 +55,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
         setPhoneExists(false);
         setOtpSent(false);
         setStep('otp');
+        trackEvent('registration_started', { phone });
         await sendOtpCode();
       }
     } catch (err: unknown) {
@@ -61,7 +70,8 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
     try {
       const result = await handleSendOtp(phone);
       setOtpSent(true);
-      if (result.code) _setOtpDebugCode(result.code);
+      setCountdown(60);
+      if (result.code && import.meta.env.DEV) _setOtpDebugCode(result.code);
       setGeneralError('');
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to send OTP');
@@ -95,6 +105,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
     try {
       await handleVerifyOtp(phone, code);
       setStep('kyc');
+      trackEvent('registration_step_completed', { step: 'otp' });
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Invalid OTP');
     } finally {
@@ -113,24 +124,25 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
     if (emailErr) newErrors.email = emailErr;
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
     setStep('password');
+    trackEvent('registration_step_completed', { step: 'kyc' });
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGeneralError('');
     const newErrors: Record<string, string> = {};
-    if (password.length < 12) newErrors.password = 'Password must be at least 12 characters';
-    if (!/[A-Z]/.test(password)) newErrors.password = newErrors.password || 'Must contain an uppercase letter';
-    if (!/[a-z]/.test(password)) newErrors.password = newErrors.password || 'Must contain a lowercase letter';
-    if (!/\d/.test(password)) newErrors.password = newErrors.password || 'Must contain a number';
-    if (!/[^A-Za-z0-9]/.test(password)) newErrors.password = newErrors.password || 'Must contain a special character';
+    const pwErr = validatePassword(password);
+    if (pwErr) newErrors.password = pwErr;
     if (!confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
     else if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (!acceptedTos) newErrors.tos = 'You must accept the Terms of Service';
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
     setIsLoading(true);
     try {
-      await onRegister({ email, password, phone, name: `${firstName} ${lastName}` });
+      await handleRegister({ email, password, phone, name: `${firstName} ${lastName}` });
+      trackEvent('registration_completed', { email, phone });
+      setShowWelcome(true);
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Registration failed');
     } finally {
@@ -199,8 +211,38 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm mb-4">{generalError}</div>
           )}
 
-          {step === 'phone' && (
-            <div className="space-y-4">
+          {showWelcome ? (
+            <div className="text-center py-6 space-y-4">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <PartyPopper className="w-10 h-10 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome to BillXpress!</h2>
+                <p className="text-black dark:text-white mt-2">Your account has been created successfully.</p>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 text-left">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Verify your email address</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                      We sent a verification email to <strong>{email}</strong>. Please check your inbox and verify your email to unlock all features.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white py-4 px-4 rounded-2xl font-semibold hover:shadow-lg transition-all duration-200"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  Go to Dashboard
+                  <Sparkles className="w-5 h-5" />
+                </div>
+              </button>
+            </div>
+          ) : step === 'phone' && (
+            <form onSubmit={(e) => { e.preventDefault(); handlePhoneSubmit(); }} className="space-y-4">
               {phoneExists ? (
                 <div className="text-center space-y-4">
                   <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-6 rounded-2xl">
@@ -210,7 +252,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                   <Link to="/login" className="block w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium text-center hover:bg-opacity-90 transition-all">
                     Sign In
                   </Link>
-                  <button onClick={() => { setPhoneExists(false); setPhone(''); }} className="text-sm text-secondary dark:text-white hover:underline">
+                  <button onClick={() => { setPhoneExists(false); setPhone(''); }} className="text-sm text-secondary dark:text-white hover:underline" type="button">
                     Use a different phone number
                   </button>
                 </div>
@@ -225,7 +267,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                     </div>
                     {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                   </div>
-                  <button onClick={handlePhoneSubmit} disabled={isLoading || !phone} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                  <button type="submit" disabled={isLoading || !phone} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
@@ -235,17 +277,17 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                   </button>
                 </>
               )}
-            </div>
+            </form>
           )}
 
           {step === 'otp' && (
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleOtpSubmit(); }} className="space-y-4">
               <p className="text-sm text-black dark:text-white text-center">
                 Enter the 6-digit code sent to <strong>{phone}</strong>
               </p>
               {otpSent && (
-                <button onClick={sendOtpCode} disabled={isLoading} className="text-xs text-secondary dark:text-white hover:underline block mx-auto">
-                  Resend code
+                <button type="button" onClick={sendOtpCode} disabled={isLoading || countdown > 0} className="text-xs text-secondary dark:text-white hover:underline block mx-auto disabled:opacity-50 disabled:cursor-not-allowed">
+                  {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend code'}
                 </button>
               )}
               {otpDebugCode && (
@@ -262,6 +304,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                       ref={(el) => { otpRefs.current[idx] = el; }}
                       type="text"
                       inputMode="numeric"
+                      autoComplete="one-time-code"
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
@@ -273,7 +316,7 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                 </div>
                 {errors.otp && <p className="mt-2 text-sm text-red-600 text-center">{errors.otp}</p>}
               </div>
-              <button onClick={handleOtpSubmit} disabled={isLoading || otpCode.join('').length !== 6} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+              <button type="submit" disabled={isLoading || otpCode.join('').length !== 6} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 {isLoading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
@@ -281,11 +324,11 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                   </div>
                 ) : 'Verify'}
               </button>
-            </div>
+            </form>
           )}
 
           {step === 'kyc' && (
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleKycSubmit(); }} className="space-y-4">
               <p className="text-sm text-black dark:text-white text-center">Tell us about yourself</p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -310,10 +353,10 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                 </div>
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
-              <button onClick={handleKycSubmit} disabled={!firstName || !lastName || !email} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+              <button type="submit" disabled={!firstName || !lastName || !email} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 Continue
               </button>
-            </div>
+            </form>
           )}
 
           {step === 'password' && (
@@ -341,6 +384,26 @@ const RegisterPage = ({ onRegister }: RegisterPageProps) => {
                 </div>
                 {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
               </div>
+              <div className="flex items-start gap-3">
+                <input
+                  id="acceptTos"
+                  type="checkbox"
+                  checked={acceptedTos}
+                  onChange={(e) => setAcceptedTos(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary"
+                />
+                <label htmlFor="acceptTos" className="text-sm text-black dark:text-white">
+                  I agree to the{' '}
+                  <a href="/terms" target="_blank" className="text-secondary hover:underline font-medium" tabIndex={-1}>
+                    Terms of Service
+                  </a>{' '}
+                  and{' '}
+                  <a href="/privacy" target="_blank" className="text-secondary hover:underline font-medium" tabIndex={-1}>
+                    Privacy Policy
+                  </a>
+                </label>
+              </div>
+              {errors.tos && <p className="text-sm text-red-600">{errors.tos}</p>}
               <button type="submit" disabled={isLoading || !password || !confirmPassword} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 {isLoading ? (
                   <div className="flex items-center justify-center">

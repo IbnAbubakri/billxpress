@@ -47,7 +47,7 @@ function toUser(data: Record<string, unknown>): User {
     phone: (data.phone as string) || '',
     balance: (data.balance as number) ?? 0,
     hasTransactionPin: (data.hasTransactionPin as boolean) ?? false,
-    emailVerified: (data.emailVerified as boolean) ?? true,
+    emailVerified: (data.emailVerified as boolean) ?? false,
     bvn: (data.bvn as string) || '',
     accountNumber: (data.accountNumber as string) || '',
     bankName: (data.bankName as string) || '',

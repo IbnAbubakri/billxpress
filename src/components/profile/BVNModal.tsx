@@ -42,8 +42,8 @@ const BVNModal = ({
               onBVNChange(e.target.value.replace(/\D/g, "").substring(0, 11))
             }
             placeholder="Enter 11-digit BVN"
-            className={`w-full px-4 py-3 border rounded-2xl ${
-              error ? "border-red-500" : "border-gray-300"
+            className={`w-full px-4 py-3 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+              error ? "border-red-500" : "border-gray-300 dark:border-dark-700"
             }`}
             aria-invalid={!!error}
             aria-describedby={error ? 'bvnInput-error' : undefined}
@@ -57,7 +57,7 @@ const BVNModal = ({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+            className="w-1/2 bg-gray-200 dark:bg-dark-700 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 dark:hover:bg-dark-600 transition-colors"
           >
             Cancel
           </button>

@@ -110,7 +110,7 @@ function AppContent() {
             !isAuthenticated ? <LoginPage onLogin={onLogin} /> : <Navigate to="/dashboard" replace />
           } />
           <Route path="/register" element={
-            !isAuthenticated ? <RegisterPage onRegister={onRegister} /> : <Navigate to="/dashboard" replace />
+            !isAuthenticated ? <RegisterPage /> : <Navigate to="/dashboard" replace />
           } />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />

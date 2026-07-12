@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mail, X } from 'lucide-react';
 import DashboardLayout from '../layout/DashboardLayout';
 import WalletCard from '../ui/WalletCard';
 import ServiceGrid from '../ui/ServiceGrid';
@@ -9,6 +10,7 @@ import ProfileCompletion from '../ui/ProfileCompletion';
 import LogoutModal from '../ui/LogoutModal';
 import PageErrorBoundary from '../PageErrorBoundary';
 import { useTransactions } from '../../hooks/useTransactions';
+import { useAuth } from '../../hooks/useAuth';
 import type { User, ProfileUpdateData } from '../../types';
 
 interface DashboardProps {
@@ -19,9 +21,19 @@ interface DashboardProps {
 
 const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
   const [showLogout, setShowLogout] = useState(false);
+  const [dismissEmailBanner, setDismissEmailBanner] = useState(() => {
+    try { return localStorage.getItem('dismissEmailBanner') === 'true'; }
+    catch { return false; }
+  });
   const navigate = useNavigate();
+  const { handleSendVerification } = useAuth();
   const { data: transactions, isLoading: txLoading } = useTransactions();
   const emptyTransactions = !txLoading && (!transactions || transactions.length === 0);
+
+  const handleDismissEmailBanner = () => {
+    setDismissEmailBanner(true);
+    try { localStorage.setItem('dismissEmailBanner', 'true'); } catch { /* noop */ }
+  };
 
   const profileComplete = !!(
     user?.emailVerified &&
@@ -46,6 +58,23 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
             <p className="text-xs text-black dark:text-white">{user?.email || ''}</p>
           </div>
         </div>
+        {!dismissEmailBanner && user && !user.emailVerified && (
+          <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-start gap-3">
+            <Mail className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Verify your email address</p>
+              <p className="text-xs text-amber-600 dark:text-amber-300 mt-0.5">
+                Please check your inbox for the verification email or{' '}
+                <button onClick={async () => { try { await handleSendVerification(); alert('Verification email sent!'); } catch { alert('Failed to send. Try again.'); } }} className="underline font-medium hover:text-amber-700">
+                  click here to resend
+                </button>
+              </p>
+            </div>
+            <button onClick={handleDismissEmailBanner} className="p-1 text-amber-400 hover:text-amber-600 transition-colors flex-shrink-0" aria-label="Dismiss">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
         {!profileComplete && <ProfileCompletion user={user} onUpdateProfile={onUpdateProfile} />}
 
         <div className="mb-6">

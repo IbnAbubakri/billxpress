@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Wallet, Mail, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
-import { validateEmail } from '../../utils/validation';
+import { validateEmail, validatePassword } from '../../utils/validation';
 import { forgotPassword, resetPassword } from '../../api/client';
 
 const ResetPasswordPage = () => {
@@ -44,7 +44,8 @@ const ResetPasswordPage = () => {
   const handleNewPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError('');
-    if (newPassword.length < 12) { setPasswordError('Password must be at least 12 characters'); return; }
+    const pwErr = validatePassword(newPassword);
+    if (pwErr) { setPasswordError(pwErr); return; }
     if (newPassword !== confirmPassword) { setPasswordError('Passwords do not match'); return; }
     setIsLoading(true);
     try {

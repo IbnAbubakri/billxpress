@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { User, ProfileStep, BasicInfo, BankDetails, ProfileUpdateData } from '../../types';
 import { validateBVN, validateAccountNumber } from '../../utils/validation';
+import { trackEvent } from '../../utils/analytics';
 import EmailVerificationModal from '../profile/EmailVerificationModal';
 import BVNModal from '../profile/BVNModal';
 import BankDetailsModal from '../profile/BankDetailsModal';
@@ -9,7 +10,7 @@ import BasicInfoModal from '../profile/BasicInfoModal';
 const STEPS: ProfileStep[] = [
   { label: 'Create account', description: 'Create BillXpress account', icon: 'UserPlus', completed: true },
   { label: 'Verify email', description: 'Verify your email address', icon: 'Mail', completed: false },
-  { label: 'Add basic information', description: 'Start paying your bills', icon: 'Info', completed: false },
+  { label: 'Add basic information', description: 'Add your address information', icon: 'Info', completed: false },
   { label: 'Link BVN', description: 'Link BVN to be able to withdraw', icon: 'Fingerprint', completed: false },
   { label: 'Add bank details', description: 'Save your bank details', icon: 'Banknote', completed: false },
 ];
@@ -41,6 +42,11 @@ interface ProfileCompletionProps {
 }
 
 function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
+  const [dismissed, setDismissed] = useState(() => {
+    try { return localStorage.getItem('profileCompletionDismissed') === 'true'; }
+    catch { return false; }
+  });
+
   const steps = STEPS.map((s) => ({
     ...s,
     completed: s.icon === 'UserPlus' ? true
@@ -56,9 +62,24 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [activeStep, setActiveStep] = useState<string | null>(null);
 
+  const handleDismiss = () => {
+    setDismissed(true);
+    try { localStorage.setItem('profileCompletionDismissed', 'true'); } catch { /* noop */ }
+  };
+
+  if (dismissed || steps.every(s => s.completed)) return null;
+
   return (
-    <div className="mb-6 w-full bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4">
-        <div className="flex items-start justify-between mb-2 gap-3">
+    <div className="mb-6 w-full bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 relative">
+      <button
+        onClick={handleDismiss}
+        className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+        aria-label="Dismiss profile completion"
+        title="Skip for now"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+      <div className="flex items-start justify-between mb-2 gap-3">
         <div className="min-w-0">
           <h2 className="text-base md:text-xl font-medium text-secondary dark:text-white">Complete your profile setup</h2>
           <span className="text-xs md:text-sm text-black dark:text-white">Finish setting up your account to enjoy BillXpress fully</span>
@@ -68,14 +89,22 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
         <div className="bg-secondary h-2 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
       </div>
-      <button className="text-xs text-black dark:text-white hover:underline mb-4" onClick={() => setCollapsed((p) => !p)}>
-        {collapsed ? 'Show more' : 'Show less'}
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button className="text-xs text-black dark:text-white hover:underline" onClick={() => setCollapsed((p) => !p)}>
+          {collapsed ? 'Show more' : 'Show less'}
+        </button>
+        <button onClick={handleDismiss} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          Skip for now
+        </button>
+      </div>
       {!collapsed && (
         <ul className="space-y-3">
           {steps.map((step, idx) => (
             <li
               key={idx}
+              role={step.completed ? 'listitem' : 'button'}
+              tabIndex={step.completed ? undefined : 0}
+              onKeyDown={step.completed ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') setActiveStep(step.icon); }}
               className={`flex items-center gap-4 p-3 bg-white dark:bg-dark-800 rounded-xl border border-gray-100 dark:border-dark-700 shadow-sm ${!step.completed ? 'cursor-pointer hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700' : 'opacity-60'}`}
               onClick={() => { if (!step.completed) setActiveStep(step.icon); }}
             >
@@ -118,6 +147,7 @@ function MailStep({ onClose }: { onClose: () => void }) {
 
   const handleSend = () => {
     setSent(true);
+    trackEvent('email_verified');
   };
 
   return (
@@ -168,6 +198,7 @@ function InfoStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateP
         };
         if (info.avatarPreview) payload.avatar = info.avatarPreview;
         await onUpdateProfile(payload);
+        trackEvent('profile_step_completed', { step: 'basic_info' });
         onClose();
       } catch { /* error handled by mutation */ }
     }
@@ -195,6 +226,7 @@ function FingerprintStep({ onClose, onUpdateProfile }: { onClose: () => void; on
     if (!err && onUpdateProfile) {
       try {
         await onUpdateProfile({ bvn });
+        trackEvent('profile_step_completed', { step: 'bvn' });
         onClose();
       } catch { /* error handled by mutation */ }
     }
@@ -232,6 +264,7 @@ function BanknoteStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpd
           bankName: details.bankName,
           accountName: details.accountName,
         });
+        trackEvent('profile_step_completed', { step: 'bank_details' });
         onClose();
       } catch { /* error handled by mutation */ }
     }

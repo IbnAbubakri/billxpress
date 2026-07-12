@@ -54,9 +54,9 @@ const BankDetailsModal = ({
                   e.target.value.replace(/\D/g, "").substring(0, 10)
                 )
               }
-              className={`w-full px-4 py-2 border rounded-xl ${
-                errors.accountNumber ? "border-red-500" : "border-gray-300"
-              }`}
+                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                  errors.accountNumber ? "border-red-500" : "border-gray-300 dark:border-dark-700"
+                }`}
               aria-invalid={!!errors.accountNumber}
               aria-describedby={errors.accountNumber ? 'bankAccountNumber-error' : undefined}
             />
@@ -75,9 +75,9 @@ const BankDetailsModal = ({
               type="text"
               value={details.bankName}
               onChange={(e) => onChange("bankName", e.target.value)}
-              className={`w-full px-4 py-2 border rounded-xl ${
-                errors.bankName ? "border-red-500" : "border-gray-300"
-              }`}
+                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                  errors.bankName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
+                }`}
               aria-invalid={!!errors.bankName}
               aria-describedby={errors.bankName ? 'bankName-error' : undefined}
             />
@@ -96,9 +96,9 @@ const BankDetailsModal = ({
               type="text"
               value={details.accountName}
               onChange={(e) => onChange("accountName", e.target.value)}
-              className={`w-full px-4 py-2 border rounded-xl ${
-                errors.accountName ? "border-red-500" : "border-gray-300"
-              }`}
+                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                  errors.accountName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
+                }`}
               aria-invalid={!!errors.accountName}
               aria-describedby={errors.accountName ? 'bankAccountName-error' : undefined}
             />
@@ -112,7 +112,7 @@ const BankDetailsModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+              className="w-1/2 bg-gray-200 dark:bg-dark-700 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 dark:hover:bg-dark-600 transition-colors"
             >
               Cancel
             </button>
