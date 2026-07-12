@@ -327,7 +327,7 @@ describe('handleSendVerification', () => {
 
     await handleSendVerification(req, res, mockNext);
 
-    expect(res.json).toHaveBeenCalledWith({ message: 'Verification email sent.', token: 'verify-token-123' });
+    expect(res.json).toHaveBeenCalledWith({ message: 'Verification email sent.' });
   });
 
   it('returns message if already verified', async () => {

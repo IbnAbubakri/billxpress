@@ -152,7 +152,7 @@ function getLockoutDuration(attemptCount) {
 
 function sanitizeValue(val) {
   if (typeof val !== 'string') return val;
-  return val.trim().replace(/<[^>]*>/g, '');
+  return val.trim().replace(/<[^>]*>|javascript:|on\w+=|data:/gi, '');
 }
 
 function lockoutKey(email) {
@@ -226,7 +226,7 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
     if (existingPhone) throw new AppError('Phone number already registered.', 409);
     const verifiedOtp = await db.prepare(
       'SELECT id FROM otps WHERE phone = ? AND verified = 1 AND usedAt > ?'
-    ).get(normalized, new Date(Date.now() - 15 * 60 * 1000).toISOString());
+    ).get(normalized, new Date(Date.now() - 10 * 60 * 1000).toISOString());
     if (!verifiedOtp) {
       throw new AppError('Phone number not verified. Please complete OTP verification.', 400);
     }
@@ -380,6 +380,7 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
       resetTokenExpires = NULL, passwordHistory = ?
     WHERE id = ?
   `).run(hashedPassword, now, JSON.stringify(passwordHistory), user.id);
+  await clearFailedAttempts(user.email);
   logAction({ userId: user.id, action: 'PASSWORD_RESET_COMPLETED', details: {}, ip, userAgent, severity: 'high' });
   logger.info({ userId: user.id }, 'Password reset completed');
   return { userId: user.id, message: 'Password updated.' };
@@ -532,8 +533,19 @@ export async function verifyMfaSetup(id, token) {
   return { success: true, backupCodes: plainCodes };
 }
 
-export async function disableMfa(id) {
+export async function disableMfa(id, password, totpCode) {
   const db = getDb();
+  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  if (!user) throw new AppError('User not found.', 404);
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) throw new AppError('Invalid password.', 401);
+  if (user.mfaEnabled && totpCode) {
+    const { authenticator } = await import('otplib');
+    const valid = authenticator.check(totpCode, user.mfaSecret);
+    if (!valid) throw new AppError('Invalid TOTP code.', 401);
+  } else if (user.mfaEnabled && !totpCode) {
+    throw new AppError('TOTP code is required to disable MFA.', 400);
+  }
   await db.prepare('UPDATE users SET mfaSecret = NULL, mfaEnabled = 0, mfaBackupCodes = ?, updatedAt = ? WHERE id = ?')
     .run('[]', new Date().toISOString(), id);
   return { success: true };

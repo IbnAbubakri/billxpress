@@ -50,9 +50,16 @@ export async function getStoredRefreshToken(token) {
   return found;
 }
 
+const MAX_SESSIONS_PER_USER = 10;
+
 export async function createSession(userId, ip, userAgent) {
   const db = getDb();
   const now = new Date().toISOString();
+  const count = await db.prepare('SELECT COUNT(*) as cnt FROM sessions WHERE userId = ?').get(userId);
+  if (count.cnt >= MAX_SESSIONS_PER_USER) {
+    const oldest = await db.prepare('SELECT id FROM sessions WHERE userId = ? ORDER BY lastActivity ASC LIMIT 1').get(userId);
+    if (oldest) await db.prepare('DELETE FROM sessions WHERE id = ?').run(oldest.id);
+  }
   const id = uuidv4();
   await db.prepare('INSERT INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent) VALUES (?, ?, ?, ?, ?, ?)')
     .run(id, userId, now, now, ip, userAgent);

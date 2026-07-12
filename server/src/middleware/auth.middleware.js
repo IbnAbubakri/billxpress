@@ -16,6 +16,10 @@ export async function authenticate(req, res, next) {
     const user = await getUserById(decoded.sub);
     if (!user) return next(new AppError('User not found.', 401));
 
+    if (decoded.ip && decoded.ip !== req.clientIp) {
+      logger.warn({ userId: decoded.sub, tokenIp: decoded.ip, reqIp: req.clientIp }, 'IP address mismatch in JWT');
+    }
+
     const sessionId = decoded.sessionId;
     if (sessionId) {
       const active = await checkSessionActivity(sessionId, IDLE_TIMEOUT_MINUTES);

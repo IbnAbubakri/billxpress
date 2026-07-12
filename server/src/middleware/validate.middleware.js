@@ -46,6 +46,12 @@ export function validateLogin(req, res, next) {
 
 export function validateRegister(req, res, next) {
   const errors = commonValidation(req.body.email, req.body.password);
+  if (req.body.phone) {
+    const cleaned = req.body.phone.replace(/[\s\-\(\)]/g, '');
+    if (!/^(\+234|234|0)[7-9][01]\d{8}$/.test(cleaned)) {
+      errors.push('Please enter a valid Nigerian phone number.');
+    }
+  }
   if (errors.length) return next(new AppError(errors.join(' '), 400));
   req.body.email = sanitize(req.body.email).toLowerCase();
   next();

@@ -7,7 +7,7 @@ import { validateEmail } from '../../utils/validation';
 import { getErrorMessage } from '../../utils/errors';
 
 interface LoginPageProps {
-  onLogin: (login: string, password: string) => Promise<void>;
+  onLogin: (login: string, password: string, totpCode?: string) => Promise<{ mfaRequired?: boolean; tempEmail?: string } | void>;
 }
 
 function isValidEmail(v: string) {
@@ -27,6 +27,8 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [generalError, setGeneralError] = useState('');
   const [resendingVerification, setResendingVerification] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [mfaChallenge, setMfaChallenge] = useState<{ email: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
   const isPhone = isValidPhone(formData.login);
 
   const handleChange = useCallback((field: string, value: string) => {
@@ -56,10 +58,27 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
     setIsLoading(true);
     try {
-      await onLogin(formData.login, formData.password);
+      const result = await onLogin(formData.login, formData.password);
+      if (result?.mfaRequired && result?.tempEmail) {
+        setMfaChallenge({ email: result.tempEmail });
+        setGeneralError('');
+      }
     } catch (err: unknown) {
       setGeneralError(getErrorMessage(err, 'Login failed'));
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaCode) return;
+    setIsLoading(true);
+    setGeneralError('');
+    try {
+      await onLogin(formData.login, formData.password, mfaCode);
+    } catch (err: unknown) {
+      setGeneralError(getErrorMessage(err, 'MFA verification failed'));
       setIsLoading(false);
     }
   };
@@ -76,6 +95,42 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             <p className="text-black dark:text-white mt-2">Sign in to your BillXpress account</p>
           </div>
 
+          {mfaChallenge ? (
+            <form onSubmit={handleMfaSubmit} className="space-y-4">
+              {generalError && (
+                <div role="alert" className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">{generalError}</div>
+              )}
+              <div className="text-center mb-4">
+                <p className="text-sm text-black dark:text-white">Enter the 6-digit code from your authenticator app</p>
+              </div>
+              <div>
+                <label htmlFor="mfaCode" className="block text-sm font-medium text-black dark:text-white mb-2">Authentication Code</label>
+                <input
+                  id="mfaCode"
+                  type="text"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="w-full px-4 py-4 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 text-center text-2xl tracking-widest"
+                  placeholder="000000"
+                  maxLength={6}
+                  autoFocus
+                  aria-label="Enter your 6-digit authentication code"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading || mfaCode.length < 6}
+                className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                    Verifying...
+                  </div>
+                ) : 'Verify Code'}
+              </button>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {generalError && (
               <div role="alert" className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">{generalError}</div>
@@ -161,7 +216,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               ) : 'Sign In'}
             </button>
           </form>
-
+          )}
           <div className="mt-8 text-center">
             <p className="text-black dark:text-white">
               Don't have an account?{' '}

@@ -25,8 +25,20 @@ const loginLimiter = rateLimit({
 const forgotLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 3,
   standardHeaders: true, legacyHeaders: false,
-  keyGenerator: (req) => req.body?.email || req.ip,
+  keyGenerator: (req) => (req.body?.email && typeof req.body.email === 'string' ? req.body.email.toLowerCase() : req.ip),
   message: { error: 'Too many requests. Please wait before trying again.' },
+});
+
+const mfaVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many MFA verification attempts. Please wait before trying again.' },
+});
+
+const mfaManageLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 3,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many MFA requests. Please wait before trying again.' },
 });
 
 const resetLimiter = rateLimit({
@@ -72,9 +84,9 @@ router.put('/transaction-pin', authenticate, validateCsrf, handleSetTransactionP
 router.get('/sessions', authenticate, handleSessions);
 router.delete('/sessions/:sessionId', authenticate, validateCsrf, handleDeleteSession);
 router.post('/logout-all', authenticate, validateCsrf, handleLogoutAll);
-router.post('/mfa/generate', authenticate, validateCsrf, handleGenerateMfaSecret);
-router.post('/mfa/verify', authenticate, validateCsrf, handleVerifyMfaSetup);
-router.post('/mfa/disable', authenticate, validateCsrf, handleDisableMfa);
+router.post('/mfa/generate', mfaManageLimiter, authenticate, validateCsrf, handleGenerateMfaSecret);
+router.post('/mfa/verify', mfaVerifyLimiter, authenticate, validateCsrf, handleVerifyMfaSetup);
+router.post('/mfa/disable', mfaManageLimiter, authenticate, validateCsrf, handleDisableMfa);
 router.delete('/account', authenticate, validateCsrf, handleDeleteAccount);
 
 const otpLimiter = rateLimit({

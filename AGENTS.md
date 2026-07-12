@@ -78,17 +78,26 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
 | C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
 
-## Session Summary (Jul 12)
-- JWT secret replaced with strong 64-char hex value in `server/.env`
-- Admin login: dedicated `/api/auth/admin-login` endpoint with 5 req/15min rate limit, server-side role check (403 for non-admins)
-- `AdminLogin.tsx` uses `adminLogin()` from client.ts instead of generic `handleLogin`; removed client-only role gate
-- `handleAdminLogin` controller added at `auth.controller.js:68`
-- CSRF cookie uses `__Host-` prefix in production (subdomain-proof, host-only) — `csrf.middleware.js`
-- Account lockout now sends email notification via stubEmail — `auth.service.js:202`
-- CORS origin validation logs warning if localhost URL set in production — `app.js`
-- Login logging enhanced with role, IP, user agent — `auth.controller.js`
+## Session Summary (Jul 12 — Authentication.md audit)
+- **C-1**: MFA verify rate limiter (5 req/15min) — `auth.routes.js`
+- **C-2**: MFA disable requires password + TOTP re-auth — `auth.service.js`, `auth.controller.js`
+- **C-3**: MFA login flow fixed — TOTP input shown on LoginPage when `mfaRequired`; `handleLogin` accepts `totpCode`; `onLogin` returns MFA challenge state
+- **H-1**: MFA generate/disable rate limiters (3 req/15min) — `auth.routes.js`
+- **H-2**: Verification token no longer returned in response — `auth.controller.js`
+- **H-5**: Forgot-password rate limiter validates email before keying — `auth.routes.js`
+- **M-1**: localStorage auth cache stripped to minimal (userId, email, role, name) — `useAuth.ts`
+- **M-2**: `sanitizeValue` now strips `javascript:`, `on*=`, `data:` — `auth.service.js`
+- **M-3**: Max 10 sessions per user enforced in `createSession` — `token.service.js`
+- **M-4**: `/me` returns only safe fields (no BVN, NIN, secrets) — `auth.controller.js`
+- **M-5**: `clearFailedAttempts` called after password reset — `auth.service.js`
+- **M-6**: OTP verification window aligned to 10 min (was 15) — `auth.service.js`
+- **M-7**: Cookie `secure` flag uses robust `isSecure` check — `auth.controller.js`
+- **M-8**: SSL comment added for `rejectUnauthorized: false` — `db.js`
+- **M-9**: Admin audit logging with `adminId` — `admin.controller.js`
+- **L-2**: IP mismatch warning in `authenticate` middleware — `auth.middleware.js`
+- **L-5**: Server-side phone format validation on register — `validate.middleware.js`
 
-Skipped: S-1 (OTP debug banner kept visible by design).
+Skipped: C-4 (OTP debug banner kept visible by design).
 
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |

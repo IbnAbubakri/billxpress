@@ -15,10 +15,12 @@ import {
 import logger from '../utils/logger.js';
 import { logAction } from '../services/audit.service.js';
 
+const isSecure = String(process.env.NODE_ENV).trim().toLowerCase() === 'production';
+
 function setAuthCookies(res, accessToken, refreshToken) {
   const opts = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure,
     sameSite: 'strict',
     path: '/',
   };
@@ -43,7 +45,7 @@ async function loginResponse(res, user, req) {
   const refreshToken = await generateRefreshToken(user.id);
   res.cookie('sessionId', sessionId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure,
     sameSite: 'strict',
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -146,7 +148,7 @@ export async function handleRefresh(req, res, next) {
     if (oldSessionId) await deleteSession(oldSessionId);
     res.cookie('sessionId', newSessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'strict',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -160,7 +162,18 @@ export async function handleRefresh(req, res, next) {
 export async function handleMe(req, res, next) {
   try {
     const full = await getUserById(req.user.id);
-    res.json({ user: full });
+    if (full) {
+      const safe = {
+        id: full.id, email: full.email, role: full.role, name: full.name, phone: full.phone,
+        avatar: full.avatar, balance: full.balance, hasTransactionPin: full.hasTransactionPin,
+        emailVerified: full.emailVerified, mfaEnabled: full.mfaEnabled,
+        createdAt: full.createdAt, lastLogin: full.lastLogin,
+        accountNumber: full.accountNumber, bankName: full.bankName, accountName: full.accountName,
+      };
+      res.json({ user: safe });
+    } else {
+      res.json({ user: null });
+    }
   } catch (err) { next(err); }
 }
 
@@ -236,10 +249,7 @@ export async function handleSendVerification(req, res, next) {
     }
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.emailverified ?? user.emailVerified) return res.json({ message: 'Email already verified.' });
-    const token = await generateVerificationToken(user);
-    if (!process.env.SMS_PROVIDER) {
-      return res.json({ message: 'Verification email sent.', token });
-    }
+    await generateVerificationToken(user);
     await logAction({ userId: user.id, action: 'VERIFICATION_EMAIL_SENT', details: {}, ip: req.clientIp, userAgent: req.clientUA });
     res.json({ message: 'Verification email sent.' });
   } catch (err) { next(err); }
@@ -295,7 +305,10 @@ export async function handleVerifyMfaSetup(req, res, next) {
 
 export async function handleDisableMfa(req, res, next) {
   try {
-    const result = await disableMfa(req.user.id);
+    const { password, totpCode } = req.body;
+    if (!password) return res.status(400).json({ error: 'Password is required to disable MFA.' });
+    const result = await disableMfa(req.user.id, password, totpCode);
+    await logAction({ userId: req.user.id, action: 'MFA_DISABLED', details: {}, ip: req.clientIp, userAgent: req.clientUA, severity: 'high' });
     res.json(result);
   } catch (err) { next(err); }
 }

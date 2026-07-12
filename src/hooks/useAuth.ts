@@ -7,7 +7,10 @@ const AUTH_STORAGE_KEY = 'billxpress_auth';
 const AUTH_TTL = 60 * 60 * 1000;
 
 interface StoredAuth {
-  user: User;
+  userId: string;
+  email: string;
+  role: string;
+  name: string;
   isAdmin: boolean;
   timestamp: number;
 }
@@ -16,12 +19,15 @@ function loadStoredAuth(): StoredAuth | null {
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as StoredAuth;
+    const parsed = JSON.parse(raw);
     if (Date.now() - parsed.timestamp > AUTH_TTL) {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       return null;
     }
-    return parsed;
+    if (parsed.user) {
+      return { userId: parsed.user.id, email: parsed.user.email, role: parsed.user.role, name: parsed.user.name || '', isAdmin: parsed.isAdmin, timestamp: parsed.timestamp };
+    }
+    return parsed as StoredAuth;
   } catch {
     localStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
@@ -30,7 +36,7 @@ function loadStoredAuth(): StoredAuth | null {
 
 function saveStoredAuth(user: User, isAdmin: boolean) {
   try {
-    const data: StoredAuth = { user, isAdmin, timestamp: Date.now() };
+    const data: StoredAuth = { userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user', name: user.name, isAdmin, timestamp: Date.now() };
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
   } catch { /* localStorage unavailable */ }
 }
@@ -77,7 +83,7 @@ function toUser(data: Record<string, unknown>): User {
 function getInitialAuth() {
   const stored = loadStoredAuth();
   if (stored) {
-    return { user: stored.user, isAdmin: stored.isAdmin };
+    return { user: { id: stored.userId, email: stored.email, role: stored.role, name: stored.name } as User, isAdmin: stored.isAdmin };
   }
   return null;
 }
@@ -113,7 +119,7 @@ export function useAuth() {
   const { user, isAdmin, isAuthenticated } = authData || { user: null, isAdmin: false, isAuthenticated: false };
 
   const loginMutation = useMutation({
-    mutationFn: ({ login, password }: { login: string; password: string }) => apiLogin(login, password),
+    mutationFn: ({ login, password, totpCode }: { login: string; password: string; totpCode?: string }) => apiLogin(login, password, totpCode),
     onSuccess: (data) => {
       if (data.user) {
         const u = toUser(data.user);
@@ -157,8 +163,8 @@ export function useAuth() {
     },
   });
 
-  const handleLogin = useCallback(async (login: string, password: string) => {
-    return loginMutation.mutateAsync({ login, password });
+  const handleLogin = useCallback(async (login: string, password: string, totpCode?: string) => {
+    return loginMutation.mutateAsync({ login, password, totpCode });
   }, [loginMutation]);
 
   const handleRegister = useCallback(async (data: { email: string; password: string; phone?: string; name?: string }) => {

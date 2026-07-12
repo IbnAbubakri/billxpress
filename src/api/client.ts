@@ -71,9 +71,11 @@ function createRetryInterceptor(instance: typeof api) {
 api.interceptors.response.use((response) => response, createRetryInterceptor(api));
 walletApi.interceptors.response.use((response) => response, createRetryInterceptor(walletApi));
 
-export async function login(login: string, password: string) {
+export async function login(login: string, password: string, totpCode?: string) {
   const csrf = await ensureCSRF();
-  const { data } = await api.post('/login', { login, password }, {
+  const body: Record<string, string> = { login, password };
+  if (totpCode) body.totpCode = totpCode;
+  const { data } = await api.post('/login', body, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

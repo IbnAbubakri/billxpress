@@ -1,4 +1,6 @@
 import { getDb } from '../utils/db.js';
+import logger from '../utils/logger.js';
+import { logAction } from '../services/audit.service.js';
 
 export async function handleGetStats(req, res) {
   const db = getDb();
@@ -8,6 +10,7 @@ export async function handleGetStats(req, res) {
   const successCount = await db.prepare("SELECT COUNT(*) as count FROM transactions WHERE status = 'completed'").get();
   const totalCount = await db.prepare('SELECT COUNT(*) as count FROM transactions').get();
   const successRate = totalCount.count > 0 ? ((successCount.count / totalCount.count) * 100).toFixed(1) : '0';
+  logAction({ userId: req.user.id, action: 'ADMIN_STATS_VIEWED', details: {}, ip: req.clientIp, userAgent: req.clientUA });
   res.json({
     stats: {
       totalUsers: Number(totalUsers.count),
