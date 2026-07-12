@@ -71,7 +71,7 @@ const RegisterPage = () => {
       const result = await handleSendOtp(phone);
       setOtpSent(true);
       setCountdown(60);
-      if (result.code && import.meta.env.DEV) _setOtpDebugCode(result.code);
+      if (result.code) _setOtpDebugCode(result.code);
       setGeneralError('');
     } catch (err: unknown) {
       setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to send OTP');
