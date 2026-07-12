@@ -76,7 +76,14 @@ router.post('/refresh', refreshLimiter, validateCsrf, handleRefresh);
 router.get('/me', authenticate, handleMe);
 router.post('/forgot-password', forgotLimiter, validateCsrf, handleForgotPassword);
 router.post('/reset-password', resetLimiter, validateCsrf, validatePasswordReset, handleResetPassword);
-router.post('/send-verification', validateCsrf, handleSendVerification);
+const sendVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 3,
+  standardHeaders: true, legacyHeaders: false,
+  keyGenerator: (req) => req.body?.email || req.ip,
+  message: { error: 'Too many verification requests. Please wait before trying again.' },
+});
+
+router.post('/send-verification', sendVerificationLimiter, validateCsrf, handleSendVerification);
 router.post('/verify-email', validateCsrf, handleVerifyEmail);
 router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
 router.put('/password', authenticate, validateCsrf, handleChangePassword);
@@ -104,7 +111,7 @@ const otpVerifyLimiter = rateLimit({
 });
 
 const checkPhoneLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 30,
+  windowMs: 15 * 60 * 1000, max: 10,
   standardHeaders: true, legacyHeaders: false,
   keyGenerator: (req) => req.ip,
   message: { error: 'Too many requests. Please wait before trying again.' },

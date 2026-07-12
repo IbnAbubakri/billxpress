@@ -215,8 +215,8 @@ export function useAuth() {
     return apiVerifyMfaSetup(token);
   }, []);
 
-  const handleDisableMfa = useCallback(async () => {
-    return apiDisableMfa();
+  const handleDisableMfa = useCallback(async (password: string, totpCode?: string) => {
+    return apiDisableMfa(password, totpCode);
   }, []);
 
   const handleDeleteAccount = useCallback(async () => {

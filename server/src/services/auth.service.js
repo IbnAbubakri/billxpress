@@ -152,7 +152,7 @@ function getLockoutDuration(attemptCount) {
 
 function sanitizeValue(val) {
   if (typeof val !== 'string') return val;
-  return val.trim().replace(/<[^>]*>|javascript:|on\w+=|data:/gi, '');
+  return val.trim().replace(/<[^>]*>/g, '').replace(/javascript\s*:|on\w+\s*=|data\s*:/gi, '').replace(/[<>]/g, '');
 }
 
 function lockoutKey(email) {
@@ -363,6 +363,9 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   if (pwned === null) {
     logger.warn({ userId: user.id }, 'HIBP check failed during password reset, allowing');
   }
+  if (await bcrypt.compare(newPassword, user.password)) {
+    throw new AppError('Cannot reuse your current password.', 400);
+  }
   const passwordHistory = user.passwordHistory ? JSON.parse(user.passwordHistory) : [];
   for (const oldHash of passwordHistory) {
     if (await bcrypt.compare(newPassword, oldHash)) {
@@ -429,6 +432,12 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
   const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   if (!user) throw new AppError('User not found.', 404);
 
+  if (profileData.email !== undefined && profileData.email !== user.email) {
+    if (!profileData.currentPassword) throw new AppError('Current password is required to change email.', 400);
+    const pwMatch = await bcrypt.compare(profileData.currentPassword, user.password);
+    if (!pwMatch) throw new AppError('Current password is incorrect.', 401);
+  }
+
   const allowedFields = [
     'name', 'phone', 'bvn', 'accountNumber', 'bankName', 'accountName',
     'billingStreet', 'billingCity', 'billingState', 'billingCountry',
@@ -460,11 +469,15 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
 
 export async function changePassword(id, currentPassword, newPassword, ip, userAgent) {
   const db = getDb();
-  const user = await db.prepare('SELECT id, password FROM users WHERE id = ?').get(id);
+  const user = await db.prepare('SELECT id, password, passwordHistory FROM users WHERE id = ?').get(id);
   if (!user) throw new AppError('User not found.', 404);
 
   const match = await bcrypt.compare(currentPassword, user.password);
   if (!match) throw new AppError('Current password is incorrect.', 400);
+
+  if (await bcrypt.compare(newPassword, user.password)) {
+    throw new AppError('Cannot reuse your current password.', 400);
+  }
 
   const complexityErrors = validatePasswordComplexity(newPassword);
   if (complexityErrors.length) throw new AppError(complexityErrors.join(' '), 400);
@@ -551,8 +564,14 @@ export async function disableMfa(id, password, totpCode) {
   return { success: true };
 }
 
-export async function deleteAccount(id) {
+export async function deleteAccount(id, password) {
   const db = getDb();
+  const user = await db.prepare('SELECT id, password FROM users WHERE id = ?').get(id);
+  if (!user) throw new AppError('User not found.', 404);
+  if (password) {
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) throw new AppError('Invalid password.', 401);
+  }
   await db.prepare('DELETE FROM sessions WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM transactions WHERE userId = ?').run(id);
@@ -563,6 +582,21 @@ export async function deleteAccount(id) {
 
 export async function getUserByEmail(email) {
   return getUserByEmailRaw(email);
+}
+
+export async function lookupUserForVerification(identifier, userId) {
+  const db = getDb();
+  let user = null;
+  if (identifier) {
+    user = db.prepare('SELECT * FROM users WHERE email = ?').get(identifier.toLowerCase());
+    if (!user) {
+      user = db.prepare('SELECT * FROM users WHERE phone = ?').get(normalizePhone(identifier));
+    }
+  }
+  if (!user && userId) {
+    user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  }
+  return user;
 }
 
 export async function generateVerificationToken(user) {
@@ -593,6 +627,7 @@ function stubEmail(to, subject, body) {
 
 export async function checkEmail(email) {
   const db = getDb();
+  await new Promise(r => setTimeout(r, 200));
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
   return { exists: Boolean(existing) };
 }

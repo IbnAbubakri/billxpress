@@ -16,7 +16,8 @@ export async function authenticate(req, res, next) {
     const user = await getUserById(decoded.sub);
     if (!user) return next(new AppError('User not found.', 401));
 
-    if (decoded.ip && decoded.ip !== req.clientIp) {
+    const normalizeIp = (ip) => (typeof ip === 'string' ? ip.replace(/^::ffff:/, '') : '');
+    if (decoded.ip && normalizeIp(decoded.ip) !== normalizeIp(req.clientIp)) {
       logger.warn({ userId: decoded.sub, tokenIp: decoded.ip, reqIp: req.clientIp }, 'IP address mismatch in JWT');
     }
 
@@ -56,6 +57,8 @@ export async function optionalAuth(req, res, next) {
     const decoded = verifyAccessToken(token);
     const user = await getUserById(decoded.sub);
     if (user) req.user = user;
-  } catch {}
+  } catch (err) {
+    logger.debug({ err }, 'optionalAuth: failed to verify token');
+  }
   next();
 }

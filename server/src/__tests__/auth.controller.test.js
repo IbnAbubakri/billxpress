@@ -8,6 +8,7 @@ const { mockAuthService, mockTokenService } = vi.hoisted(() => ({
     forgotPassword: vi.fn(),
     resetPassword: vi.fn(),
     updateUserProfile: vi.fn(),
+    lookupUserForVerification: vi.fn(),
     generateVerificationToken: vi.fn(),
     verifyEmailToken: vi.fn(),
   },
@@ -320,7 +321,7 @@ describe('handleLogoutAll', () => {
 
 describe('handleSendVerification', () => {
   it('sends verification email', async () => {
-    mockAuthService.getUserById.mockReturnValue({ id: 'user-1', emailVerified: false });
+    mockAuthService.lookupUserForVerification.mockReturnValue({ id: 'user-1', emailVerified: false });
     mockAuthService.generateVerificationToken.mockReturnValue('verify-token-123');
     const req = mockReq({ user: { id: 'user-1' } });
     const res = mockRes();
@@ -331,7 +332,7 @@ describe('handleSendVerification', () => {
   });
 
   it('returns message if already verified', async () => {
-    mockAuthService.getUserById.mockReturnValue({ id: 'user-1', emailVerified: true });
+    mockAuthService.lookupUserForVerification.mockReturnValue({ id: 'user-1', emailVerified: true });
     const req = mockReq({ user: { id: 'user-1' } });
     const res = mockRes();
 

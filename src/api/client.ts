@@ -214,9 +214,11 @@ export async function verifyMfaSetup(token: string) {
   return data as { success: boolean; backupCodes: string[] };
 }
 
-export async function disableMfa() {
+export async function disableMfa(password: string, totpCode?: string) {
   const csrf = await ensureCSRF();
-  const { data } = await api.post('/mfa/disable', {}, {
+  const body: Record<string, string> = { password };
+  if (totpCode) body.totpCode = totpCode;
+  const { data } = await api.post('/mfa/disable', body, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

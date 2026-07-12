@@ -7,12 +7,27 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 config({ path: resolve(__dirname, '../../.env') });
 
+function parseMs(s) {
+  if (!s) return 7 * 24 * 60 * 60 * 1000;
+  const m = s.match(/^(\d+)\s*(s|m|h|d)$/);
+  if (!m) return 7 * 24 * 60 * 60 * 1000;
+  const n = parseInt(m[1], 10);
+  switch (m[2]) {
+    case 's': return n * 1000;
+    case 'm': return n * 60 * 1000;
+    case 'h': return n * 60 * 60 * 1000;
+    case 'd': return n * 24 * 60 * 60 * 1000;
+    default: return 7 * 24 * 60 * 60 * 1000;
+  }
+}
+
 const env = {
   PORT: parseInt(process.env.PORT, 10) || 4000,
   NODE_ENV: process.env.NODE_ENV || 'development',
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  JWT_REFRESH_EXPIRES_MS: parseMs(process.env.JWT_REFRESH_EXPIRES_IN || '7d'),
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   DATABASE_URL: process.env.DATABASE_URL,
   SUPABASE_REGION: process.env.SUPABASE_REGION || 'eu-west-1',

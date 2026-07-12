@@ -78,26 +78,30 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
 | C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
 
-## Session Summary (Jul 12 — Authentication.md audit)
-- **C-1**: MFA verify rate limiter (5 req/15min) — `auth.routes.js`
-- **C-2**: MFA disable requires password + TOTP re-auth — `auth.service.js`, `auth.controller.js`
-- **C-3**: MFA login flow fixed — TOTP input shown on LoginPage when `mfaRequired`; `handleLogin` accepts `totpCode`; `onLogin` returns MFA challenge state
-- **H-1**: MFA generate/disable rate limiters (3 req/15min) — `auth.routes.js`
-- **H-2**: Verification token no longer returned in response — `auth.controller.js`
-- **H-5**: Forgot-password rate limiter validates email before keying — `auth.routes.js`
-- **M-1**: localStorage auth cache stripped to minimal (userId, email, role, name) — `useAuth.ts`
-- **M-2**: `sanitizeValue` now strips `javascript:`, `on*=`, `data:` — `auth.service.js`
-- **M-3**: Max 10 sessions per user enforced in `createSession` — `token.service.js`
-- **M-4**: `/me` returns only safe fields (no BVN, NIN, secrets) — `auth.controller.js`
-- **M-5**: `clearFailedAttempts` called after password reset — `auth.service.js`
-- **M-6**: OTP verification window aligned to 10 min (was 15) — `auth.service.js`
-- **M-7**: Cookie `secure` flag uses robust `isSecure` check — `auth.controller.js`
-- **M-8**: SSL comment added for `rejectUnauthorized: false` — `db.js`
-- **M-9**: Admin audit logging with `adminId` — `admin.controller.js`
-- **L-2**: IP mismatch warning in `authenticate` middleware — `auth.middleware.js`
-- **L-5**: Server-side phone format validation on register — `validate.middleware.js`
+## Session Summary (Jul 12 — Authentication.md audit Batch 2)
+| ID | Fix | Files |
+|---|---|---|
+| C-1 | `handleRefresh` no longer leaks PII — shared `sanitizeUser()` helper | `auth.controller.js` |
+| C-2 | `disableMfa` client sends `password` + `totpCode` to server | `client.ts`, `useAuth.ts` |
+| C-3 | `resetPassword`/`changePassword` check new password against current hash | `auth.service.js` |
+| H-1 | `deleteAccount` has audit logging + password re-auth | `auth.controller.js`, `auth.service.js` |
+| H-2 | `send-verification` rate limiter (3 req/15min, keyed by email) | `auth.routes.js` |
+| H-3 | `checkEmail` gets uniform 200ms timing delay | `auth.service.js` |
+| H-4 | `requestContext` parses `X-Forwarded-For` for real client IP | `requestContext.middleware.js` |
+| H-5 | `updateUserProfile` requires password to change email | `auth.service.js` |
+| M-1 | Cookie `maxAge` synced with `JWT_REFRESH_EXPIRES_IN` via env.js | `auth.controller.js`, `env.js` |
+| M-2 | Sanitize regex improved (space-proof `on*=`, `javascript:`, `data:`) | `auth.service.js` |
+| M-3 | `checkPhone` rate limit reduced 30→10 per 15min | `auth.routes.js` |
+| M-4 | JWT IP mismatch normalizes `::ffff:` prefix to avoid false positives | `auth.middleware.js` |
+| M-5 | Session create/delete order swapped in `handleRefresh` | `auth.controller.js` |
+| L-1 | Raw SQL moved from controller to `lookupUserForVerification` service fn | `auth.controller.js`, `auth.service.js` |
+| L-2 | (informational — already warns in dev) | — |
+| L-3 | `handleDeleteAccount` revokes refresh tokens + sessions | `auth.controller.js` |
+| L-4 | `optionalAuth` logs token failures instead of swallowing | `auth.middleware.js` |
+| L-5 | (informational — content-length) | — |
+| L-6 | `getPasswordPolicy` import added to controller | `auth.controller.js` |
 
-Skipped: C-4 (OTP debug banner kept visible by design).
+Skipped: C-4 (OTP debug banner kept visible by design), M-6 (SSL note), L-2, L-5 (informational).
 
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |

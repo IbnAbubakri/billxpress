@@ -1,10 +1,10 @@
 import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
-  updateUserProfile, generateVerificationToken, verifyEmailToken,
+  updateUserProfile, lookupUserForVerification, generateVerificationToken, verifyEmailToken,
   checkPhone, checkEmail, sendOtp, verifyOtp, changePassword, setTransactionPin,
   generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount, normalizePhone,
+  getPasswordPolicy,
 } from '../services/auth.service.js';
-import { getDb } from '../utils/db.js';
 import {
   generateAccessToken, generateRefreshToken,
   rotateRefreshToken, revokeRefreshToken,
@@ -14,8 +14,9 @@ import {
 } from '../services/token.service.js';
 import logger from '../utils/logger.js';
 import { logAction } from '../services/audit.service.js';
+import env from '../config/env.js';
 
-const isSecure = String(process.env.NODE_ENV).trim().toLowerCase() === 'production';
+const isSecure = env.isProd();
 
 function setAuthCookies(res, accessToken, refreshToken) {
   const opts = {
@@ -27,7 +28,7 @@ function setAuthCookies(res, accessToken, refreshToken) {
   res.cookie('accessToken', accessToken, { ...opts, maxAge: 15 * 60 * 1000 });
   if (refreshToken) {
     res.cookie('refreshToken', refreshToken, {
-      ...opts, maxAge: 7 * 24 * 60 * 60 * 1000, path: '/api/auth',
+      ...opts, maxAge: env.JWT_REFRESH_EXPIRES_MS, path: '/api/auth',
     });
   }
 }
@@ -36,6 +37,17 @@ function clearAuthCookies(res) {
   res.clearCookie('accessToken', { path: '/' });
   res.clearCookie('refreshToken', { path: '/api/auth' });
   res.clearCookie('sessionId', { path: '/' });
+}
+
+function sanitizeUser(full) {
+  if (!full) return null;
+  return {
+    id: full.id, email: full.email, role: full.role, name: full.name, phone: full.phone,
+    avatar: full.avatar, balance: full.balance, hasTransactionPin: full.hasTransactionPin,
+    emailVerified: full.emailVerified, mfaEnabled: full.mfaEnabled,
+    createdAt: full.createdAt, lastLogin: full.lastLogin,
+    accountNumber: full.accountNumber, bankName: full.bankName, accountName: full.accountName,
+  };
 }
 
 async function loginResponse(res, user, req) {
@@ -48,7 +60,7 @@ async function loginResponse(res, user, req) {
     secure: isSecure,
     sameSite: 'strict',
     path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: env.JWT_REFRESH_EXPIRES_MS,
   });
   setAuthCookies(res, accessToken, refreshToken);
   const fullUser = await getUserById(user.id);
@@ -143,40 +155,29 @@ export async function handleRefresh(req, res, next) {
     if (!user) { await revokeRefreshToken(old); clearAuthCookies(res); return res.status(401).json({ error: 'User not found.' }); }
     const newRefresh = await rotateRefreshToken(old, user.id);
     if (!newRefresh) { await revokeRefreshToken(old); clearAuthCookies(res); return res.status(401).json({ error: 'Token already rotated.' }); }
-    const newSessionId = await createSession(user.id, req.clientIp, req.clientUA);
     const oldSessionId = req.cookies?.sessionId;
     if (oldSessionId) await deleteSession(oldSessionId);
+    const newSessionId = await createSession(user.id, req.clientIp, req.clientUA);
     res.cookie('sessionId', newSessionId, {
       httpOnly: true,
       secure: isSecure,
       sameSite: 'strict',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: env.JWT_REFRESH_EXPIRES_MS,
     });
     const accessToken = generateAccessToken({ sub: user.id, email: user.email, role: user.role, sessionId: newSessionId, ip: req.clientIp });
     setAuthCookies(res, accessToken, newRefresh);
-    res.json({ user });
+    res.json({ user: sanitizeUser(user) });
+
   } catch (err) { next(err); }
 }
 
 export async function handleMe(req, res, next) {
   try {
     const full = await getUserById(req.user.id);
-    if (full) {
-      const safe = {
-        id: full.id, email: full.email, role: full.role, name: full.name, phone: full.phone,
-        avatar: full.avatar, balance: full.balance, hasTransactionPin: full.hasTransactionPin,
-        emailVerified: full.emailVerified, mfaEnabled: full.mfaEnabled,
-        createdAt: full.createdAt, lastLogin: full.lastLogin,
-        accountNumber: full.accountNumber, bankName: full.bankName, accountName: full.accountName,
-      };
-      res.json({ user: safe });
-    } else {
-      res.json({ user: null });
-    }
+    res.json({ user: sanitizeUser(full) });
   } catch (err) { next(err); }
 }
-
 export async function handleForgotPassword(req, res, next) {
   try {
     const result = await forgotPassword(req.body.email, req.clientIp, req.clientUA);
@@ -238,15 +239,7 @@ export async function handlePasswordPolicy(req, res, next) {
 export async function handleSendVerification(req, res, next) {
   try {
     const identifier = req.body?.email || req.body?.login;
-    let user = identifier
-      ? getDb().prepare('SELECT * FROM users WHERE email = ?').get(identifier.toLowerCase())
-      : null;
-    if (identifier && !user) {
-      user = getDb().prepare('SELECT * FROM users WHERE phone = ?').get(normalizePhone(identifier));
-    }
-    if (!user && req.user?.id) {
-      user = await getUserById(req.user.id);
-    }
+    const user = await lookupUserForVerification(identifier, req.user?.id);
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.emailverified ?? user.emailVerified) return res.json({ message: 'Email already verified.' });
     await generateVerificationToken(user);
@@ -315,7 +308,10 @@ export async function handleDisableMfa(req, res, next) {
 
 export async function handleDeleteAccount(req, res, next) {
   try {
-    await deleteAccount(req.user.id);
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: 'Password is required to delete your account.' });
+    await deleteAccount(req.user.id, password);
+    await logAction({ userId: req.user.id, action: 'ACCOUNT_DELETED', details: {}, ip: req.clientIp, userAgent: req.clientUA, severity: 'critical' });
     clearAuthCookies(res);
     res.json({ message: 'Account deleted.' });
   } catch (err) { next(err); }
