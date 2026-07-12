@@ -26,6 +26,7 @@ const BettingPage = lazy(() => import('./components/services/BettingPage'));
 const WalletPage = lazy(() => import('./components/wallet/WalletPage'));
 const TransactionsPage = lazy(() => import('./components/transactions/TransactionsPage'));
 const ProfilePage = lazy(() => import('./components/profile/ProfilePage'));
+const LandingPage = lazy(() => import('./components/marketing/LandingPage'));
 
 const AdminLogin = lazy(() => import('./components/auth/AdminLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
@@ -188,8 +189,8 @@ function AppContent() {
             </ProtectedRoute>
           } />
 
-          <Route path="/" element={<Navigate to={isAdmin ? '/admin' : isAuthenticated ? '/dashboard' : '/login'} replace />} />
-          <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+          <Route path="/" element={!isAuthenticated ? <LandingPage /> : <Navigate to={isAdmin ? '/admin' : '/dashboard'} replace />} />
+          <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
         </Routes>
       </AnimatePresence>
 

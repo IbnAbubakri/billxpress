@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Wifi, Phone, Zap, Tv, GraduationCap, Target, RefreshCw, CreditCard, MoreHorizontal, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Wifi, Phone, Zap, Tv, GraduationCap, Target, RefreshCw, CreditCard, MoreHorizontal, Loader2, ArrowRight } from 'lucide-react';
 import VirtualTransactionList from './VirtualTransactionList';
 import { useTransactions } from '../../hooks/useTransactions';
 
@@ -27,6 +28,7 @@ const typeColors: Record<string, string> = {
 
 const RecentTransactions = () => {
   const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
   const { data: transactions, isLoading } = useTransactions();
 
   const getStatusColor = (status: string) => {
@@ -63,8 +65,19 @@ const RecentTransactions = () => {
 
   if (!listData.length) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-400">No transactions yet</p>
+      <div className="flex flex-col items-center justify-center py-12 px-4">
+        <div className="w-16 h-16 mb-4 rounded-2xl bg-gray-50 dark:bg-dark-700 flex items-center justify-center">
+          <RefreshCw className="w-8 h-8 text-gray-300 dark:text-gray-500" />
+        </div>
+        <p className="text-gray-900 dark:text-white font-semibold mb-1">No transactions yet</p>
+        <p className="text-gray-400 text-sm mb-6">Your payment history will appear here</p>
+        <button
+          onClick={() => navigate('/airtime')}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Make Your First Payment
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     );
   }

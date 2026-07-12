@@ -16,17 +16,23 @@
     "test:e2e": "playwright test --config=e2e/playwright.config.ts"
   },
   "dependencies": {
-    "@sentry/react": "^10.64.0",
-    "@sentry/vite-plugin": "^5.3.0",
+    "@sentry/react": "^10.65.0",
+    "@sentry/vite-plugin": "^5.4.0",
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.18.1",
+    "csso": "^5.0.5",
+    "esbuild": "^0.28.1",
     "framer-motion": "^12.42.2",
+    "lightningcss": "^1.32.0",
+    "lightningcss-linux-x64-gnu": "^1.32.0",
     "lucide-react": "^1.24.0",
+    "motion-utils": "^12.39.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.8.1",
     "react-window": "^2.2.7",
-    "recharts": "^3.9.2"
+    "recharts": "^3.9.2",
+    "rollup": "^4.62.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

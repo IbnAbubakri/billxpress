@@ -1,15 +1,21 @@
+import { Logo } from './Logo';
+
 const LoadingScreen = () => {
   return (
-    <div className="min-h-screen bg-primary dark:bg-dark-900 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary-700 to-blue-700 flex items-center justify-center">
       <div className="text-center">
-        <div className="relative mb-4 sm:mb-6">
-          <div className="w-14 h-14 sm:w-20 sm:h-20 mx-auto bg-secondary rounded-2xl shadow-lg flex items-center justify-center animate-pulse">
-            <span className="text-white font-bold text-2xl sm:text-3xl leading-none">X</span>
+        <div className="relative mb-6 sm:mb-8">
+          <Logo size="lg" iconOnly className="justify-center" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-14 h-14 sm:w-20 sm:h-20 border-2 border-white/30 border-t-white rounded-2xl animate-spin" />
           </div>
-          <div className="absolute inset-0 w-14 h-14 sm:w-20 sm:h-20 mx-auto border-4 border-transparent border-t-secondary rounded-2xl animate-spin"></div>
         </div>
-        <h2 className="text-lg sm:text-xl font-bold text-secondary dark:text-white mb-1 sm:mb-2">BillXpress</h2>
-        <p className="text-sm sm:text-base text-black dark:text-white">Loading your dashboard...</p>
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-2">BillXpress</h2>
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce [animation-delay:0ms]" />
+          <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce [animation-delay:150ms]" />
+          <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce [animation-delay:300ms]" />
+        </div>
       </div>
     </div>
   );
