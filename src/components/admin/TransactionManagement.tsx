@@ -112,10 +112,10 @@ const TransactionManagement: React.FC = () => {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black dark:text-white w-5 h-5" />
           <input type="text" placeholder="Search by user or service..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500">
+          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
           <option value="all">All Status</option>
           <option value="completed">Completed</option>
           <option value="pending">Pending</option>

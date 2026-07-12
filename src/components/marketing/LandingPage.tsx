@@ -45,8 +45,8 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Logo />
             <nav className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Features</a>
-              <a href="#trust" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Trust</a>
+              <a href="#features" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Features</a>
+              <a href="#trust" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Trust</a>
               <Link to="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Sign In</Link>
               <Link to="/register" className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:scale-[1.02]">
                 Get Started
@@ -61,8 +61,8 @@ export default function LandingPage() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t dark:border-dark-700 bg-white dark:bg-dark-900">
             <div className="px-4 py-4 space-y-3">
-              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300">Features</a>
-              <a href="#trust" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300">Trust</a>
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Features</a>
+              <a href="#trust" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Trust</a>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300">Sign In</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-3 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl">
                 Get Started
@@ -78,20 +78,20 @@ export default function LandingPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-6">
+            <div className="animate-fadeIn inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
               Trusted by 10,000+ users across Nigeria
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
+            <h1 className="animate-slideUp text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
               Pay bills, buy airtime &amp; data
               <span className="block bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mt-2">
                 all in one place
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="animate-fadeIn text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
               BillXpress makes it effortless to pay for airtime, data, cable TV, electricity, education, and more — with instant confirmation and 24/7 support.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="animate-slideUp flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/register" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-blue-600 text-white text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 Create Free Account
                 <ChevronRight className="ml-1.5 w-5 h-5" />
@@ -110,7 +110,7 @@ export default function LandingPage() {
           <p className="text-center text-sm font-medium text-gray-400 dark:text-gray-500 mb-8 uppercase tracking-wider">Trusted partners</p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             {partners.map((p) => (
-              <div key={p} className="text-gray-300 dark:text-gray-600 font-bold text-lg sm:text-xl tracking-tight hover:text-primary dark:hover:text-primary transition-colors">
+              <div key={p} className="px-5 py-2 bg-gray-50 dark:bg-dark-800 text-gray-600 dark:text-gray-300 font-semibold text-sm rounded-xl border border-gray-100 dark:border-dark-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary dark:hover:text-primary hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 cursor-pointer">
                 {p}
               </div>
             ))}
@@ -121,7 +121,7 @@ export default function LandingPage() {
       {/* Features */}
       <section id="features" className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="animate-fadeIn text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Everything you need, one platform
             </h2>

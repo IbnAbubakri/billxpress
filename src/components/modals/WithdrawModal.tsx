@@ -118,7 +118,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
         ref={containerRef}
         role="dialog"
         aria-modal="true"
-        className="bg-white dark:bg-dark-800 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+        className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
@@ -151,7 +151,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 value={amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="Enter amount to withdraw"
-                className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base dark:bg-dark-900 dark:text-neutral-100 ${
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-base dark:bg-dark-900 dark:text-neutral-100 ${
                    errors.amount ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
                  }`}
                 aria-invalid={!!errors.amount}
@@ -171,7 +171,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 id="selectBank"
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
-                className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
                    errors.bankName ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
                  }`}
                 aria-invalid={!!errors.bankName}
@@ -198,7 +198,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 value={accountNumber}
                 onChange={(e) => handleAccountNumberChange(e.target.value)}
                 placeholder="Enter 10-digit account number"
-                className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
                    errors.accountNumber ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
                  }`}
                 aria-invalid={!!errors.accountNumber}

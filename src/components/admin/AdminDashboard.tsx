@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { colors } from '../../constants/theme';
+import { useDarkMode } from '../../hooks/useDarkMode';
 import {
   Users, DollarSign, CreditCard, TrendingUp,
   ArrowUpRight, Smartphone, Wifi, Zap,
@@ -12,6 +13,10 @@ import {
 } from 'recharts';
 
 const AdminDashboard = () => {
+  const { isDark } = useDarkMode();
+  const chartGridStroke = isDark ? '#334155' : '#f1f5f9';
+  const chartTooltipStyle = { backgroundColor: isDark ? '#1e293b' : 'white', border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`, borderRadius: '12px', color: isDark ? '#e2e8f0' : '#1e293b' };
+  const chartAxisStroke = isDark ? '#94a3b8' : '#64748b';
   const { data: statsData } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: async () => {
@@ -113,10 +118,10 @@ const AdminDashboard = () => {
                   <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-              <YAxis stroke="#64748b" fontSize={12} />
-              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
+              <XAxis dataKey="month" stroke={chartAxisStroke} fontSize={12} />
+              <YAxis stroke={chartAxisStroke} fontSize={12} />
+              <Tooltip contentStyle={chartTooltipStyle} />
               <Area type="monotone" dataKey="revenue" stroke={colors.primary} fillOpacity={1} fill="url(#revenueGradient)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>

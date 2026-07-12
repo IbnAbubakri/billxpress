@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Tv, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
@@ -6,6 +6,7 @@ import dstvIcon from "../../assets/icons/dstv.png";
 import gotvIcon from "../../assets/icons/gotv.png";
 import startimesIcon from "../../assets/icons/startimes.png";
 import ConfirmModal from "../ui/ConfirmModal";
+import { useToast } from "../../hooks/useToast";
 
 import type { PageProps } from '../../types/page';
 
@@ -14,12 +15,20 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
   onLogout,
 }) => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [selectedProvider, setSelectedProvider] = useState("");
   const [smartCardNumber, setSmartCardNumber] = useState("");
   const [selectedPackage, setSelectedPackage] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current);
+    };
+  }, []);
 
   const providers = [
     { id: "dstv", name: "DStv", icon: dstvIcon },
@@ -97,7 +106,8 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
 
   const handleConfirmPurchase = () => {
     setShowConfirmModal(false);
-    setTimeout(() => {
+    addToast('Purchase successful!', 'success');
+    navigateTimerRef.current = setTimeout(() => {
       navigate("/dashboard");
     }, 1000);
   };
@@ -129,12 +139,12 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
           <button
             onClick={() => navigate("/dashboard")}
             aria-label="Go back"
-            className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
+            className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mr-3">
               <Tv className="w-5 h-5 text-purple-600" aria-hidden="true" />
             </div>
             <div>
@@ -156,9 +166,9 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
                 <button
                   key={provider.id}
                   onClick={() => handleProviderChange(provider.id)}
-                  className={`p-4 border-2 rounded-2xl transition-all flex flex-col items-center ${
+                  className={`p-4 border-2 rounded-2xl transition-all cursor-pointer flex flex-col items-center ${
                     selectedProvider === provider.id
-                      ? "border-blue-500 bg-blue-50"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                       : "border-gray-200 dark:border-dark-700 hover:border-gray-300"
                   }`}
                 >
@@ -187,7 +197,7 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
               value={smartCardNumber}
               onChange={(e) => handleSmartCardChange(e.target.value)}
               placeholder="Enter your smart card number"
-              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                 errors.smartCardNumber ? "border-red-500" : "border-gray-300"
               }`}
               aria-invalid={!!errors.smartCardNumber}
@@ -211,9 +221,9 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
                     <button
                       key={pkg.id}
                       onClick={() => setSelectedPackage(pkg.id)}
-                      className={`w-full p-4 border-2 rounded-2xl transition-all text-left ${
+                      className={`w-full p-4 border-2 rounded-2xl transition-all cursor-pointer text-left ${
                         selectedPackage === pkg.id
-                          ? "border-blue-500 bg-blue-50"
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                           : "border-gray-200 dark:border-dark-700 hover:border-gray-300"
                       }`}
                     >
@@ -240,7 +250,7 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+            className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors cursor-pointer"
           >
             Continue
           </button>

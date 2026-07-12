@@ -78,7 +78,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {generalError && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">{generalError}</div>
+              <div role="alert" className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">{generalError}</div>
             )}
             {generalError.toLowerCase().includes('verify your email') && !verificationSent && (
               <button
@@ -98,7 +98,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               </button>
             )}
             {verificationSent && (
-              <p className="text-sm text-green-600 text-center mt-2">Verification email sent. Check your inbox.</p>
+              <p role="status" className="text-sm text-green-600 text-center mt-2">Verification email sent. Check your inbox.</p>
             )}
 
             <div>
@@ -114,7 +114,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   type="text"
                   value={formData.login}
                   onChange={(e) => handleChange('login', e.target.value)}
-                  className={`w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.login ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
+                  className={`w-full pl-12 pr-4 py-4 border rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.login ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
                   placeholder="Enter your email or phone number"
                   aria-invalid={!!errors.login}
                   aria-describedby={errors.login ? 'login-error' : undefined}
@@ -132,7 +132,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => handleChange('password', e.target.value)}
-                  className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.password ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
+                  className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.password ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
                   placeholder="Enter your password"
                   aria-invalid={!!errors.password}
                   aria-describedby={errors.password ? 'password-error' : undefined}
@@ -151,7 +151,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">

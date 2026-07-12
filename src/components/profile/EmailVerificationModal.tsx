@@ -69,7 +69,7 @@ const EmailVerificationModal = ({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="w-1/2 bg-gray-200 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 transition-colors"
+            className="w-1/2 bg-gray-200 dark:bg-dark-700 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 dark:hover:bg-dark-600 transition-colors"
           >
             Cancel
           </button>

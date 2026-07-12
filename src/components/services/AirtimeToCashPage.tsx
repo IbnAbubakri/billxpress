@@ -5,12 +5,14 @@ import DashboardLayout from "../layout/DashboardLayout";
 import { AIRTIME_NETWORKS } from "../../constants/networks";
 import defaultIcon from "../../assets/icons/default.svg";
 import ConfirmModal from "../ui/ConfirmModal";
+import { useToast } from "../../hooks/useToast";
 import type { Network } from "../../constants/networks";
 
 import type { PageProps } from '../../types/page';
 
 const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -84,6 +86,7 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
 
   const handleConfirmPurchase = () => {
     setShowConfirmModal(false);
+    addToast('Purchase successful!', 'success');
     navigateTimerRef.current = setTimeout(() => navigate("/dashboard"), 1000);
   };
 
@@ -94,11 +97,11 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
     <DashboardLayout user={user} onLogout={handleLogoutClick}>
       <div className="p-4">
         <div className="flex items-center mb-4">
-          <button onClick={() => navigate("/dashboard")} aria-label="Go back" className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
+          <button onClick={() => navigate("/dashboard")} aria-label="Go back" className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors cursor-pointer">
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mr-3">
               <RefreshCw className="w-5 h-5 text-green-600" aria-hidden="true" />
             </div>
             <div>
@@ -112,7 +115,7 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
           <div className="mb-4">
             <label htmlFor="airtimeToCashPhone" className="block text-sm font-medium text-black dark:text-white mb-2">Phone Number</label>
             <input id="airtimeToCashPhone" type="tel" value={phoneNumber} onChange={(e) => handlePhoneChange(e.target.value)} placeholder="08012345678"
-              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.phoneNumber ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.phoneNumber ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.phoneNumber} aria-describedby={errors.phoneNumber ? 'airtimeToCashPhone-error' : undefined} />
             {errors.phoneNumber && <p id="airtimeToCashPhone-error" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
           </div>
@@ -122,7 +125,7 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
             <div className="grid grid-cols-2 gap-3">
               {networks.map((network) => (
                 <button key={network.id} onClick={() => setSelectedNetwork(network.id)}
-                  className={`p-4 border-2 rounded-2xl transition-all flex flex-col items-center ${selectedNetwork === network.id ? "border-blue-500 bg-blue-50" : "border-gray-200 dark:border-dark-700 hover:border-gray-300"}`}>
+                  className={`p-4 border-2 rounded-2xl transition-all cursor-pointer flex flex-col items-center ${selectedNetwork === network.id ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-200 dark:border-dark-700 hover:border-gray-300"}`}>
                   <img src={network.icon || defaultIcon} loading="lazy" alt={network.name} className="w-8 h-8 object-contain mx-auto mb-2 rounded-lg shadow" />
                   <p className="font-medium text-sm">{network.name}</p>
                   <p className="text-xs text-black dark:text-white">{(network.cashRate * 100).toFixed(0)}% rate</p>
@@ -135,7 +138,7 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
           <div className="mb-4">
             <label htmlFor="airtimeToCashAmount" className="block text-sm font-medium text-black dark:text-white mb-2">Airtime Amount (₦100 - ₦50,000)</label>
             <input id="airtimeToCashAmount" type="text" value={amount} onChange={(e) => handleAmountChange(e.target.value)} placeholder="Enter airtime amount"
-              className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.amount ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.amount ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.amount} aria-describedby={errors.amount ? 'airtimeToCashAmount-error' : undefined} />
             {errors.amount && <p id="airtimeToCashAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>}
           </div>
@@ -155,11 +158,11 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
             </div>
           )}
 
-          <button onClick={handleSubmit} className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors">Continue</button>
+          <button onClick={handleSubmit} className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors cursor-pointer">Continue</button>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-2xl">
-            <h4 className="font-medium text-blue-900 mb-2">How it works:</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">How it works:</h4>
+            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
               <li>• Enter your phone number and airtime amount</li>
               <li>• We'll send you instructions via SMS</li>
               <li>• Transfer the airtime as instructed</li>

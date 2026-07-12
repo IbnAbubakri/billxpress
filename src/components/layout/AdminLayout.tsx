@@ -42,7 +42,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
 
   return (
     <div className="flex h-screen bg-neutral-50 dark:bg-dark-900">
-      <a href="#admin-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary-700 focus:rounded-2xl focus:shadow-lg focus:outline-none">
+      <a href="#admin-content" className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-primary-700 focus-visible:rounded-2xl focus-visible:shadow-lg focus-visible:outline-none">
         Skip to content
       </a>
       <AnimatePresence>

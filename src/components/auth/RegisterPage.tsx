@@ -80,7 +80,7 @@ const RegisterPage = () => {
   }, [step]);
 
   const inputClass = (field: string) =>
-    `w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
+    `w-full pl-12 pr-4 py-4 border rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
 
   const handlePhoneSubmit = async () => {
     setGeneralError('');
@@ -238,7 +238,7 @@ const RegisterPage = () => {
   const passwordStrength = password ? getPasswordStrength(password) : null;
 
   const passwordClass = (field: string) =>
-    `w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
+    `w-full pl-12 pr-12 py-4 border rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
 
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center px-4 py-8">
@@ -382,7 +382,7 @@ const RegisterPage = () => {
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                       onPaste={idx === 0 ? handleOtpPaste : undefined}
-                      className={`w-12 h-14 text-center text-lg font-bold border rounded-xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.otp ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-dark-700'} dark:bg-dark-800 dark:text-white`}
+                      className={`w-12 h-14 text-center text-lg font-bold border rounded-xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all ${errors.otp ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-dark-700'} dark:bg-dark-800 dark:text-white`}
                       aria-label={`Digit ${idx + 1}`}
                     />
                   ))}
@@ -476,7 +476,7 @@ const RegisterPage = () => {
                   type="checkbox"
                   checked={acceptedTos}
                   onChange={(e) => setAcceptedTos(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-secondary focus-visible:ring-secondary"
                 />
                 <label htmlFor="acceptTos" className="text-sm text-black dark:text-white">
                   I agree to the{' '}

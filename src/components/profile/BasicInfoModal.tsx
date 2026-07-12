@@ -107,7 +107,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.billingStreet}
                 onChange={(e) => onChange("billingStreet", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl text-black dark:text-white bg-white dark:bg-dark-800 ${
+                className={`w-full px-4 py-2 border rounded-2xl text-black dark:text-white bg-white dark:bg-dark-800 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.billingStreet ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingStreet}
@@ -128,7 +128,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.billingCity}
                 onChange={(e) => onChange("billingCity", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.billingCity ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingCity}
@@ -149,7 +149,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.billingState}
                 onChange={(e) => onChange("billingState", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.billingState ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingState}
@@ -170,7 +170,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.billingCountry}
                 onChange={(e) => onChange("billingCountry", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.billingCountry ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.billingCountry}
@@ -193,7 +193,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.homeStreet}
                 onChange={(e) => onChange("homeStreet", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.homeStreet ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeStreet}
@@ -214,7 +214,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.homeCity}
                 onChange={(e) => onChange("homeCity", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.homeCity ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeCity}
@@ -235,7 +235,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.homeState}
                 onChange={(e) => onChange("homeState", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.homeState ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeState}
@@ -256,7 +256,7 @@ const BasicInfoModal = ({
                 type="text"
                 value={info.homeZip}
                 onChange={(e) => onChange("homeZip", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
                   errors.homeZip ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
                 aria-invalid={!!errors.homeZip}

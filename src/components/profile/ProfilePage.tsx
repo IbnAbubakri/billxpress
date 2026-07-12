@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import LogoutModal from "../ui/LogoutModal";
 import { useAuth } from "../../hooks/useAuth";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 import type { PageProps } from '../../types/page';
 import EmailVerificationModal from "./EmailVerificationModal";
@@ -64,6 +65,21 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     avatarPreview: "",
   });
   const [basicInfoErrors, setBasicInfoErrors] = useState<Record<string, string | null>>({});
+
+  const emailChangeRef = useFocusTrap(showEmailChangeModal, () => {
+    setShowEmailChangeModal(false);
+    setNewEmail('');
+    setEmailChangeError('');
+  });
+  const phoneOtpRef = useFocusTrap(showPhoneOtpModal, () => {
+    setShowPhoneOtpModal(false);
+    setOtpCode('');
+    setPhoneOtpError('');
+  });
+  const accountDeletionRef = useFocusTrap(showAccountDeletionModal, () => {
+    setShowAccountDeletionModal(false);
+    setDeletionConfirmText('');
+  });
 
   const [formData, setFormData] = useState({
     firstName: defaultFirstName,
@@ -455,7 +471,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div id="main-content" className="lg:col-span-3">
             <div className="bg-white dark:bg-dark-800 rounded-2xl p-4 shadow-sm">
               {activeTab === "profile" && (
                 <div>
@@ -516,7 +532,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         type="text"
                         value={formData.firstName}
                         onChange={(e) => handleInputChange("firstName", e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                        className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                           errors.firstName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                         }`}
                         aria-invalid={!!errors.firstName}
@@ -538,7 +554,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         type="text"
                         value={formData.lastName}
                         onChange={(e) => handleInputChange("lastName", e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                        className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                           errors.lastName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                         }`}
                         aria-invalid={!!errors.lastName}
@@ -565,7 +581,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         />
                         <button
                           onClick={() => setShowEmailChangeModal(true)}
-                          className="px-4 py-3 bg-blue-600 text-white rounded-2xl text-sm hover:bg-blue-700 transition-colors flex-shrink-0"
+                          className="px-4 py-3 bg-blue-600 text-white rounded-2xl text-sm hover:bg-blue-700 transition-colors flex-shrink-0 cursor-pointer"
                         >
                           Change
                         </button>
@@ -582,7 +598,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").substring(0, 11))}
-                        className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                        className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                           errors.phone ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                         }`}
                         aria-invalid={!!errors.phone}
@@ -603,14 +619,14 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <label htmlFor="profileDOB" className="block text-sm font-medium text-black dark:text-white mb-2">Date of Birth</label>
                       <input id="profileDOB" type="date" value={user?.dateOfBirth || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ dateOfBirth: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       />
                     </div>
                     <div>
                       <label htmlFor="profileGender" className="block text-sm font-medium text-black dark:text-white mb-2">Gender</label>
                       <select id="profileGender" value={user?.gender || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ gender: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       >
                         <option value="">Select gender</option>
                         <option value="male">Male</option>
@@ -621,14 +637,14 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <label htmlFor="profileNIN" className="block text-sm font-medium text-black dark:text-white mb-2">NIN (National ID)</label>
                       <input id="profileNIN" type="text" value={user?.nin || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ nin: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       />
                     </div>
                     <div>
                       <label htmlFor="profileEmployStatus" className="block text-sm font-medium text-black dark:text-white mb-2">Employment Status</label>
                       <select id="profileEmployStatus" value={user?.employmentStatus || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ employmentStatus: e.target.value }); }}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       >
                         <option value="">Select status</option>
                         <option value="employed">Employed</option>
@@ -643,7 +659,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       <select id="profileIncome" value={user?.annualIncome || ''}
                         onChange={async (e) => { if (onUpdateProfile) await onUpdateProfile({ annualIncome: e.target.value }); }
                         }
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800"
                       >
                         <option value="">Select range</option>
                         <option value="0-1M">₦0 - ₦1,000,000</option>
@@ -684,7 +700,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           type="password"
                           value={formData.currentPassword}
                           onChange={(e) => handleInputChange("currentPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                             errors.currentPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.currentPassword}
@@ -706,7 +722,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           type="password"
                           value={formData.newPassword}
                           onChange={(e) => handleInputChange("newPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                             errors.newPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.newPassword}
@@ -728,7 +744,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           type="password"
                           value={formData.confirmPassword}
                           onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                             errors.confirmPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.confirmPassword}
@@ -769,7 +785,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                             handleInputChange("transactionPin", e.target.value.replace(/\D/g, "").substring(0, 4))
                           }
                           placeholder="Enter 4-digit PIN"
-                          className={`w-full px-4 py-3 border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
+                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
                             errors.transactionPin ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                           }`}
                           aria-invalid={!!errors.transactionPin}
@@ -799,8 +815,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
       {/* Email Change Modal */}
       {showEmailChangeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Change email address">
+          <div ref={emailChangeRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-black dark:text-white mb-4">Change Email Address</h2>
             {!emailChangeSent ? (
               <>
@@ -839,8 +855,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
       {/* Phone OTP Verification Modal */}
       {showPhoneOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Verify phone number">
+          <div ref={phoneOtpRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-black dark:text-white mb-2">Verify Phone Number</h2>
             <p className="text-sm text-black dark:text-white mb-4">Enter the OTP sent to {pendingPhone}</p>
             <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="6-digit OTP"
@@ -875,8 +891,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
       {/* Account Deletion Modal */}
       {showAccountDeletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Delete account">
+          <div ref={accountDeletionRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
             <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
             <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"

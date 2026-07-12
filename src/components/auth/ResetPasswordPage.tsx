@@ -83,7 +83,7 @@ const ResetPasswordPage = () => {
                     type={showPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-12 pr-12 py-4 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-12 py-4 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all"
                     placeholder="Min 12 characters"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white">
@@ -98,7 +98,7 @@ const ResetPasswordPage = () => {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-4 border border-gray-300 dark:border-dark-700 rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                  className="w-full px-4 py-4 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -161,7 +161,7 @@ const ResetPasswordPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => handleChange(e.target.value)}
-                  className={`w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${error ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
+                  className={`w-full pl-12 pr-4 py-4 border rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all ${error ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`}
                   placeholder="Enter your email"
                   aria-invalid={!!error}
                   aria-describedby={error ? 'resetEmail-error' : undefined}

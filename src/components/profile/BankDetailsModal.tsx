@@ -103,7 +103,7 @@ const BankDetailsModal = ({
                   e.target.value.replace(/\D/g, "").substring(0, 10)
                 )
               }
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white ${
                   errors.accountNumber ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
               aria-invalid={!!errors.accountNumber}
@@ -123,7 +123,7 @@ const BankDetailsModal = ({
               id="bankName"
               value={details.bankName}
               onChange={(e) => onChange("bankName", e.target.value)}
-              className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+              className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white ${
                 errors.bankName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
               }`}
               aria-invalid={!!errors.bankName}
@@ -149,7 +149,7 @@ const BankDetailsModal = ({
               type="text"
               value={details.accountName}
               onChange={(e) => onChange("accountName", e.target.value)}
-                className={`w-full px-4 py-2 border rounded-xl bg-white dark:bg-dark-800 text-black dark:text-white ${
+                className={`w-full px-4 py-2 border rounded-2xl bg-white dark:bg-dark-800 text-black dark:text-white ${
                   errors.accountName ? "border-red-500" : "border-gray-300 dark:border-dark-700"
                 }`}
               aria-invalid={!!errors.accountName}

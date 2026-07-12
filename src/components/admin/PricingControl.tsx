@@ -187,13 +187,13 @@ const PricingControl: React.FC = () => {
             placeholder="Search services or providers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           />
         </div>
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <option value="all">All Services</option>
           <option value="airtime">Airtime</option>
@@ -246,7 +246,7 @@ const PricingControl: React.FC = () => {
                         type="number"
                         value={editForm.cost_price}
                         onChange={(e) => setEditForm(prev => ({ ...prev, cost_price: parseFloat(e.target.value) }))}
-                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         step="0.01"
                       />
                     ) : (
@@ -259,7 +259,7 @@ const PricingControl: React.FC = () => {
                         type="number"
                         value={editForm.selling_price}
                         onChange={(e) => setEditForm(prev => ({ ...prev, selling_price: parseFloat(e.target.value) }))}
-                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         step="0.01"
                       />
                     ) : (

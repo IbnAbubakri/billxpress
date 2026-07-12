@@ -77,7 +77,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
           value={digit}
           onChange={(e) => handlePinChange(index, e.target.value, isConfirm)}
           onKeyDown={(e) => handleKeyDown(index, e, isConfirm)}
-          className="w-14 h-14 text-center text-xl font-bold border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:border-secondary focus:ring-2 focus:ring-secondary focus:ring-opacity-20 transition-all dark:bg-dark-900 dark:text-neutral-100"
+          className="w-14 h-14 text-center text-xl font-bold border-2 border-gray-300 dark:border-dark-600 rounded-xl focus-visible:border-secondary focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-opacity-20 transition-all dark:bg-dark-900 dark:text-neutral-100"
         />
       ))}
     </div>
@@ -91,7 +91,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
         ref={containerRef}
         role="dialog"
         aria-modal="true"
-        className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4"
+        className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-secondary dark:text-white">

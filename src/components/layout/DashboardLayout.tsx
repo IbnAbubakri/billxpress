@@ -24,7 +24,7 @@ const DashboardLayout = ({
 
   return (
     <div className="min-h-screen bg-primary">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary-700 focus:rounded-2xl focus:shadow-lg focus:outline-none">
+      <a href="#main-content" className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-primary-700 focus-visible:rounded-2xl focus-visible:shadow-lg focus-visible:outline-none">
         Skip to content
       </a>
 
@@ -61,7 +61,7 @@ const DashboardLayout = ({
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
+      <div className="lg:pl-64 pl-[max(1rem,env(safe-area-inset-left))] flex flex-col flex-1 overflow-x-hidden">
         <main id="main-content" className="flex-1 pb-20 lg:pb-8 relative">
           {location.pathname === '/dashboard' && (
             <div className="lg:hidden absolute top-4 left-4 z-30">
@@ -70,7 +70,7 @@ const DashboardLayout = ({
                 aria-label="Open sidebar"
                 aria-expanded={sidebarOpen}
                 onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
+                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary cursor-pointer"
               >
                 <Menu className="h-5 w-5" aria-hidden="true" />
               </button>

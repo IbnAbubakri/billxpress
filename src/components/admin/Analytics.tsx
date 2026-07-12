@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { colors } from '../../constants/theme';
+import { useDarkMode } from '../../hooks/useDarkMode';
 import { TrendingUp, Users, DollarSign, Activity, Download } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -15,6 +16,10 @@ interface AnalyticsData {
 }
 
 const Analytics: React.FC = () => {
+  const { isDark } = useDarkMode();
+  const chartGridStroke = isDark ? '#334155' : '#f1f5f9';
+  const chartTooltipStyle = { backgroundColor: isDark ? '#1e293b' : 'white', border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`, borderRadius: '12px', color: isDark ? '#e2e8f0' : '#1e293b' };
+  const chartAxisStroke = isDark ? '#94a3b8' : '#64748b';
   const [dateRange, setDateRange] = useState('7d');
   const [selectedMetric, setSelectedMetric] = useState('revenue');
 
@@ -46,7 +51,7 @@ const Analytics: React.FC = () => {
           <p className="text-black dark:text-white mt-1">Comprehensive insights into your VTU platform</p>
         </div>
         <div className="flex items-center space-x-3">
-          <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="px-4 py-2 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+          <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="px-4 py-2 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
             <option value="90d">Last 3 months</option>
@@ -80,7 +85,7 @@ const Analytics: React.FC = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="chart-container">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4">
           <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Performance Overview</h3>
-          <select value={selectedMetric} onChange={e => setSelectedMetric(e.target.value)} className="px-3 py-2 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+          <select value={selectedMetric} onChange={e => setSelectedMetric(e.target.value)} className="px-3 py-2 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
             <option value="revenue">Revenue</option>
             <option value="transactions">Transactions</option>
           </select>
@@ -93,10 +98,10 @@ const Analytics: React.FC = () => {
                 <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
-            <YAxis stroke="#64748b" fontSize={12} />
-            <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
+            <XAxis dataKey="day" stroke={chartAxisStroke} fontSize={12} />
+            <YAxis stroke={chartAxisStroke} fontSize={12} />
+            <Tooltip contentStyle={chartTooltipStyle} />
             <Area type="monotone" dataKey={selectedMetric} stroke={colors.primary} fillOpacity={1} fill="url(#performanceGradient)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
@@ -124,10 +129,10 @@ const Analytics: React.FC = () => {
           <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">User Growth</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data?.userGrowth || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-              <YAxis stroke="#64748b" fontSize={12} />
-              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
+              <XAxis dataKey="month" stroke={chartAxisStroke} fontSize={12} />
+              <YAxis stroke={chartAxisStroke} fontSize={12} />
+              <Tooltip contentStyle={chartTooltipStyle} />
               <Bar dataKey="new_users" fill={colors.primary} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

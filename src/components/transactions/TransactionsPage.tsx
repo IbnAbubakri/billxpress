@@ -133,17 +133,17 @@ const TransactionsPage: React.FC<PageProps> = ({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black dark:text-white w-4 h-4" aria-hidden="true" />
               <input type="text" placeholder="Search transactions..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-800 dark:text-white" />
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-800 dark:text-white" />
             </div>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-800 dark:text-white">
+              className="px-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-800 dark:text-white">
               <option value="all">All Status</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
               <option value="failed">Failed</option>
             </select>
             <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-800 dark:text-white">
+              className="px-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-800 dark:text-white">
               <option value="all">All Types</option>
               <option value="airtime">Airtime</option>
               <option value="data">Data</option>
@@ -155,7 +155,7 @@ const TransactionsPage: React.FC<PageProps> = ({
               <option value="wallet_funding">Wallet Funding</option>
             </select>
             <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-800 dark:text-white">
+              className="px-4 py-2 border border-gray-300 dark:border-dark-700 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-800 dark:text-white">
               <option value="all">All Time</option>
               <option value="today">Today</option>
               <option value="week">This Week</option>
