@@ -83,6 +83,10 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 - Admin login: dedicated `/api/auth/admin-login` endpoint with 5 req/15min rate limit, server-side role check (403 for non-admins)
 - `AdminLogin.tsx` uses `adminLogin()` from client.ts instead of generic `handleLogin`; removed client-only role gate
 - `handleAdminLogin` controller added at `auth.controller.js:68`
+- CSRF cookie uses `__Host-` prefix in production (subdomain-proof, host-only) — `csrf.middleware.js`
+- Account lockout now sends email notification via stubEmail — `auth.service.js:202`
+- CORS origin validation logs warning if localhost URL set in production — `app.js`
+- Login logging enhanced with role, IP, user agent — `auth.controller.js`
 
 Skipped: S-1 (OTP debug banner kept visible by design).
 

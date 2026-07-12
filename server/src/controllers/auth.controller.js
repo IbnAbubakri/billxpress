@@ -61,7 +61,7 @@ export async function handleLogin(req, res, next) {
       return res.json({ mfaRequired: true, email: result.tempEmail });
     }
     await loginResponse(res, result, req);
-    logger.info({ userId: result.id }, 'Login successful');
+    logger.info({ userId: result.id, role: result.role, ip: req.clientIp, ua: req.clientUA }, 'Login successful');
   } catch (err) { next(err); }
 }
 

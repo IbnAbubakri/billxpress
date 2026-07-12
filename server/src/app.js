@@ -52,6 +52,13 @@ app.use((req, res, next) => {
   next();
 });
 
+if (env.isProd()) {
+  const localhostPattern = /^https?:\/\/localhost(:\d+)?$/;
+  if (localhostPattern.test(env.CORS_ORIGIN)) {
+    logger.warn('CORS_ORIGIN is set to a localhost URL in production. Set CORS_ORIGIN to the actual production domain.');
+  }
+}
+
 app.use(cors({
   origin: env.CORS_ORIGIN,
   credentials: true,

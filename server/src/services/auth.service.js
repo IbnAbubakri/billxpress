@@ -199,6 +199,7 @@ async function recordFailedAttempt(email, ip, userAgent) {
     const lockedUntil = new Date(Date.now() + lockoutMin * 60 * 1000).toISOString();
     await db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, key);
     logger.warn({ email: key, attempts: record.count, lockoutMin, ip }, 'Account locked due to failed attempts');
+    stubEmail(key, 'Account Locked - BillXpress', `Your account has been temporarily locked for ${lockoutMin} minutes due to ${record.count} failed login attempts from IP: ${ip || 'unknown'}. You can try again after this period.`);
     securityAlert({
       type: 'ACCOUNT_LOCKED',
       email: key,
