@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { UserPlus, Mail, Info, Fingerprint, Banknote, Check, ChevronRight, X } from 'lucide-react';
 import type { User, ProfileStep, BasicInfo, BankDetails, ProfileUpdateData } from '../../types';
 import { validateBVN, validateAccountNumber } from '../../utils/validation';
 import { trackEvent } from '../../utils/analytics';
@@ -15,25 +16,12 @@ const STEPS: ProfileStep[] = [
   { label: 'Add bank details', description: 'Save your bank details', icon: 'Banknote', completed: false },
 ];
 
+const ICON_MAP: Record<string, React.ElementType> = { UserPlus, Mail, Info, Fingerprint, Banknote };
+
 function StepIcon({ icon, className }: { icon: string; className?: string }) {
-  const svgPaths: Record<string, string> = {
-    UserPlus: 'M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M8.5 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0 M20 8v6 M23 11h-6',
-    Mail: 'M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2 M3 7l9 6 9-6',
-    Info: 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 16v-4 M12 8h.01',
-    Fingerprint: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',
-    Banknote: 'M3 7h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2 M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
-  };
-
-  const paths = svgPaths[icon];
-  if (!paths) return null;
-
-  return (
-    <svg className={`w-6 h-6 ${className || 'text-secondary dark:text-white'}`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-      {paths.split(' M').map((d, i) => (
-        <path key={i} d={i === 0 ? d : `M${d}`} />
-      ))}
-    </svg>
-  );
+  const Icon = ICON_MAP[icon];
+  if (!Icon) return null;
+  return <Icon className={`w-6 h-6 ${className || 'text-secondary dark:text-white'}`} />;
 }
 
 interface ProfileCompletionProps {
@@ -43,7 +31,11 @@ interface ProfileCompletionProps {
 
 function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
   const [dismissed, setDismissed] = useState(() => {
-    try { return localStorage.getItem('profileCompletionDismissed') === 'true'; }
+    try {
+      const stored = localStorage.getItem('profileCompletionDismissed');
+      if (!stored) return false;
+      return Date.now() - Number(stored) < 86400000;
+    }
     catch { return false; }
   });
 
@@ -64,7 +56,7 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
 
   const handleDismiss = () => {
     setDismissed(true);
-    try { localStorage.setItem('profileCompletionDismissed', 'true'); } catch { /* noop */ }
+    try { localStorage.setItem('profileCompletionDismissed', String(Date.now())); } catch { /* noop */ }
   };
 
   if (dismissed || steps.every(s => s.completed)) return null;
@@ -77,7 +69,7 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
         aria-label="Dismiss profile completion"
         title="Skip for now"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+        <X className="w-5 h-5" />
       </button>
       <div className="flex items-start justify-between mb-2 gap-3">
         <div className="min-w-0">
@@ -117,9 +109,9 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
               </div>
               <div className={step.completed ? 'text-green-500' : 'text-gray-300'}>
                 {step.completed ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  <Check className="w-5 h-5 text-green-500" />
                 ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  <ChevronRight className="w-5 h-5 text-gray-300" />
                 )}
               </div>
             </li>

@@ -43,8 +43,12 @@ async function refreshSession() {
 function createRetryInterceptor(instance: typeof api) {
   return async (error: any) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    if (status === 401 || status === 403) {
+      csrfTokenPromise = null;
+    }
     if (
-      error.response?.status === 401 &&
+      status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/refresh') &&
       !originalRequest.url?.includes('/csrf-token') &&
@@ -157,7 +161,7 @@ export async function checkPhone(phone: string) {
   const { data } = await api.post('/check-phone', { phone }, {
     headers: { 'x-csrf-token': csrf },
   });
-  return data as { exists: boolean; hasEmail?: boolean; email?: string; name?: string };
+  return data as { exists: boolean; hasEmail?: boolean };
 }
 
 export async function sendOtp(phone: string) {

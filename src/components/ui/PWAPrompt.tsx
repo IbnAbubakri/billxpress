@@ -21,7 +21,7 @@ export default function PWAPrompt() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
+      setTimeout(() => setShowPrompt(true), 10000);
     };
 
     window.addEventListener('beforeinstallprompt', handler);

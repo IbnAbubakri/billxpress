@@ -80,11 +80,18 @@ const otpLimiter = rateLimit({
 const otpVerifyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 5,
   standardHeaders: true, legacyHeaders: false,
-  keyGenerator: (req) => req.body?.phone || req.ip,
+  keyGenerator: (req) => req.ip,
   message: { error: 'Too many verification attempts. Please wait before trying again.' },
 });
 
-router.post('/check-phone', validateCsrf, handleCheckPhone);
+const checkPhoneLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 30,
+  standardHeaders: true, legacyHeaders: false,
+  keyGenerator: (req) => req.ip,
+  message: { error: 'Too many requests. Please wait before trying again.' },
+});
+
+router.post('/check-phone', checkPhoneLimiter, validateCsrf, handleCheckPhone);
 router.post('/send-otp', otpLimiter, validateCsrf, handleSendOtp);
 router.post('/verify-otp', otpVerifyLimiter, validateCsrf, handleVerifyOtp);
 

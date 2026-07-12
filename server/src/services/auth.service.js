@@ -150,13 +150,13 @@ function getLockoutDuration(attemptCount) {
   return extraAttempts > 0 ? base * Math.pow(2, extraAttempts) : base;
 }
 
-function lockoutKey(email, ip) {
-  return `${email.toLowerCase()}:${ip || 'unknown'}`;
+function lockoutKey(email) {
+  return email.toLowerCase();
 }
 
-async function isAccountLocked(email, ip) {
+async function isAccountLocked(email) {
   const db = getDb();
-  const key = lockoutKey(email, ip);
+  const key = lockoutKey(email);
   const record = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(key);
   if (!record || record.count < MAX_ATTEMPTS) return false;
   if (new Date(record.lockedUntil) > new Date()) return true;
@@ -164,12 +164,9 @@ async function isAccountLocked(email, ip) {
   return false;
 }
 
-const LOCKOUT_MULTI_IP_THRESHOLD = 3;
-
 async function recordFailedAttempt(email, ip, userAgent) {
   const db = getDb();
-  const emailKey = email.toLowerCase();
-  const ipKey = lockoutKey(email, ip);
+  const key = lockoutKey(email);
   const now = new Date().toISOString();
 
   await db.prepare(`
@@ -186,55 +183,29 @@ async function recordFailedAttempt(email, ip, userAgent) {
           SELECT jsonb_array_elements_text(EXCLUDED.ips::jsonb) AS elem
         ) AS combined
       )
-  `).run(ipKey, now, JSON.stringify([ip || 'unknown']), JSON.stringify([ip || 'unknown']));
-  await db.prepare(`
-    INSERT INTO login_attempts (key, count, lastAttempt, lockedUntil, ips)
-    VALUES (?, 1, ?, NULL, ?)
-    ON CONFLICT(key) DO UPDATE SET
-      count = login_attempts.count + 1,
-      lastAttempt = EXCLUDED.lastAttempt,
-      ips = (
-        SELECT COALESCE(json_agg(DISTINCT elem)::text, ?)
-        FROM (
-          SELECT jsonb_array_elements_text(login_attempts.ips::jsonb) AS elem
-          UNION
-          SELECT jsonb_array_elements_text(EXCLUDED.ips::jsonb) AS elem
-        ) AS combined
-      )
-  `).run(emailKey, now, JSON.stringify([ip || 'unknown']), JSON.stringify([ip || 'unknown']));
+  `).run(key, now, JSON.stringify([ip || 'unknown']), JSON.stringify([ip || 'unknown']));
 
-  const ipRecord = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(ipKey);
-  const emailRecord = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(emailKey);
+  const record = await db.prepare('SELECT * FROM login_attempts WHERE key = ?').get(key);
 
-  logger.warn({ email: emailKey, attempts: ipRecord.count, ip }, 'Failed login attempt');
+  logger.warn({ email: key, attempts: record.count, ip }, 'Failed login attempt');
 
-  if (ipRecord.count >= MAX_ATTEMPTS) {
-    const lockoutMin = getLockoutDuration(ipRecord.count);
+  if (record.count >= MAX_ATTEMPTS) {
+    const lockoutMin = getLockoutDuration(record.count);
     const lockedUntil = new Date(Date.now() + lockoutMin * 60 * 1000).toISOString();
-    await db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, ipKey);
-    logger.warn({ email: emailKey, attempts: ipRecord.count, lockoutMin, ip }, 'Account locked due to failed attempts');
+    await db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, key);
+    logger.warn({ email: key, attempts: record.count, lockoutMin, ip }, 'Account locked due to failed attempts');
     securityAlert({
       type: 'ACCOUNT_LOCKED',
-      email: emailKey,
-      details: `Account locked for ${lockoutMin} minutes after ${ipRecord.count} failed attempts from ${ip}`,
-      ip,
-    });
-  }
-
-  const ips = emailRecord.ips ? JSON.parse(emailRecord.ips) : [];
-  if (ips.length >= LOCKOUT_MULTI_IP_THRESHOLD) {
-    securityAlert({
-      type: 'MULTI_IP_FAILED_LOGINS',
-      email: emailKey,
-      details: `Failed logins from ${ips.length} different IPs: ${ips.join(', ')}`,
+      email: key,
+      details: `Account locked for ${lockoutMin} minutes after ${record.count} failed attempts from ${ip}`,
       ip,
     });
   }
 }
 
-async function clearFailedAttempts(email, ip) {
+async function clearFailedAttempts(email) {
   const db = getDb();
-  await db.prepare('DELETE FROM login_attempts WHERE key = ?').run(lockoutKey(email, ip));
+  await db.prepare('DELETE FROM login_attempts WHERE key = ?').run(lockoutKey(email));
 }
 
 export async function register({ email, password, phone, name, ip, userAgent }) {
@@ -299,7 +270,7 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
     await new Promise((r) => setTimeout(r, 500));
     throw new AppError('Invalid email or password.', 401);
   }
-  if (await isAccountLocked(identifier, ip)) {
+  if (await isAccountLocked(identifier)) {
     logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: identifier }, ip, userAgent, severity: 'high' });
     throw new AppError('Account temporarily locked. Try again later.', 423);
   }
@@ -343,7 +314,7 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
       }
     }
   }
-  await clearFailedAttempts(identifier, ip);
+  await clearFailedAttempts(identifier);
   const db = getDb();
   const now = new Date().toISOString();
 
@@ -611,11 +582,8 @@ function stubEmail(to, subject, body) {
 export async function checkPhone(phone) {
   const db = getDb();
   const normalized = normalizePhone(phone);
-  const user = await db.prepare('SELECT id, email, name FROM users WHERE phone = ?').get(normalized);
-  if (user) {
-    return { exists: true, hasEmail: Boolean(user.email), email: user.email || undefined, name: user.name || undefined };
-  }
-  return { exists: false };
+  const user = await db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
+  return { exists: Boolean(user), hasEmail: Boolean(user) };
 }
 
 export async function sendOtp(phone) {

@@ -1,21 +1,59 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Wallet, Mail, Lock, User, Phone, ArrowLeft, CheckCircle2, Smartphone, PartyPopper, Sparkles } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { validateName, validateEmail, validatePhone, validatePassword } from '../../utils/validation';
 import { trackEvent } from '../../utils/analytics';
+import { getErrorMessage } from '../../utils/errors';
 
 type Step = 'phone' | 'otp' | 'kyc' | 'password';
+
+const STORAGE_KEY = 'billxpress_reg_progress';
+
+function persistProgress(data: { step: Step; phone: string; firstName: string; lastName: string; email: string }) {
+  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* noop */ }
+}
+
+function loadProgress(): { step: Step; phone: string; firstName: string; lastName: string; email: string } | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearProgress() {
+  try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+}
+
+function getPasswordStrength(password: string): { label: string; color: string; width: string } {
+  let score = 0;
+  if (password.length >= 12) score++;
+  if (password.length >= 16) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  const map = [
+    { label: '', color: '', width: '0%' },
+    { label: 'Weak', color: 'bg-red-500', width: '20%' },
+    { label: 'Fair', color: 'bg-orange-500', width: '40%' },
+    { label: 'Good', color: 'bg-yellow-500', width: '60%' },
+    { label: 'Strong', color: 'bg-lime-500', width: '80%' },
+    { label: 'Very strong', color: 'bg-green-500', width: '100%' },
+  ];
+  return map[Math.min(score, 5)];
+}
 
 const RegisterPage = () => {
   const { handleRegister, handleCheckPhone, handleSendOtp, handleVerifyOtp } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('phone');
-  const [phone, setPhone] = useState('');
+  const saved = loadProgress();
+  const [step, setStep] = useState<Step>(saved?.step || 'phone');
+  const [phone, setPhone] = useState(saved?.phone || '');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState(saved?.firstName || '');
+  const [lastName, setLastName] = useState(saved?.lastName || '');
+  const [email, setEmail] = useState(saved?.email || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +62,6 @@ const RegisterPage = () => {
   const [generalError, setGeneralError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [phoneExists, setPhoneExists] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const [otpDebugCode, _setOtpDebugCode] = useState('');
   const [acceptedTos, setAcceptedTos] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -37,6 +74,10 @@ const RegisterPage = () => {
       return () => clearTimeout(t);
     }
   }, [countdown]);
+
+  useEffect(() => {
+    persistProgress({ step, phone, firstName, lastName, email });
+  }, [step, phone, firstName, lastName, email]);
 
   const inputClass = (field: string) =>
     `w-full pl-12 pr-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
@@ -53,13 +94,12 @@ const RegisterPage = () => {
         setPhoneExists(true);
       } else {
         setPhoneExists(false);
-        setOtpSent(false);
         setStep('otp');
         trackEvent('registration_started', { phone });
         await sendOtpCode();
       }
     } catch (err: unknown) {
-      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Something went wrong');
+      setGeneralError(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -69,12 +109,11 @@ const RegisterPage = () => {
     setIsLoading(true);
     try {
       const result = await handleSendOtp(phone);
-      setOtpSent(true);
       setCountdown(60);
       if (result.code) _setOtpDebugCode(result.code);
       setGeneralError('');
     } catch (err: unknown) {
-      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Failed to send OTP');
+      setGeneralError(getErrorMessage(err, 'Failed to send OTP'));
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +146,7 @@ const RegisterPage = () => {
       setStep('kyc');
       trackEvent('registration_step_completed', { step: 'otp' });
     } catch (err: unknown) {
-      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Invalid OTP');
+      setGeneralError(getErrorMessage(err, 'Invalid OTP'));
     } finally {
       setIsLoading(false);
     }
@@ -141,22 +180,23 @@ const RegisterPage = () => {
     setIsLoading(true);
     try {
       await handleRegister({ email, password, phone, name: `${firstName} ${lastName}` });
+      clearProgress();
       trackEvent('registration_completed', { email, phone });
       setShowWelcome(true);
     } catch (err: unknown) {
-      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Registration failed');
+      setGeneralError(getErrorMessage(err, 'Registration failed'));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (step === 'otp') setStep('phone');
-    else if (step === 'kyc') setStep('otp');
+    else if (step === 'kyc') setStep('phone');
     else if (step === 'password') setStep('kyc');
     setGeneralError('');
     setErrors({});
-  };
+  }, [step]);
 
   const steps = [
     { key: 'phone', label: 'Phone', icon: Phone },
@@ -167,10 +207,15 @@ const RegisterPage = () => {
 
   const currentIdx = steps.findIndex(s => s.key === step);
 
+  const passwordStrength = password ? getPasswordStrength(password) : null;
+
+  const passwordClass = (field: string) =>
+    `w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
+
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full">
-        <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6" role="region" aria-label="Registration form">
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Wallet className="w-8 h-8 text-white" aria-hidden="true" />
@@ -185,7 +230,7 @@ const RegisterPage = () => {
             </button>
           )}
 
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6" role="progressbar" aria-valuenow={currentIdx + 1} aria-valuemin={1} aria-valuemax={steps.length} aria-label={`Step ${currentIdx + 1} of ${steps.length}`}>
             {steps.map((s, idx) => {
               const Icon = s.icon;
               const isActive = idx === currentIdx;
@@ -208,7 +253,7 @@ const RegisterPage = () => {
           </div>
 
           {generalError && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm mb-4">{generalError}</div>
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm mb-4" role="alert" aria-live="assertive">{generalError}</div>
           )}
 
           {showWelcome ? (
@@ -263,9 +308,9 @@ const RegisterPage = () => {
                     <label htmlFor="regPhone" className="block text-sm font-medium text-black dark:text-white mb-2">Phone Number</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                      <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass('phone')} placeholder="08012345678" aria-invalid={!!errors.phone} />
+                      <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass('phone')} placeholder="08012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
                     </div>
-                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                    {errors.phone && <p id="phone-error" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                   </div>
                   <button type="submit" disabled={isLoading || !phone} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     {isLoading ? (
@@ -285,11 +330,9 @@ const RegisterPage = () => {
               <p className="text-sm text-black dark:text-white text-center">
                 Enter the 6-digit code sent to <strong>{phone}</strong>
               </p>
-              {otpSent && (
-                <button type="button" onClick={sendOtpCode} disabled={isLoading || countdown > 0} className="text-xs text-secondary dark:text-white hover:underline block mx-auto disabled:opacity-50 disabled:cursor-not-allowed">
-                  {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend code'}
-                </button>
-              )}
+              <button type="button" onClick={sendOtpCode} disabled={isLoading || countdown > 0} className="text-xs text-secondary dark:text-white hover:underline block mx-auto disabled:opacity-50 disabled:cursor-not-allowed">
+                {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend code'}
+              </button>
               {otpDebugCode && (
                 <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-2xl text-sm text-center">
                   Demo mode: Your OTP is <strong className="text-lg tracking-widest">{otpDebugCode}</strong>
@@ -335,23 +378,26 @@ const RegisterPage = () => {
                   <label htmlFor="firstName" className="block text-sm font-medium text-black dark:text-white mb-2">First Name</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                    <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputClass('firstName')} placeholder="First name" aria-invalid={!!errors.firstName} />
+                    <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputClass('firstName')} placeholder="First name" aria-invalid={!!errors.firstName} aria-describedby={errors.firstName ? 'firstName-error' : undefined} />
                   </div>
-                  {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                  {errors.firstName && <p id="firstName-error" className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-black dark:text-white mb-2">Last Name</label>
-                  <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={`w-full px-4 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.lastName ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Last name" aria-invalid={!!errors.lastName} />
-                  {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
+                    <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputClass('lastName')} placeholder="Last name" aria-invalid={!!errors.lastName} aria-describedby={errors.lastName ? 'lastName-error' : undefined} />
+                  </div>
+                  {errors.lastName && <p id="lastName-error" className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
                 </div>
               </div>
               <div>
                 <label htmlFor="regEmail" className="block text-sm font-medium text-black dark:text-white mb-2">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                  <input id="regEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass('email')} placeholder="Enter your email" aria-invalid={!!errors.email} />
+                  <input id="regEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass('email')} placeholder="Enter your email" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'email-error' : undefined} />
                 </div>
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                {errors.email && <p id="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
               <button type="submit" disabled={!firstName || !lastName || !email} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 Continue
@@ -366,23 +412,33 @@ const RegisterPage = () => {
                 <label htmlFor="regPassword" className="block text-sm font-medium text-black dark:text-white mb-2">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                  <input id="regPassword" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.password ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Min 12 chars with uppercase, lowercase, number & special" aria-invalid={!!errors.password} />
+                  <input id="regPassword" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className={passwordClass('password')} placeholder="Min 12 chars with uppercase, lowercase, number & special" aria-invalid={!!errors.password} aria-describedby={errors.password ? 'password-error' : undefined} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white hover:text-black">
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                {errors.password && <p id="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                {passwordStrength && (
+                  <div className="mt-2">
+                    <div className="flex gap-1 h-1.5">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className={`flex-1 rounded-full transition-all ${i <= ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong'].indexOf(passwordStrength.label) ? passwordStrength.color : 'bg-gray-200 dark:bg-dark-700'}`} />
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{passwordStrength.label}</p>
+                  </div>
+                )}
               </div>
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-black dark:text-white mb-2">Confirm Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                  <input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors.confirmPassword ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`} placeholder="Confirm your password" aria-invalid={!!errors.confirmPassword} />
+                  <input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={passwordClass('confirmPassword')} placeholder="Confirm your password" aria-invalid={!!errors.confirmPassword} aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined} />
                   <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white hover:text-black">
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p id="confirmPassword-error" className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
               </div>
               <div className="flex items-start gap-3">
                 <input
@@ -423,6 +479,7 @@ const RegisterPage = () => {
           </div>
         </div>
       </div>
+      <div aria-live="polite" className="sr-only" />
     </div>
   );
 };
