@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, changePassword as apiChangePassword, setTransactionPin as apiSetTransactionPin, sendVerificationEmail as apiSendVerification, checkPhone as apiCheckPhone, sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp, generateMfaSecret as apiGenerateMfaSecret, verifyMfaSetup as apiVerifyMfaSetup, disableMfa as apiDisableMfa, deleteAccount as apiDeleteAccount } from '../api/client';
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, changePassword as apiChangePassword, setTransactionPin as apiSetTransactionPin, sendVerificationEmail as apiSendVerification, checkPhone as apiCheckPhone, checkEmail as apiCheckEmail, sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp, generateMfaSecret as apiGenerateMfaSecret, verifyMfaSetup as apiVerifyMfaSetup, disableMfa as apiDisableMfa, deleteAccount as apiDeleteAccount } from '../api/client';
 import type { User, ProfileUpdateData } from '../types';
 
 const AUTH_STORAGE_KEY = 'billxpress_auth';
@@ -189,6 +189,10 @@ export function useAuth() {
     return apiCheckPhone(phone);
   }, []);
 
+  const handleCheckEmail = useCallback(async (email: string) => {
+    return apiCheckEmail(email);
+  }, []);
+
   const handleSendOtp = useCallback(async (phone: string) => {
     return apiSendOtp(phone);
   }, []);
@@ -226,6 +230,7 @@ export function useAuth() {
     handleSetTransactionPin,
     handleSendVerification,
     handleCheckPhone,
+    handleCheckEmail,
     handleSendOtp,
     handleVerifyOtp,
     handleGenerateMfaSecret,

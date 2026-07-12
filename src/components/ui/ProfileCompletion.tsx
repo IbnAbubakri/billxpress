@@ -51,7 +51,11 @@ function ProfileCompletionSkeleton() {
 function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
   const { handleSendVerification } = useAuth();
   const [dismissed, setDismissed] = useState(() => {
-    try { return localStorage.getItem('profileCompletionDismissed') === 'true'; }
+    try {
+      const ts = localStorage.getItem('profileCompletionDismissed');
+      if (!ts) return false;
+      return Date.now() - Number(ts) < 86400000;
+    }
     catch { return false; }
   });
   const [showDismissConfirm, setShowDismissConfirm] = useState(false);
@@ -73,7 +77,7 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
 
   const handleDismiss = () => {
     setDismissed(true);
-    try { localStorage.setItem('profileCompletionDismissed', 'true'); } catch { /* noop */ }
+    try { localStorage.setItem('profileCompletionDismissed', String(Date.now())); } catch { /* noop */ }
   };
 
   if (!user) return <ProfileCompletionSkeleton />;
@@ -177,7 +181,7 @@ function MailStep({ onClose, handleSendVerification }: { onClose: () => void; ha
   const handleSend = async () => {
     await handleSendVerification();
     setSent(true);
-    trackEvent('email_verified');
+    trackEvent('resend_verification');
   };
 
   return (
@@ -193,6 +197,7 @@ function MailStep({ onClose, handleSendVerification }: { onClose: () => void; ha
 function InfoStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
   const [info, setInfo] = useState<BasicInfo>({ billingStreet: '', billingCity: '', billingState: '', billingCountry: '', homeStreet: '', homeCity: '', homeState: '', homeZip: '', avatar: null, avatarPreview: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState('');
 
   const handleChange = (field: string, value: string | File | null) => {
     if (field === 'avatar' && value instanceof File) {
@@ -230,7 +235,9 @@ function InfoStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateP
         await onUpdateProfile(payload);
         trackEvent('profile_step_completed', { step: 'basic_info' });
         onClose();
-      } catch { /* error handled by mutation */ }
+      } catch (err: unknown) {
+        setGeneralError(err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Failed to save. Please try again.');
+      }
     }
   };
 
@@ -242,6 +249,7 @@ function InfoStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateP
       onClose={onClose}
       onChange={handleChange}
       onSave={handleSave}
+      generalError={generalError}
     />
   );
 }
@@ -258,7 +266,9 @@ function FingerprintStep({ onClose, onUpdateProfile }: { onClose: () => void; on
         await onUpdateProfile({ bvn });
         trackEvent('profile_step_completed', { step: 'bvn' });
         onClose();
-      } catch { /* error handled by mutation */ }
+      } catch (err: unknown) {
+        setError(err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Failed to verify BVN. Please try again.');
+      }
     }
   };
 
@@ -277,6 +287,7 @@ function FingerprintStep({ onClose, onUpdateProfile }: { onClose: () => void; on
 function BanknoteStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpdateProfile?: (data: ProfileUpdateData) => Promise<User> }) {
   const [details, setDetails] = useState<BankDetails>({ accountNumber: '', bankName: '', accountName: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState('');
 
   const handleChange = (f: string, v: string) => setDetails((p) => ({ ...p, [f]: v }));
 
@@ -296,7 +307,9 @@ function BanknoteStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpd
         });
         trackEvent('profile_step_completed', { step: 'bank_details' });
         onClose();
-      } catch { /* error handled by mutation */ }
+      } catch (err: unknown) {
+        setGeneralError(err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Failed to save bank details. Please try again.');
+      }
     }
   };
 
@@ -308,6 +321,7 @@ function BanknoteStep({ onClose, onUpdateProfile }: { onClose: () => void; onUpd
       onClose={onClose}
       onChange={handleChange}
       onSave={handleSave}
+      generalError={generalError}
     />
   );
 }

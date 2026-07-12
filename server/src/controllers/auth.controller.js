@@ -1,7 +1,7 @@
 import {
   authenticate, register, getUserById, forgotPassword, resetPassword,
   updateUserProfile, generateVerificationToken, verifyEmailToken,
-  checkPhone, sendOtp, verifyOtp, changePassword, setTransactionPin,
+  checkPhone, checkEmail, sendOtp, verifyOtp, changePassword, setTransactionPin,
   generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount,
 } from '../services/auth.service.js';
 import {
@@ -76,6 +76,13 @@ export async function handleRegister(req, res, next) {
 export async function handleCheckPhone(req, res, next) {
   try {
     const result = await checkPhone(req.body.phone);
+    res.json(result);
+  } catch (err) { next(err); }
+}
+
+export async function handleCheckEmail(req, res, next) {
+  try {
+    const result = await checkEmail(req.body.email);
     res.json(result);
   } catch (err) { next(err); }
 }

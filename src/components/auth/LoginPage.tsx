@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Phone, Lock, Send } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 import { sendVerificationEmail } from '../../api/client';
+import { validateEmail } from '../../utils/validation';
+import { getErrorMessage } from '../../utils/errors';
 
 interface LoginPageProps {
   onLogin: (login: string, password: string) => Promise<void>;
 }
 
 function isValidEmail(v: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  return !validateEmail(v);
 }
 
 function isValidPhone(v: string) {
@@ -56,7 +58,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
     try {
       await onLogin(formData.login, formData.password);
     } catch (err: unknown) {
-      setGeneralError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || 'Login failed');
+      setGeneralError(getErrorMessage(err, 'Login failed'));
     } finally {
       setIsLoading(false);
     }

@@ -30,6 +30,7 @@ export function validatePhone(phone: string): string {
 export function validateName(name: string, field: string): string {
   if (!name) return `${field} is required`;
   if (name.length < 2) return `${field} must be at least 2 characters`;
+  if (!/^[A-Za-z\s\-']+$/.test(name)) return `${field} must contain only letters`;
   return '';
 }
 

@@ -45,7 +45,7 @@ function getPasswordStrength(password: string): { label: string; color: string; 
 }
 
 const RegisterPage = () => {
-  const { handleRegister, handleCheckPhone, handleSendOtp, handleVerifyOtp } = useAuth();
+  const { handleRegister, handleCheckPhone, handleCheckEmail, handleSendOtp, handleVerifyOtp } = useAuth();
   const navigate = useNavigate();
   const saved = loadProgress();
   const [step, setStep] = useState<Step>(saved || 'phone');
@@ -62,7 +62,7 @@ const RegisterPage = () => {
   const [generalError, setGeneralError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [phoneExists, setPhoneExists] = useState(false);
-  const [otpDebugCode, _setOtpDebugCode] = useState('');
+  const [otpDebugCode, setOtpDebugCode] = useState('');
   const [acceptedTos, setAcceptedTos] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -110,7 +110,7 @@ const RegisterPage = () => {
     try {
       const result = await handleSendOtp(phone);
       setCountdown(60);
-      if (result.code) _setOtpDebugCode(result.code);
+      if (result.code) setOtpDebugCode(result.code);
       setGeneralError('');
     } catch (err: unknown) {
       setGeneralError(getErrorMessage(err, 'Failed to send OTP'));
@@ -133,6 +133,19 @@ const RegisterPage = () => {
     if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+    const newCode = [...otpCode];
+    for (let i = 0; i < pasted.length; i++) {
+      newCode[i] = pasted[i];
+    }
+    setOtpCode(newCode);
+    const focusIdx = Math.min(pasted.length, 5);
+    otpRefs.current[focusIdx]?.focus();
   };
 
   const handleOtpSubmit = async () => {
@@ -162,6 +175,16 @@ const RegisterPage = () => {
     const emailErr = validateEmail(email);
     if (emailErr) newErrors.email = emailErr;
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+    try {
+      const result = await handleCheckEmail(email);
+      if (result.exists) {
+        setErrors({ email: 'This email is already registered' });
+        return;
+      }
+    } catch {
+      setGeneralError('Could not verify email. Please try again.');
+      return;
+    }
     setStep('password');
     trackEvent('registration_step_completed', { step: 'kyc' });
   };
@@ -313,7 +336,8 @@ const RegisterPage = () => {
                     <label htmlFor="regPhone" className="block text-sm font-medium text-black dark:text-white mb-2">Phone Number</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                      <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass('phone')} placeholder="08012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
+                      <span className="absolute left-11 top-1/2 -translate-y-1/2 text-black dark:text-white text-sm font-medium pointer-events-none select-none">🇳🇬 +234</span>
+                      <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={`${inputClass('phone')} pl-[7.5rem]`} placeholder="8012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
                     </div>
                     {errors.phone && <p id="phone-error" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                   </div>
@@ -357,6 +381,7 @@ const RegisterPage = () => {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                      onPaste={idx === 0 ? handleOtpPaste : undefined}
                       className={`w-12 h-14 text-center text-lg font-bold border rounded-xl focus:ring-2 focus:ring-secondary focus:border-transparent transition-all ${errors.otp ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-dark-700'} dark:bg-dark-800 dark:text-white`}
                       aria-label={`Digit ${idx + 1}`}
                     />
@@ -427,7 +452,7 @@ const RegisterPage = () => {
                   <div className="mt-2">
                     <div className="flex gap-1 h-1.5">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className={`flex-1 rounded-full transition-all ${i <= ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong'].indexOf(passwordStrength.label) ? passwordStrength.color : 'bg-gray-200 dark:bg-dark-700'}`} />
+                        <div key={i} className={`flex-1 rounded-full transition-all ${i <= ['Weak', 'Fair', 'Good', 'Strong', 'Very strong'].indexOf(passwordStrength.label) + 1 ? passwordStrength.color : 'bg-gray-200 dark:bg-dark-700'}`} />
                       ))}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{passwordStrength.label}</p>

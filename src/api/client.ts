@@ -164,6 +164,14 @@ export async function checkPhone(phone: string) {
   return data as { exists: boolean; hasEmail?: boolean };
 }
 
+export async function checkEmail(email: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/check-email', { email }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { exists: boolean };
+}
+
 export async function sendOtp(phone: string) {
   const csrf = await ensureCSRF();
   const { data } = await api.post('/send-otp', { phone }, {

@@ -241,7 +241,7 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
   }
   const isDemo = !process.env.SMS_PROVIDER;
   if (pwned === null) {
-    throw new AppError('Cannot verify password security. Please try again later.', 503);
+    logger.warn({ email: email.toLowerCase() }, 'HIBP check failed, allowing registration');
   }
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const id = uuidv4();
@@ -359,7 +359,7 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
     throw new AppError('Password has been exposed in a data breach. Choose a different one.', 400);
   }
   if (pwned === null) {
-    throw new AppError('Cannot verify password security. Please try again later.', 503);
+    logger.warn({ userId: user.id }, 'HIBP check failed during password reset, allowing');
   }
   const passwordHistory = user.passwordHistory ? JSON.parse(user.passwordHistory) : [];
   for (const oldHash of passwordHistory) {
@@ -375,7 +375,7 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   const now = new Date().toISOString();
   await db.prepare(`
     UPDATE users SET password = ?, passwordChangedAt = ?, resetToken = NULL,
-      resetTokenExpires = NULL, emailVerified = 1, passwordHistory = ?
+      resetTokenExpires = NULL, passwordHistory = ?
     WHERE id = ?
   `).run(hashedPassword, now, JSON.stringify(passwordHistory), user.id);
   logAction({ userId: user.id, action: 'PASSWORD_RESET_COMPLETED', details: {}, ip, userAgent, severity: 'high' });
@@ -577,9 +577,16 @@ function stubEmail(to, subject, body) {
   logger.info({ emailTo: to, subject }, `[EMAIL STUB] ${body}`);
 }
 
+export async function checkEmail(email) {
+  const db = getDb();
+  const existing = await db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
+  return { exists: Boolean(existing) };
+}
+
 export async function checkPhone(phone) {
   const db = getDb();
   const normalized = normalizePhone(phone);
+  await new Promise(r => setTimeout(r, 200));
   const user = await db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
   return { exists: Boolean(user), hasEmail: Boolean(user) };
 }
@@ -594,7 +601,7 @@ export async function sendOtp(phone) {
   if (recent.cnt >= 3) {
     throw new AppError('Too many OTP requests. Please wait before trying again.', 429);
   }
-  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const code = String(crypto.randomInt(100000, 999999));
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   await db.prepare('INSERT INTO otps (phone, code, expiresAt) VALUES (?, ?, ?)').run(normalized, code, expiresAt);
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);

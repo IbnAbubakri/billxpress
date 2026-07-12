@@ -14,6 +14,7 @@ interface BankDetailsModalProps {
   onClose: () => void;
   onChange: (field: string, value: string) => void;
   onSave: () => void;
+  generalError?: string;
 }
 
 const NIGERIAN_BANKS = [
@@ -34,6 +35,7 @@ const BankDetailsModal = ({
   onClose,
   onChange,
   onSave,
+  generalError,
 }: BankDetailsModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const prevFocusRef = useRef<HTMLElement | null>(null);
@@ -82,6 +84,11 @@ const BankDetailsModal = ({
           </p>
         </div>
         <form className="space-y-3">
+          {generalError && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">
+              {generalError}
+            </div>
+          )}
           <div>
             <label htmlFor="bankAccountNumber" className="block text-sm font-medium text-black dark:text-white mb-1">
               Account Number

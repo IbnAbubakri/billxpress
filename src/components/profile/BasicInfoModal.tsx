@@ -9,6 +9,7 @@ interface BasicInfoModalProps {
   onClose: () => void;
   onChange: (field: string, value: string | File | null) => void;
   onSave: () => void;
+  generalError?: string;
 }
 
 const BasicInfoModal = ({
@@ -18,6 +19,7 @@ const BasicInfoModal = ({
   onClose,
   onChange,
   onSave,
+  generalError,
 }: BasicInfoModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const prevFocusRef = useRef<HTMLElement | null>(null);
@@ -67,6 +69,11 @@ const BasicInfoModal = ({
           </p>
         </div>
         <form className="space-y-3">
+          {generalError && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">
+              {generalError}
+            </div>
+          )}
           <div className="flex flex-col items-center mb-4">
             <label htmlFor="avatar" className="block text-sm font-medium text-black dark:text-white mb-2">
               Avatar

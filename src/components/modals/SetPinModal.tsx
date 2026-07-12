@@ -48,7 +48,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
     setTimeout(() => document.getElementById("confirm-pin-0")?.focus(), 100);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const pinString = pin.join("");
     const confirmPinString = confirmPin.join("");
     if (confirmPinString.length !== 4) { setErrors("Please enter your 4-digit PIN"); return; }
@@ -58,7 +58,12 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
       setTimeout(() => document.getElementById("confirm-pin-0")?.focus(), 100);
       return;
     }
-    onSetPin(pinString);
+    try {
+      await onSetPin(pinString);
+      sessionStorage.setItem("isPinSet", "true");
+    } catch {
+      setErrors("Failed to set PIN. Please try again.");
+    }
   };
 
   const renderPinInputs = (pinArray: string[], prefix: string, isConfirm = false) => (

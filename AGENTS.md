@@ -38,7 +38,7 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 - `src/components/modals/FundWalletModal.tsx` - Wallet funding
 - `src/components/modals/WithdrawModal.tsx` - Withdrawals
 
-## Audit Items Addressed
+## Audit Items Addressed (Batch 1 — prior)
 | ID | Fix | Files |
 |---|---|---|
 | C-1 | Wallet race condition — PG transactions + `FOR UPDATE` | wallet.controller.js, db.js, test-db.js |
@@ -57,6 +57,28 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | — | Logout missing cookie clear | auth.controller.js |
 | — | Stray `}` syntax error in db.js | db.js |
 | — | Vercel rewrite removed broken static rule | vercel.json |
+
+## Audit Items Addressed (Batch 2 — notice.md)
+| ID | Fix | Files |
+|---|---|---|
+| S-2 | `Math.random()` → `crypto.randomInt()` for OTP | auth.service.js |
+| S-3 | Uniform 200ms delay on `/check-phone` to prevent timing enumeration | auth.service.js |
+| S-4 | HIBP failure logs warning instead of throwing 503 | auth.service.js |
+| S-5 | Early email duplicate check via `/check-email` endpoint before final step | auth.service.js, auth.controller.js, auth.routes.js, client.ts, useAuth.ts, RegisterPage.tsx |
+| S-6 | Remove `emailVerified = 1` side effect from `resetPassword` | auth.service.js |
+| U-1 | Paste handler on OTP inputs | RegisterPage.tsx |
+| U-2 | Remove empty string at index 0 in password strength segment lookup | RegisterPage.tsx |
+| U-3 | ProfileCompletion re-prompt after 24h (timestamp instead of boolean) | ProfileCompletion.tsx |
+| U-4 | SetPinModal sets `sessionStorage` after success, catches errors | SetPinModal.tsx |
+| U-5 | Empty catch blocks now surface errors to user | ProfileCompletion.tsx, BasicInfoModal.tsx, BankDetailsModal.tsx |
+| U-6 | Renamed `email_verified` → `resend_verification` analytics event | ProfileCompletion.tsx |
+| C-1 | LoginPage uses shared `validateEmail` from `validation.ts` | LoginPage.tsx |
+| C-2 | LoginPage uses `getErrorMessage()` helper | LoginPage.tsx |
+| C-3 | `validateName` rejects numbers/special characters | validation.ts |
+| C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
+| C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
+
+Skipped: S-1 (OTP debug banner kept visible by design).
 
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |

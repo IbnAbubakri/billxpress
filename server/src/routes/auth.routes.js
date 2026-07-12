@@ -5,7 +5,7 @@ import {
   handleMe, handleForgotPassword, handleResetPassword,
   handleSessions, handleDeleteSession, handleLogoutAll, handlePasswordPolicy,
   handleUpdateProfile, handleSendVerification, handleVerifyEmail,
-  handleCheckPhone, handleSendOtp, handleVerifyOtp,
+  handleCheckPhone, handleCheckEmail, handleSendOtp, handleVerifyOtp,
   handleChangePassword, handleSetTransactionPin,
   handleGenerateMfaSecret, handleVerifyMfaSetup, handleDisableMfa,
   handleDeleteAccount,
@@ -92,6 +92,7 @@ const checkPhoneLimiter = rateLimit({
 });
 
 router.post('/check-phone', checkPhoneLimiter, validateCsrf, handleCheckPhone);
+router.post('/check-email', validateCsrf, handleCheckEmail);
 router.post('/send-otp', otpLimiter, validateCsrf, handleSendOtp);
 router.post('/verify-otp', otpVerifyLimiter, validateCsrf, handleVerifyOtp);
 
