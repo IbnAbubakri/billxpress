@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import {
   CreditCard, Search, Eye, CheckCircle, XCircle, Clock,
-  Smartphone, Wifi, Zap, Tv, Download,
+  Smartphone, Wifi, Zap, Tv, Download, X,
 } from 'lucide-react';
 
 interface Transaction {
@@ -189,7 +189,7 @@ const TransactionManagement: React.FC = () => {
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-ginto font-semibold text-black dark:text-white">Transaction Details</h3>
-                <button onClick={() => setShowTransactionModal(false)} className="p-2 text-black dark:text-white rounded-lg transition-colors">✕</button>
+                <button onClick={() => setShowTransactionModal(false)} className="p-2 text-black dark:text-white rounded-lg transition-colors"><X className="w-5 h-5" /></button>
               </div>
             </div>
             <div className="p-4 space-y-4">
