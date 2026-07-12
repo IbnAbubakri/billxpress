@@ -63,17 +63,19 @@ const DashboardLayout = ({
       {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 overflow-x-hidden">
         <main id="main-content" className="flex-1 pb-20 lg:pb-8 relative">
-          <div className="lg:hidden absolute top-4 left-4 z-30">
-            <button
-              type="button"
-              aria-label="Open sidebar"
-              aria-expanded={sidebarOpen}
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
-            >
-              <Menu className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
+          {location.pathname === '/dashboard' && (
+            <div className="lg:hidden absolute top-4 left-4 z-30">
+              <button
+                type="button"
+                aria-label="Open sidebar"
+                aria-expanded={sidebarOpen}
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
+              >
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+          )}
           {location.pathname === '/dashboard' && (
             <NotificationBell
               show={showNotifications}
