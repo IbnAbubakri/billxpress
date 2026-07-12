@@ -91,8 +91,14 @@ const checkPhoneLimiter = rateLimit({
   message: { error: 'Too many requests. Please wait before trying again.' },
 });
 
+const checkEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many email check requests. Please wait before trying again.' },
+});
+
 router.post('/check-phone', checkPhoneLimiter, validateCsrf, handleCheckPhone);
-router.post('/check-email', validateCsrf, handleCheckEmail);
+router.post('/check-email', checkEmailLimiter, validateCsrf, handleCheckEmail);
 router.post('/send-otp', otpLimiter, validateCsrf, handleSendOtp);
 router.post('/verify-otp', otpVerifyLimiter, validateCsrf, handleVerifyOtp);
 
