@@ -79,6 +79,14 @@ export async function login(login: string, password: string) {
   return data;
 }
 
+export async function adminLogin(login: string, password: string) {
+  const csrf = await ensureCSRF();
+  const { data } = await api.post('/admin-login', { login, password }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data;
+}
+
 export async function register(email: string, password: string, extra?: { phone?: string; name?: string }) {
   const csrf = await ensureCSRF();
   const { data } = await api.post('/register', { email, password, ...extra }, {

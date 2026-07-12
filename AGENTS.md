@@ -78,6 +78,12 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
 | C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
 
+## Session Summary (Jul 12)
+- JWT secret replaced with strong 64-char hex value in `server/.env`
+- Admin login: dedicated `/api/auth/admin-login` endpoint with 5 req/15min rate limit, server-side role check (403 for non-admins)
+- `AdminLogin.tsx` uses `adminLogin()` from client.ts instead of generic `handleLogin`; removed client-only role gate
+- `handleAdminLogin` controller added at `auth.controller.js:68`
+
 Skipped: S-1 (OTP debug banner kept visible by design).
 
 ## API Endpoints (authenticated)

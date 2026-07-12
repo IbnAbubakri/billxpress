@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import {
-  handleLogin, handleRegister, handleLogout, handleRefresh,
+  handleLogin, handleAdminLogin, handleRegister, handleLogout, handleRefresh,
   handleMe, handleForgotPassword, handleResetPassword,
   handleSessions, handleDeleteSession, handleLogoutAll, handlePasswordPolicy,
   handleUpdateProfile, handleSendVerification, handleVerifyEmail,
@@ -44,8 +44,15 @@ const registerLimiter = rateLimit({
   message: { error: 'Too many registration attempts. Please wait before trying again.' },
 });
 
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many admin login attempts. Please wait before trying again.' },
+});
+
 router.post('/register', registerLimiter, validateCsrf, validateRegister, handleRegister);
 router.post('/login', loginLimiter, validateCsrf, validateLogin, handleLogin);
+router.post('/admin-login', adminLoginLimiter, validateCsrf, validateLogin, handleAdminLogin);
 router.post('/logout', authenticate, validateCsrf, handleLogout);
 const refreshLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 10,

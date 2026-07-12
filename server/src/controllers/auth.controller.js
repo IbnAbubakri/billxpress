@@ -65,6 +65,22 @@ export async function handleLogin(req, res, next) {
   } catch (err) { next(err); }
 }
 
+export async function handleAdminLogin(req, res, next) {
+  try {
+    const { login, email, password, totpCode } = req.body;
+    const result = await authenticate(login || email, password, totpCode, req.clientIp, req.clientUA);
+    if (result.mfaRequired) {
+      return res.json({ mfaRequired: true, email: result.tempEmail });
+    }
+    if (result.role !== 'admin') {
+      logger.warn({ email: result.email }, 'Non-admin user attempted admin login');
+      return res.status(403).json({ error: 'Access denied. Admin credentials required.' });
+    }
+    await loginResponse(res, result, req);
+    logger.info({ userId: result.id }, 'Admin login successful');
+  } catch (err) { next(err); }
+}
+
 export async function handleRegister(req, res, next) {
   try {
     const { email, password, phone, name } = req.body;

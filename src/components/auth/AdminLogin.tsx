@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Fingerprint } from "lucide-react";
 import { Logo } from "../ui/Logo";
-import { useAuth } from "../../hooks/useAuth";
+import { adminLogin } from "../../api/client";
 import { useNavigate } from "react-router-dom";
 
 const AdminLogin: React.FC = () => {
-  const { handleLogin } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -22,12 +21,8 @@ const AdminLogin: React.FC = () => {
     setError("");
 
     try {
-      const result = await handleLogin(formData.email, formData.password);
-      if (result.user && result.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        setError("Access denied. Admin credentials required.");
-      }
+      await adminLogin(formData.email, formData.password);
+      navigate('/admin');
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || "Invalid credentials");
     } finally {
