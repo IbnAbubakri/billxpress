@@ -64,7 +64,7 @@ async function loginResponse(res, user, req) {
   });
   setAuthCookies(res, accessToken, refreshToken);
   const fullUser = await getUserById(user.id);
-  res.json({ user: fullUser || { id: user.id, email: user.email, role: user.role } });
+  res.json({ user: sanitizeUser(fullUser) || { id: user.id, email: user.email, role: user.role } });
 }
 
 export async function handleLogin(req, res, next) {
@@ -274,8 +274,8 @@ export async function handleChangePassword(req, res, next) {
 
 export async function handleSetTransactionPin(req, res, next) {
   try {
-    const { pin } = req.body;
-    await setTransactionPin(req.user.id, pin, req.clientIp, req.clientUA);
+    const { pin, currentPin } = req.body;
+    await setTransactionPin(req.user.id, pin, req.clientIp, req.clientUA, currentPin);
     res.json({ message: 'Transaction PIN set successfully.' });
   } catch (err) { next(err); }
 }

@@ -219,8 +219,8 @@ export function useAuth() {
     return apiDisableMfa(password, totpCode);
   }, []);
 
-  const handleDeleteAccount = useCallback(async () => {
-    return apiDeleteAccount();
+  const handleDeleteAccount = useCallback(async (password: string) => {
+    return apiDeleteAccount(password);
   }, []);
 
   return {

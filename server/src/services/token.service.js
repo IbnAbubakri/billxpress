@@ -10,7 +10,7 @@ export function generateAccessToken(payload) {
 export async function generateRefreshToken(userId) {
   const db = getDb();
   const token = uuidv4();
-  const expiresAt = new Date(Date.now() + parseDuration(env.JWT_REFRESH_EXPIRES_IN)).toISOString();
+  const expiresAt = new Date(Date.now() + env.JWT_REFRESH_EXPIRES_MS).toISOString();
   await db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(token, userId, expiresAt);
   return token;
 }
@@ -24,7 +24,7 @@ export async function rotateRefreshToken(oldToken, userId) {
   const deleted = await db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(oldToken);
   if (deleted.changes === 0) return null;
   const newToken = uuidv4();
-  const expiresAt = new Date(Date.now() + parseDuration(env.JWT_REFRESH_EXPIRES_IN)).toISOString();
+  const expiresAt = new Date(Date.now() + env.JWT_REFRESH_EXPIRES_MS).toISOString();
   await db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(newToken, userId, expiresAt);
   return newToken;
 }
@@ -101,17 +101,4 @@ export async function deleteSession(sessionId) {
 export async function deleteAllUserSessions(userId) {
   const db = getDb();
   await db.prepare('DELETE FROM sessions WHERE userId = ?').run(userId);
-}
-
-function parseDuration(dur) {
-  const match = dur.match(/^(\d+)([smhd])$/);
-  if (!match) return 7 * 24 * 60 * 60 * 1000;
-  const val = parseInt(match[1]);
-  switch (match[2]) {
-    case 's': return val * 1000;
-    case 'm': return val * 60 * 1000;
-    case 'h': return val * 60 * 60 * 1000;
-    case 'd': return val * 24 * 60 * 60 * 1000;
-    default: return 7 * 24 * 60 * 60 * 1000;
-  }
 }

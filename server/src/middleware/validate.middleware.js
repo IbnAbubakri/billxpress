@@ -1,22 +1,15 @@
 import AppError from '../utils/AppError.js';
-import { getPasswordPolicy, validatePasswordComplexity } from '../services/auth.service.js';
+import { getPasswordPolicy, validatePasswordComplexity, sanitizeValue } from '../services/auth.service.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAIL_LENGTH = 254;
-
-const SCRIPT_PATTERN = /<[^>]*>|javascript:|on\w+=|data:/gi;
-
-function sanitize(val) {
-  if (typeof val !== 'string') return '';
-  return val.replace(SCRIPT_PATTERN, '').trim();
-}
 
 function commonValidation(email, password) {
   const policy = getPasswordPolicy();
   const errors = [];
   if (!email || typeof email !== 'string') errors.push('Email is required.');
   else if (email.length > MAX_EMAIL_LENGTH) errors.push('Email is too long.');
-  else if (!EMAIL_REGEX.test(sanitize(email))) errors.push('Invalid email format.');
+  else if (!EMAIL_REGEX.test(sanitizeValue(email))) errors.push('Invalid email format.');
   if (password !== undefined) {
     if (!password || typeof password !== 'string') errors.push('Password is required.');
     else if (password.length > policy.maxLength) errors.push('Password is too long.');
@@ -34,7 +27,7 @@ export function validateLogin(req, res, next) {
       errors.push('Password is required.');
     }
     if (errors.length) return next(new AppError(errors.join(' '), 400));
-    if (login) req.body.email = sanitize(login).toLowerCase();
+    if (login) req.body.email = sanitizeValue(login).toLowerCase();
   } else {
     const errors = [];
     if (!login || typeof login !== 'string') errors.push('Phone number or email is required.');
@@ -53,7 +46,7 @@ export function validateRegister(req, res, next) {
     }
   }
   if (errors.length) return next(new AppError(errors.join(' '), 400));
-  req.body.email = sanitize(req.body.email).toLowerCase();
+  req.body.email = sanitizeValue(req.body.email).toLowerCase();
   next();
 }
 

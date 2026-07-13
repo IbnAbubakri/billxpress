@@ -150,7 +150,7 @@ function getLockoutDuration(attemptCount) {
   return extraAttempts > 0 ? base * Math.pow(2, extraAttempts) : base;
 }
 
-function sanitizeValue(val) {
+export function sanitizeValue(val) {
   if (typeof val !== 'string') return val;
   return val.trim().replace(/<[^>]*>/g, '').replace(/javascript\s*:|on\w+\s*=|data\s*:/gi, '').replace(/[<>]/g, '');
 }
@@ -278,11 +278,11 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
   }
   if (await isAccountLocked(identifier)) {
     logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: identifier }, ip, userAgent, severity: 'high' });
-    throw new AppError('Account temporarily locked. Try again later.', 423);
+    throw new AppError('Invalid credentials.', 401);
   }
   const isDemo = !process.env.SMS_PROVIDER;
   if (!user.emailVerified && !isDemo) {
-    throw new AppError('Please verify your email before signing in.', 403);
+    throw new AppError('Invalid credentials.', 401);
   }
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
@@ -436,6 +436,8 @@ export async function updateUserProfile(id, profileData, ip, userAgent) {
     if (!profileData.currentPassword) throw new AppError('Current password is required to change email.', 400);
     const pwMatch = await bcrypt.compare(profileData.currentPassword, user.password);
     if (!pwMatch) throw new AppError('Current password is incorrect.', 401);
+    const existing = await db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(profileData.email.toLowerCase(), id);
+    if (existing) throw new AppError('Email is already in use.', 409);
   }
 
   const allowedFields = [
@@ -504,10 +506,17 @@ export async function changePassword(id, currentPassword, newPassword, ip, userA
   return { success: true };
 }
 
-export async function setTransactionPin(id, pin, ip, userAgent) {
+export async function setTransactionPin(id, pin, ip, userAgent, currentPin) {
   if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) throw new AppError('PIN must be exactly 4 digits.', 400);
 
   const db = getDb();
+  const user = await db.prepare('SELECT transactionPin, hasTransactionPin FROM users WHERE id = ?').get(id);
+  if (!user) throw new AppError('User not found.', 404);
+  if (user.hasTransactionPin) {
+    if (!currentPin) throw new AppError('Current PIN is required to change your transaction PIN.', 400);
+    const match = await bcrypt.compare(currentPin, user.transactionPin);
+    if (!match) throw new AppError('Current PIN is incorrect.', 401);
+  }
   const hashedPin = await bcrypt.hash(pin, 10);
   const now = new Date().toISOString();
   await db.prepare('UPDATE users SET transactionPin = ?, hasTransactionPin = 1, updatedAt = ? WHERE id = ?')
@@ -536,10 +545,13 @@ export async function verifyMfaSetup(id, token) {
   if (!user || !user.mfaSecret) throw new AppError('MFA not initialized. Generate a secret first.', 400);
   const isValid = authenticator.check(token, user.mfaSecret);
   if (!isValid) throw new AppError('Invalid verification code.', 400);
-  const backupCodes = Array.from({ length: 8 }, () => {
+  const rawCodes = Array.from({ length: 8 }, () => {
     const code = crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 8);
-    return { code, hash: bcrypt.hashSync(code, 8), used: false };
+    return { code };
   });
+  const backupCodes = await Promise.all(rawCodes.map(async (item) => ({
+    ...item, hash: await bcrypt.hash(item.code, 8), used: false,
+  })));
   await db.prepare('UPDATE users SET mfaEnabled = 1, mfaBackupCodes = ?, updatedAt = ? WHERE id = ?')
     .run(JSON.stringify(backupCodes.map(({ hash, used }) => ({ hash, used }))), new Date().toISOString(), id);
   const plainCodes = backupCodes.map((bc) => bc.code);
@@ -568,10 +580,9 @@ export async function deleteAccount(id, password) {
   const db = getDb();
   const user = await db.prepare('SELECT id, password FROM users WHERE id = ?').get(id);
   if (!user) throw new AppError('User not found.', 404);
-  if (password) {
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) throw new AppError('Invalid password.', 401);
-  }
+  if (!password) throw new AppError('Password is required to delete your account.', 400);
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) throw new AppError('Invalid password.', 401);
   await db.prepare('DELETE FROM sessions WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM transactions WHERE userId = ?').run(id);
@@ -588,13 +599,13 @@ export async function lookupUserForVerification(identifier, userId) {
   const db = getDb();
   let user = null;
   if (identifier) {
-    user = db.prepare('SELECT * FROM users WHERE email = ?').get(identifier.toLowerCase());
+    user = await db.prepare('SELECT * FROM users WHERE email = ?').get(identifier.toLowerCase());
     if (!user) {
-      user = db.prepare('SELECT * FROM users WHERE phone = ?').get(normalizePhone(identifier));
+      user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(normalizePhone(identifier));
     }
   }
   if (!user && userId) {
-    user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+    user = await db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   }
   return user;
 }

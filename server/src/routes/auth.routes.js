@@ -83,11 +83,17 @@ const sendVerificationLimiter = rateLimit({
   message: { error: 'Too many verification requests. Please wait before trying again.' },
 });
 
-router.post('/send-verification', sendVerificationLimiter, validateCsrf, handleSendVerification);
-router.post('/verify-email', validateCsrf, handleVerifyEmail);
+router.post('/send-verification', authenticate, sendVerificationLimiter, validateCsrf, handleSendVerification);
+router.post('/verify-email', authenticate, validateCsrf, handleVerifyEmail);
 router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
 router.put('/password', authenticate, validateCsrf, handleChangePassword);
-router.put('/transaction-pin', authenticate, validateCsrf, handleSetTransactionPin);
+const pinLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many PIN attempts. Please wait before trying again.' },
+});
+
+router.put('/transaction-pin', authenticate, pinLimiter, validateCsrf, handleSetTransactionPin);
 router.get('/sessions', authenticate, handleSessions);
 router.delete('/sessions/:sessionId', authenticate, validateCsrf, handleDeleteSession);
 router.post('/logout-all', authenticate, validateCsrf, handleLogoutAll);

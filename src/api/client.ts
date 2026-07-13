@@ -224,9 +224,10 @@ export async function disableMfa(password: string, totpCode?: string) {
   return data;
 }
 
-export async function deleteAccount() {
+export async function deleteAccount(password: string) {
   const csrf = await ensureCSRF();
   const { data } = await api.delete('/account', {
+    data: { password },
     headers: { 'x-csrf-token': csrf },
   });
   return data;

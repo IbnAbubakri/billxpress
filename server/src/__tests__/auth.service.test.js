@@ -158,11 +158,11 @@ describe('authenticate', () => {
       .rejects.toMatchObject({ statusCode: 401 });
   });
 
-  it('throws 403 for unverified email', async () => {
+  it('throws 401 for unverified email', async () => {
     const db = dbRef.current;
     db.prepare('UPDATE users SET emailVerified = 0 WHERE email = ?').run(email);
     await expect(authenticate(email, password, null, '::1', 'test'))
-      .rejects.toMatchObject({ statusCode: 403 });
+      .rejects.toMatchObject({ statusCode: 401 });
   });
 
   it('returns mfaRequired when MFA is enabled and no totpCode', async () => {

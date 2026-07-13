@@ -78,30 +78,23 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
 | C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
 
-## Session Summary (Jul 12 — Authentication.md audit Batch 2)
+## Session Summary (Jul 12 — Authentication.md audit Batch 3)
 | ID | Fix | Files |
 |---|---|---|
-| C-1 | `handleRefresh` no longer leaks PII — shared `sanitizeUser()` helper | `auth.controller.js` |
-| C-2 | `disableMfa` client sends `password` + `totpCode` to server | `client.ts`, `useAuth.ts` |
-| C-3 | `resetPassword`/`changePassword` check new password against current hash | `auth.service.js` |
-| H-1 | `deleteAccount` has audit logging + password re-auth | `auth.controller.js`, `auth.service.js` |
-| H-2 | `send-verification` rate limiter (3 req/15min, keyed by email) | `auth.routes.js` |
-| H-3 | `checkEmail` gets uniform 200ms timing delay | `auth.service.js` |
-| H-4 | `requestContext` parses `X-Forwarded-For` for real client IP | `requestContext.middleware.js` |
-| H-5 | `updateUserProfile` requires password to change email | `auth.service.js` |
-| M-1 | Cookie `maxAge` synced with `JWT_REFRESH_EXPIRES_IN` via env.js | `auth.controller.js`, `env.js` |
-| M-2 | Sanitize regex improved (space-proof `on*=`, `javascript:`, `data:`) | `auth.service.js` |
-| M-3 | `checkPhone` rate limit reduced 30→10 per 15min | `auth.routes.js` |
-| M-4 | JWT IP mismatch normalizes `::ffff:` prefix to avoid false positives | `auth.middleware.js` |
-| M-5 | Session create/delete order swapped in `handleRefresh` | `auth.controller.js` |
-| L-1 | Raw SQL moved from controller to `lookupUserForVerification` service fn | `auth.controller.js`, `auth.service.js` |
-| L-2 | (informational — already warns in dev) | — |
-| L-3 | `handleDeleteAccount` revokes refresh tokens + sessions | `auth.controller.js` |
-| L-4 | `optionalAuth` logs token failures instead of swallowing | `auth.middleware.js` |
-| L-5 | (informational — content-length) | — |
-| L-6 | `getPasswordPolicy` import added to controller | `auth.controller.js` |
+| H-1 | Added `await` to `lookupUserForVerification` DB queries | `auth.service.js` |
+| H-2 | Added `authenticate` to `/send-verification` route | `auth.routes.js` |
+| H-3 | Client `deleteAccount(password)` now sends password body | `client.ts`, `useAuth.ts` |
+| H-4 | `loginResponse` uses `sanitizeUser()` to avoid PII leak | `auth.controller.js` |
+| H-5 | Email uniqueness check on profile update | `auth.service.js` |
+| M-3 | Added `authenticate` to `/verify-email` route | `auth.routes.js` |
+| M-4 | Rate limiter (5/15min) + old-PIN verification for `/transaction-pin` | `auth.routes.js`, `auth.service.js`, `auth.controller.js` |
+| M-5 | Consolidated sanitization — `validate.middleware` uses `sanitizeValue` from `auth.service` | `validate.middleware.js`, `auth.service.js` |
+| M-6 | Async bcrypt for backup codes (non-blocking) | `auth.service.js` |
+| L-1 | Login errors standardized to "Invalid credentials." (no account state enum) | `auth.service.js` |
+| L-3 | Deduplicated `parseDuration` — token service uses `env.JWT_REFRESH_EXPIRES_MS` | `token.service.js` |
+| L-4 | `deleteAccount` enforces truthy password check | `auth.service.js` |
 
-Skipped: C-4 (OTP debug banner kept visible by design), M-6 (SSL note), L-2, L-5 (informational).
+Skipped: M-2 (OTP debug kept visible by design).
 
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |
