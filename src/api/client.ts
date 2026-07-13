@@ -247,6 +247,21 @@ export async function fundWallet(amount: number, method?: string) {
   return data;
 }
 
+export async function initializeWalletFunding(amount: number) {
+  const csrf = await ensureCSRF();
+  const { data } = await walletApi.post('/wallet/fund/initialize', { amount }, {
+    headers: { 'x-csrf-token': csrf },
+  });
+  return data as { authorization_url: string; access_code: string; reference: string };
+}
+
+export async function verifyWalletFunding(reference: string) {
+  const { data } = await walletApi.get('/wallet/fund/verify', {
+    params: { reference },
+  });
+  return data as { status: string; message: string };
+}
+
 export async function withdrawFunds(amount: number, bank: string, accountNumber: string, accountName: string, transactionPin?: string) {
   const csrf = await ensureCSRF();
   const { data } = await walletApi.post('/wallet/withdraw', { amount, bank, accountNumber, accountName, transactionPin }, {

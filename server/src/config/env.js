@@ -32,6 +32,10 @@ const env = {
   DATABASE_URL: process.env.DATABASE_URL,
   SUPABASE_REGION: process.env.SUPABASE_REGION || 'eu-west-1',
   DEMO_MODE: process.env.DEMO_MODE === 'true' || !process.env.SMS_PROVIDER,
+  PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
+  PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
+  PAYSTACK_WEBHOOK_SECRET: process.env.PAYSTACK_WEBHOOK_SECRET,
+  APP_URL: process.env.APP_URL || 'http://localhost:5173',
   isDev: () => env.NODE_ENV === 'development',
   isProd: () => env.NODE_ENV === 'production',
 };

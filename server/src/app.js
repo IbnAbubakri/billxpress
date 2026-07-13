@@ -12,6 +12,7 @@ import adminRoutes from './routes/admin.routes.js';
 import walletRoutes from './routes/wallet.routes.js';
 import chartRoutes from './routes/chart.routes.js';
 import openapiRoutes from './routes/openapi.routes.js';
+import webhookRoutes from './routes/webhook.routes.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
 import { cache } from './middleware/cache.middleware.js';
@@ -63,6 +64,8 @@ app.use(cors({
   origin: env.CORS_ORIGIN,
   credentials: true,
 }));
+
+app.use('/api/webhook', webhookRoutes);
 
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());

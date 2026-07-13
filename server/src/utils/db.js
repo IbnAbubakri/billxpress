@@ -125,6 +125,21 @@ export async function initDatabase() {
       date TEXT NOT NULL,
       createdAt TEXT DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS wallet_funding_transactions (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      paystack_reference TEXT UNIQUE NOT NULL,
+      paystack_access_code TEXT,
+      paystack_transaction_id BIGINT,
+      amount NUMERIC(12,2) NOT NULL,
+      currency VARCHAR(3) DEFAULT 'NGN',
+      status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      payment_method VARCHAR(50),
+      gateway_response TEXT,
+      paid_at TEXT,
+      created_at TEXT DEFAULT NOW(),
+      updated_at TEXT DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS otps (
       id SERIAL PRIMARY KEY,
       phone TEXT NOT NULL,
@@ -156,6 +171,9 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
     CREATE INDEX IF NOT EXISTS idx_transactions_userId ON transactions(userId);
     CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
+    CREATE INDEX IF NOT EXISTS idx_wallet_funding_reference ON wallet_funding_transactions(paystack_reference);
+    CREATE INDEX IF NOT EXISTS idx_wallet_funding_user_id ON wallet_funding_transactions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_wallet_funding_status ON wallet_funding_transactions(status);
   `);
 
   await runMigrations(pool);

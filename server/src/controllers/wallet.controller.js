@@ -2,6 +2,7 @@ import { getDb } from '../utils/db.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
+import { initializeTransaction, verifyTransaction, generateReference } from '../services/paystack.service.js';
 
 const MAX_AMOUNT = 1_000_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
@@ -17,6 +18,98 @@ function validateWalletInputs(amount, bank, accountNumber) {
     return 'Invalid account number. Must be 10 digits.';
   }
   return null;
+}
+
+export async function handleInitializeFunding(req, res, next) {
+  try {
+    const { amount } = req.body;
+    const userId = req.user.id;
+    const email = req.user.email;
+
+    const numAmount = parseFloat(amount);
+    if (!Number.isFinite(numAmount) || numAmount < 100 || numAmount > 500000) {
+      return res.status(400).json({ error: 'Amount must be between ₦100 and ₦500,000' });
+    }
+
+    const reference = generateReference(userId);
+    const callbackUrl = `${process.env.APP_URL || 'http://localhost:5173'}/wallet/fund/verify`;
+
+    const result = await initializeTransaction({
+      email,
+      amount: numAmount,
+      reference,
+      callbackUrl,
+      metadata: { user_id: userId, purpose: 'wallet_funding' },
+    });
+
+    const db = getDb();
+    await db.prepare(
+      `INSERT INTO wallet_funding_transactions
+       (user_id, paystack_reference, amount, currency, status)
+       VALUES (?, ?, ?, ?, ?)`
+    ).run(userId, reference, numAmount, 'NGN', 'pending');
+
+    res.json({
+      authorization_url: result.data.authorization_url,
+      access_code: result.data.access_code,
+      reference,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function handleVerifyFunding(req, res, next) {
+  try {
+    const { reference } = req.query;
+    if (!reference) return res.status(400).json({ error: 'Reference is required' });
+
+    const db = getDb();
+    const existing = await db.prepare(
+      'SELECT id, status FROM wallet_funding_transactions WHERE paystack_reference = ?'
+    ).get(reference);
+
+    if (existing && existing.status === 'completed') {
+      return res.json({ status: 'completed', message: 'Payment already processed' });
+    }
+
+    const verification = await verifyTransaction(reference);
+
+    if (verification.data.status === 'success') {
+      const { amount, paid_at, channel } = verification.data;
+      const userId = verification.data.metadata?.user_id;
+      if (!userId) return res.status(400).json({ error: 'Missing user_id in metadata' });
+
+      const amountInNaira = amount / 100;
+
+      await db.transaction(async (tx) => {
+        await tx.run(
+          `INSERT INTO wallet_funding_transactions
+           (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paid_at
+        );
+
+        await tx.run(
+          'UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?',
+          amountInNaira, new Date().toISOString(), userId
+        );
+
+        await tx.run(
+          `INSERT INTO transactions (userId, type, amount, status, description, recipient, date)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          userId, 'wallet_funding', amountInNaira, 'completed',
+          `Wallet Funding via ${channel}`, 'Self', paid_at
+        );
+      });
+
+      return res.json({ status: 'completed', message: 'Payment verified successfully' });
+    }
+
+    res.json({ status: verification.data.status, message: 'Payment not successful' });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function handleFundWallet(req, res, next) {

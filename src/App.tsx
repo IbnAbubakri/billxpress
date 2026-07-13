@@ -27,6 +27,7 @@ const WalletPage = lazy(() => import('./components/wallet/WalletPage'));
 const TransactionsPage = lazy(() => import('./components/transactions/TransactionsPage'));
 const ProfilePage = lazy(() => import('./components/profile/ProfilePage'));
 const LandingPage = lazy(() => import('./components/marketing/LandingPage'));
+const FundCallback = lazy(() => import('./components/wallet/FundCallback'));
 
 const AdminLogin = lazy(() => import('./components/auth/AdminLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
@@ -172,6 +173,7 @@ function AppContent() {
               <PageErrorBoundary pageName="Betting"><BettingPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
             </ProtectedRoute>
           } />
+          <Route path="/wallet/fund/verify" element={<FundCallback />} />
           <Route path="/wallet" element={
             <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
               <PageErrorBoundary pageName="Wallet"><WalletPage user={user} onLogout={handleLogout} /></PageErrorBoundary>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { X, CreditCard, Banknote, Smartphone, Check } from 'lucide-react';
+import { X, CreditCard, Banknote, Smartphone } from 'lucide-react';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { fundWallet } from '../../api/client';
+import { initializeWalletFunding } from '../../api/client';
 
 interface FundWalletModalProps {
   onClose: () => void;
@@ -72,14 +72,13 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
   };
 
   const handlePayment = async () => {
-    setStep(3);
     try {
-      await fundWallet(Number(amount), selectedMethod);
-      onSuccess?.();
+      const result = await initializeWalletFunding(Number(amount));
+      window.location.href = result.authorization_url;
     } catch {
-      // ignore
+      setErrors({ payment: 'Failed to initialize payment. Please try again.' });
+      setStep(1);
     }
-    setTimeout(() => onClose(), 2000);
   };
 
   return (
@@ -245,14 +244,13 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
 
         {step === 3 && (
           <div className="p-4 text-center">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
+            <div className="w-16 h-16 mx-auto mb-4">
+              <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
             </div>
-            <h3 className="text-base font-bold text-black dark:text-white mb-2">Payment Successful!</h3>
-            <p className="text-black dark:text-white mb-4">
-              Your wallet has been funded with ₦{Number(amount).toLocaleString()}
+            <h3 className="text-base font-bold text-black dark:text-white mb-2">Redirecting to Payment...</h3>
+            <p className="text-black dark:text-white">
+              You'll be redirected to Paystack's secure checkout page.
             </p>
-            <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
           </div>
         )}
       </div>
