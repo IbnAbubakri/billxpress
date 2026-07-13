@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { verifyWalletFunding } from '../../api/client';
 
 export default function FundCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
@@ -17,12 +19,13 @@ export default function FundCallback() {
     verifyWalletFunding(reference)
       .then((result) => {
         setStatus(result.status === 'completed' ? 'success' : 'error');
+        queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
         setTimeout(() => navigate('/wallet'), 3000);
       })
       .catch(() => {
         setStatus('error');
       });
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, queryClient]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-900 p-4">
