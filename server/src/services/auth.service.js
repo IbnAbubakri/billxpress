@@ -30,6 +30,8 @@ export function getPasswordPolicy() {
     minLowercase: PASSWORD_POLICY.minLowercase,
     minNumbers: PASSWORD_POLICY.minNumbers,
     minSpecialChars: PASSWORD_POLICY.minSpecialChars,
+    historySize: PASSWORD_POLICY.historySize,
+    expiryDays: PASSWORD_POLICY.expiryDays,
   };
 }
 
@@ -574,13 +576,14 @@ export async function disableMfa(id, password, totpCode) {
   return { success: true };
 }
 
-export async function deleteAccount(id, password) {
+export async function deleteAccount(id, password, ip, userAgent) {
   const db = getDb();
   const user = await db.prepare('SELECT id, password FROM users WHERE id = ?').get(id);
   if (!user) throw new AppError('User not found.', 404);
   if (!password) throw new AppError('Password is required to delete your account.', 400);
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw new AppError('Invalid password.', 401);
+  logAction({ userId: id, action: 'ACCOUNT_DELETED', details: {}, ip, userAgent, severity: 'critical' });
   await db.prepare('DELETE FROM sessions WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM refresh_tokens WHERE userId = ?').run(id);
   await db.prepare('DELETE FROM transactions WHERE userId = ?').run(id);

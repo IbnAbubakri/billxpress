@@ -78,19 +78,19 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
 | C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
 
-## Session Summary (Jul 13 — Authentication.md audit Batch 4)
+## Session Summary (Jul 13 — Authentication.md audit Batch 5)
 | ID | Fix | Files |
 |---|---|---|
-| H-2 | CSRF token rotation after sensitive operations (password change, MFA, PIN) | `csrf.middleware.js`, `auth.controller.js` |
-| M-1 | `optionalAuth` logs at `warn` level instead of `debug` | `auth.middleware.js` |
-| M-2 | Absolute session age (24h) enforcement in `checkSessionActivity` | `token.service.js` |
-| M-3 | Parallelized bcrypt password history checks via `Promise.all` | `auth.service.js` |
-| M-6 | Account lockout now logs via `logAction` with severity `critical` (instead of stub email) | `auth.service.js` |
-| L-1 | `checkPhone` returns `hasEmail: false` to prevent enumeration | `auth.service.js` |
-| L-4 | Rate limiter (30/15min) on `/me` endpoint | `auth.routes.js` |
-| L-5 | Changed `localStorage` → `sessionStorage` for auth cache | `useAuth.ts` |
+| H-3 | Admin login pre-checks role before `authenticate()` to avoid clearing non-admin failed attempts | `auth.controller.js` |
+| H-4 | Password change revokes all refresh tokens + sessions (like resetPassword does) | `auth.controller.js` |
+| M-1 | `checkSessionActivity` returns session data, eliminating duplicate `getSessionById` query in middleware | `token.service.js`, `auth.middleware.js` |
+| M-3 | Audit logged inside `deleteAccount` before deletion (preserves referential integrity) | `auth.service.js`, `auth.controller.js` |
+| M-4 | Simplify `forgotLimiter` keyGenerator | `auth.routes.js` |
+| M-5 | `sessionId` cookie maxAge reduced from 7d to 24h to match absolute session lifetime | `auth.controller.js` |
+| L-1 | CSRF token lifetime reduced from 24h to 15min (matches access token expiry) | `csrf.middleware.js` |
+| L-3 | `getPasswordPolicy` now returns `historySize` (5) and `expiryDays` (90) | `auth.service.js` |
 
-Skipped: H-1 (intentional tradeoff for mobile users), M-4 (OTP debug kept visible by design), M-5 (already improved), L-2 (SameSite already set), L-3 (timing difference minimal).
+Skipped: C-1 (deployment concern, not code), H-1 (intentional tradeoff for mobile users), H-2 (user requested OTP left on UI), M-2 (React auto-escapes), M-4 (already has IP fallback), L-2 (server-enforced), L-4 (negligible bcrypt timing).
 
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |

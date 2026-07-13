@@ -25,7 +25,7 @@ const loginLimiter = rateLimit({
 const forgotLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 3,
   standardHeaders: true, legacyHeaders: false,
-  keyGenerator: (req) => (req.body?.email && typeof req.body.email === 'string' ? req.body.email.toLowerCase() : req.ip),
+  keyGenerator: (req) => req.body?.email ? req.body.email.toLowerCase() : req.ip,
   message: { error: 'Too many requests. Please wait before trying again.' },
 });
 

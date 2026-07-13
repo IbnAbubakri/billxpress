@@ -3,7 +3,7 @@ import {
   updateUserProfile, lookupUserForVerification, generateVerificationToken, verifyEmailToken,
   checkPhone, checkEmail, sendOtp, verifyOtp, changePassword, setTransactionPin,
   generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount, normalizePhone,
-  getPasswordPolicy,
+  getPasswordPolicy, getUserByEmail,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
@@ -61,7 +61,7 @@ async function loginResponse(res, user, req) {
     secure: isSecure,
     sameSite: 'strict',
     path: '/',
-    maxAge: env.JWT_REFRESH_EXPIRES_MS,
+    maxAge: 24 * 60 * 60 * 1000,
   });
   setAuthCookies(res, accessToken, refreshToken);
   const fullUser = await getUserById(user.id);
@@ -83,13 +83,14 @@ export async function handleLogin(req, res, next) {
 export async function handleAdminLogin(req, res, next) {
   try {
     const { login, email, password, totpCode } = req.body;
+    const preCheckUser = await getUserByEmail(login || email);
+    if (preCheckUser && preCheckUser.role !== 'admin') {
+      logger.warn({ email: preCheckUser.email }, 'Non-admin user attempted admin login');
+      return res.status(403).json({ error: 'Access denied. Admin credentials required.' });
+    }
     const result = await authenticate(login || email, password, totpCode, req.clientIp, req.clientUA);
     if (result.mfaRequired) {
       return res.json({ mfaRequired: true, email: result.tempEmail });
-    }
-    if (result.role !== 'admin') {
-      logger.warn({ email: result.email }, 'Non-admin user attempted admin login');
-      return res.status(403).json({ error: 'Access denied. Admin credentials required.' });
     }
     await loginResponse(res, result, req);
     logger.info({ userId: result.id }, 'Admin login successful');
@@ -164,7 +165,7 @@ export async function handleRefresh(req, res, next) {
       secure: isSecure,
       sameSite: 'strict',
       path: '/',
-      maxAge: env.JWT_REFRESH_EXPIRES_MS,
+      maxAge: 24 * 60 * 60 * 1000,
     });
     const accessToken = generateAccessToken({ sub: user.id, email: user.email, role: user.role, sessionId: newSessionId, ip: req.clientIp });
     setAuthCookies(res, accessToken, newRefresh);
@@ -269,6 +270,9 @@ export async function handleChangePassword(req, res, next) {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both current and new password are required.' });
     await changePassword(req.user.id, currentPassword, newPassword, req.clientIp, req.clientUA);
+    await revokeAllUserRefreshTokens(req.user.id);
+    await deleteAllUserSessions(req.user.id);
+    await logAction({ userId: req.user.id, action: 'PASSWORD_CHANGE_SESSIONS_REVOKED', details: {}, ip: req.clientIp, userAgent: req.clientUA, severity: 'high' });
     rotateCsrf(req, res);
     res.json({ message: 'Password changed successfully.' });
   } catch (err) { next(err); }
@@ -316,8 +320,7 @@ export async function handleDeleteAccount(req, res, next) {
   try {
     const { password } = req.body;
     if (!password) return res.status(400).json({ error: 'Password is required to delete your account.' });
-    await deleteAccount(req.user.id, password);
-    await logAction({ userId: req.user.id, action: 'ACCOUNT_DELETED', details: {}, ip: req.clientIp, userAgent: req.clientUA, severity: 'critical' });
+    await deleteAccount(req.user.id, password, req.clientIp, req.clientUA);
     clearAuthCookies(res);
     res.json({ message: 'Account deleted.' });
   } catch (err) { next(err); }

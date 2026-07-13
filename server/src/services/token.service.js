@@ -74,18 +74,18 @@ export async function updateSessionActivity(sessionId) {
 export async function checkSessionActivity(sessionId, idleMinutes) {
   const db = getDb();
   const s = await db.prepare('SELECT * FROM sessions WHERE id = ?').get(sessionId);
-  if (!s) return false;
+  if (!s) return null;
   const idleElapsed = (new Date() - new Date(s.lastactivity ?? s.lastActivity)) / 60000;
   if (idleElapsed > idleMinutes) {
     await db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
-    return false;
+    return null;
   }
   const absoluteAgeHours = (new Date() - new Date(s.createdat ?? s.createdAt)) / 3600000;
   if (absoluteAgeHours > 24) {
     await db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
-    return false;
+    return null;
   }
-  return true;
+  return s;
 }
 
 export async function getSessionsByUserId(userId) {
