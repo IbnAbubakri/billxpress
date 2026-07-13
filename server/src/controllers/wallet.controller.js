@@ -2,6 +2,7 @@ import { getDb } from '../utils/db.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
+import env from '../config/env.js';
 import { initializeTransaction, verifyTransaction, generateReference } from '../services/paystack.service.js';
 
 const MAX_AMOUNT = 1_000_000;
@@ -26,13 +27,17 @@ export async function handleInitializeFunding(req, res, next) {
     const userId = req.user.id;
     const email = req.user.email;
 
+    if (!env.PAYSTACK_SECRET_KEY) {
+      return res.status(503).json({ error: 'Payment gateway not configured. Please set PAYSTACK_SECRET_KEY.' });
+    }
+
     const numAmount = parseFloat(amount);
     if (!Number.isFinite(numAmount) || numAmount < 100 || numAmount > 500000) {
       return res.status(400).json({ error: 'Amount must be between ₦100 and ₦500,000' });
     }
 
     const reference = generateReference(userId);
-    const callbackUrl = `${process.env.APP_URL || 'http://localhost:5173'}/wallet/fund/verify`;
+    const callbackUrl = `${env.APP_URL}/wallet/fund/verify`;
 
     const result = await initializeTransaction({
       email,
@@ -61,6 +66,9 @@ export async function handleInitializeFunding(req, res, next) {
 
 export async function handleVerifyFunding(req, res, next) {
   try {
+    if (!env.PAYSTACK_SECRET_KEY) {
+      return res.status(503).json({ error: 'Payment gateway not configured. Please set PAYSTACK_SECRET_KEY.' });
+    }
     const { reference } = req.query;
     if (!reference) return res.status(400).json({ error: 'Reference is required' });
 
