@@ -73,7 +73,13 @@ const refreshLimiter = rateLimit({
 });
 
 router.post('/refresh', refreshLimiter, validateCsrf, handleRefresh);
-router.get('/me', authenticate, handleMe);
+const meLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 30,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many requests. Please wait before trying again.' },
+});
+
+router.get('/me', meLimiter, authenticate, handleMe);
 router.post('/forgot-password', forgotLimiter, validateCsrf, handleForgotPassword);
 router.post('/reset-password', resetLimiter, validateCsrf, validatePasswordReset, handleResetPassword);
 const sendVerificationLimiter = rateLimit({

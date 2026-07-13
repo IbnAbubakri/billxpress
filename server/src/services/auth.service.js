@@ -199,7 +199,7 @@ async function recordFailedAttempt(email, ip, userAgent) {
     const lockedUntil = new Date(Date.now() + lockoutMin * 60 * 1000).toISOString();
     await db.prepare('UPDATE login_attempts SET lockedUntil = ? WHERE key = ?').run(lockedUntil, key);
     logger.warn({ email: key, attempts: record.count, lockoutMin, ip }, 'Account locked due to failed attempts');
-    stubEmail(key, 'Account Locked - BillXpress', `Your account has been temporarily locked for ${lockoutMin} minutes due to ${record.count} failed login attempts from IP: ${ip || 'unknown'}. You can try again after this period.`);
+    logAction({ userId: null, action: 'ACCOUNT_LOCKED', details: { email: key, attempts: record.count, lockoutMin, ip }, ip, userAgent, severity: 'critical' });
     securityAlert({
       type: 'ACCOUNT_LOCKED',
       email: key,
@@ -367,10 +367,9 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
     throw new AppError('Cannot reuse your current password.', 400);
   }
   const passwordHistory = user.passwordHistory ? JSON.parse(user.passwordHistory) : [];
-  for (const oldHash of passwordHistory) {
-    if (await bcrypt.compare(newPassword, oldHash)) {
-      throw new AppError('Cannot reuse a recent password.', 400);
-    }
+  const reuse = await Promise.all(passwordHistory.map((h) => bcrypt.compare(newPassword, h)));
+  if (reuse.some(Boolean)) {
+    throw new AppError('Cannot reuse a recent password.', 400);
   }
   passwordHistory.push(user.password);
   if (passwordHistory.length > PASSWORD_POLICY.historySize) {
@@ -380,9 +379,9 @@ export async function resetPassword(token, newPassword, ip, userAgent) {
   const now = new Date().toISOString();
   await db.prepare(`
     UPDATE users SET password = ?, passwordChangedAt = ?, resetToken = NULL,
-      resetTokenExpires = NULL, passwordHistory = ?
+      resetTokenExpires = ?, passwordHistory = ?
     WHERE id = ?
-  `).run(hashedPassword, now, JSON.stringify(passwordHistory), user.id);
+  `).run(hashedPassword, now, now, JSON.stringify(passwordHistory), user.id);
   await clearFailedAttempts(user.email);
   logAction({ userId: user.id, action: 'PASSWORD_RESET_COMPLETED', details: {}, ip, userAgent, severity: 'high' });
   logger.info({ userId: user.id }, 'Password reset completed');
@@ -489,9 +488,8 @@ export async function changePassword(id, currentPassword, newPassword, ip, userA
   if (pwned === null) throw new AppError('Cannot verify password security. Please try again later.', 503);
 
   const passwordHistory = user.passwordHistory ? JSON.parse(user.passwordHistory) : [];
-  for (const oldHash of passwordHistory) {
-    if (await bcrypt.compare(newPassword, oldHash)) throw new AppError('Cannot reuse a recent password.', 400);
-  }
+  const reuse = await Promise.all(passwordHistory.map((h) => bcrypt.compare(newPassword, h)));
+  if (reuse.some(Boolean)) throw new AppError('Cannot reuse a recent password.', 400);
   passwordHistory.push(user.password);
   if (passwordHistory.length > PASSWORD_POLICY.historySize) passwordHistory.shift();
 
@@ -648,7 +646,7 @@ export async function checkPhone(phone) {
   const normalized = normalizePhone(phone);
   await new Promise(r => setTimeout(r, 200));
   const user = await db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
-  return { exists: Boolean(user), hasEmail: Boolean(user) };
+  return { exists: Boolean(user), hasEmail: false };
 }
 
 export async function sendOtp(phone) {

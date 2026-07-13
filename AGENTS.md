@@ -78,23 +78,19 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 | C-4 | Phone input shows "🇳🇬 +234" prefix | RegisterPage.tsx |
 | C-5 | Renamed `_setOtpDebugCode` → `setOtpDebugCode` | RegisterPage.tsx |
 
-## Session Summary (Jul 12 — Authentication.md audit Batch 3)
+## Session Summary (Jul 13 — Authentication.md audit Batch 4)
 | ID | Fix | Files |
 |---|---|---|
-| H-1 | Added `await` to `lookupUserForVerification` DB queries | `auth.service.js` |
-| H-2 | Added `authenticate` to `/send-verification` route | `auth.routes.js` |
-| H-3 | Client `deleteAccount(password)` now sends password body | `client.ts`, `useAuth.ts` |
-| H-4 | `loginResponse` uses `sanitizeUser()` to avoid PII leak | `auth.controller.js` |
-| H-5 | Email uniqueness check on profile update | `auth.service.js` |
-| M-3 | Added `authenticate` to `/verify-email` route | `auth.routes.js` |
-| M-4 | Rate limiter (5/15min) + old-PIN verification for `/transaction-pin` | `auth.routes.js`, `auth.service.js`, `auth.controller.js` |
-| M-5 | Consolidated sanitization — `validate.middleware` uses `sanitizeValue` from `auth.service` | `validate.middleware.js`, `auth.service.js` |
-| M-6 | Async bcrypt for backup codes (non-blocking) | `auth.service.js` |
-| L-1 | Login errors standardized to "Invalid credentials." (no account state enum) | `auth.service.js` |
-| L-3 | Deduplicated `parseDuration` — token service uses `env.JWT_REFRESH_EXPIRES_MS` | `token.service.js` |
-| L-4 | `deleteAccount` enforces truthy password check | `auth.service.js` |
+| H-2 | CSRF token rotation after sensitive operations (password change, MFA, PIN) | `csrf.middleware.js`, `auth.controller.js` |
+| M-1 | `optionalAuth` logs at `warn` level instead of `debug` | `auth.middleware.js` |
+| M-2 | Absolute session age (24h) enforcement in `checkSessionActivity` | `token.service.js` |
+| M-3 | Parallelized bcrypt password history checks via `Promise.all` | `auth.service.js` |
+| M-6 | Account lockout now logs via `logAction` with severity `critical` (instead of stub email) | `auth.service.js` |
+| L-1 | `checkPhone` returns `hasEmail: false` to prevent enumeration | `auth.service.js` |
+| L-4 | Rate limiter (30/15min) on `/me` endpoint | `auth.routes.js` |
+| L-5 | Changed `localStorage` → `sessionStorage` for auth cache | `useAuth.ts` |
 
-Skipped: M-2 (OTP debug kept visible by design).
+Skipped: H-1 (intentional tradeoff for mobile users), M-4 (OTP debug kept visible by design), M-5 (already improved), L-2 (SameSite already set), L-3 (timing difference minimal).
 
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |

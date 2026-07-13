@@ -4,11 +4,7 @@ const COOKIE_NAME = process.env.NODE_ENV === 'production' ? '__Host-csrf-token' 
 const HEADER_NAME = 'x-csrf-token';
 const CSRF_TOKEN_LENGTH = 32;
 
-export function csrfToken(req, res) {
-  let token = req.cookies?.[COOKIE_NAME] || req.cookies?.['csrf-token'];
-  if (!token || token.length < CSRF_TOKEN_LENGTH) {
-    token = randomToken(CSRF_TOKEN_LENGTH);
-  }
+function setCsrfCookie(res, token) {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: false,
     sameSite: 'strict',
@@ -16,7 +12,21 @@ export function csrfToken(req, res) {
     path: '/',
     maxAge: 24 * 60 * 60 * 1000,
   });
+}
+
+export function csrfToken(req, res) {
+  let token = req.cookies?.[COOKIE_NAME] || req.cookies?.['csrf-token'];
+  if (!token || token.length < CSRF_TOKEN_LENGTH) {
+    token = randomToken(CSRF_TOKEN_LENGTH);
+  }
+  setCsrfCookie(res, token);
   res.json({ csrfToken: token });
+}
+
+export function rotateCsrf(req, res) {
+  const newToken = randomToken(CSRF_TOKEN_LENGTH);
+  setCsrfCookie(res, newToken);
+  res.locals.csrfToken = newToken;
 }
 
 export function validateCsrf(req, res, next) {

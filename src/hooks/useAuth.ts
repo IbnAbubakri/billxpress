@@ -17,11 +17,11 @@ interface StoredAuth {
 
 function loadStoredAuth(): StoredAuth | null {
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    const raw = sessionStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (Date.now() - parsed.timestamp > AUTH_TTL) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
       return null;
     }
     if (parsed.user) {
@@ -29,7 +29,7 @@ function loadStoredAuth(): StoredAuth | null {
     }
     return parsed as StoredAuth;
   } catch {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
   }
 }
@@ -37,12 +37,12 @@ function loadStoredAuth(): StoredAuth | null {
 function saveStoredAuth(user: User, isAdmin: boolean) {
   try {
     const data: StoredAuth = { userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user', name: user.name, isAdmin, timestamp: Date.now() };
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
-  } catch { /* localStorage unavailable */ }
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+  } catch { /* sessionStorage unavailable */ }
 }
 
 function clearStoredAuth() {
-  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* localStorage unavailable */ }
+  try { sessionStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* sessionStorage unavailable */ }
 }
 
 function toUser(data: Record<string, unknown>): User {

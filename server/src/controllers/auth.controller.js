@@ -15,6 +15,7 @@ import {
 import logger from '../utils/logger.js';
 import { logAction } from '../services/audit.service.js';
 import env from '../config/env.js';
+import { rotateCsrf } from '../middleware/csrf.middleware.js';
 
 const isSecure = env.isProd();
 
@@ -268,6 +269,7 @@ export async function handleChangePassword(req, res, next) {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both current and new password are required.' });
     await changePassword(req.user.id, currentPassword, newPassword, req.clientIp, req.clientUA);
+    rotateCsrf(req, res);
     res.json({ message: 'Password changed successfully.' });
   } catch (err) { next(err); }
 }
@@ -276,6 +278,7 @@ export async function handleSetTransactionPin(req, res, next) {
   try {
     const { pin, currentPin } = req.body;
     await setTransactionPin(req.user.id, pin, req.clientIp, req.clientUA, currentPin);
+    rotateCsrf(req, res);
     res.json({ message: 'Transaction PIN set successfully.' });
   } catch (err) { next(err); }
 }
@@ -283,6 +286,7 @@ export async function handleSetTransactionPin(req, res, next) {
 export async function handleGenerateMfaSecret(req, res, next) {
   try {
     const result = await generateMfaSecret(req.user.id);
+    rotateCsrf(req, res);
     res.json(result);
   } catch (err) { next(err); }
 }
@@ -292,6 +296,7 @@ export async function handleVerifyMfaSetup(req, res, next) {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'Verification code required.' });
     const result = await verifyMfaSetup(req.user.id, token);
+    rotateCsrf(req, res);
     res.json(result);
   } catch (err) { next(err); }
 }
@@ -302,6 +307,7 @@ export async function handleDisableMfa(req, res, next) {
     if (!password) return res.status(400).json({ error: 'Password is required to disable MFA.' });
     const result = await disableMfa(req.user.id, password, totpCode);
     await logAction({ userId: req.user.id, action: 'MFA_DISABLED', details: {}, ip: req.clientIp, userAgent: req.clientUA, severity: 'high' });
+    rotateCsrf(req, res);
     res.json(result);
   } catch (err) { next(err); }
 }

@@ -58,7 +58,7 @@ export async function optionalAuth(req, res, next) {
     const user = await getUserById(decoded.sub);
     if (user) req.user = user;
   } catch (err) {
-    logger.debug({ err }, 'optionalAuth: failed to verify token');
+    logger.warn({ err }, 'optionalAuth: failed to verify token');
   }
   next();
 }
