@@ -59,11 +59,14 @@ export async function verifyTransaction(reference) {
 }
 
 export function verifyWebhookSignature(payload, signature) {
+  if (!signature || !payload) return false;
   const hash = crypto
-    .createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET)
+    .createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET || '')
     .update(payload)
-    .digest('hex');
-  return hash === signature;
+    .digest();
+  const sigBuf = Buffer.from(signature, 'hex');
+  if (hash.length !== sigBuf.length) return false;
+  return crypto.timingSafeEqual(hash, sigBuf);
 }
 
 export function generateReference(userId) {

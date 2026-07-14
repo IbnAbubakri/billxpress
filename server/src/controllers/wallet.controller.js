@@ -85,7 +85,7 @@ export async function handleVerifyFunding(req, res, next) {
     const verification = await verifyTransaction(reference);
 
     if (verification.data.status === 'success') {
-      const { amount, paid_at, channel } = verification.data;
+      const { amount, paid_at, channel, id: paystackTransactionId } = verification.data;
       const userId = verification.data.metadata?.user_id;
       if (!userId) return res.status(400).json({ error: 'Missing user_id in metadata' });
 
@@ -96,28 +96,32 @@ export async function handleVerifyFunding(req, res, next) {
       let result;
       await db.transaction(async (tx) => {
         const existing = await tx.get(
-          'SELECT id, status, user_id FROM wallet_funding_transactions WHERE paystack_reference = ? FOR UPDATE',
+          'SELECT id, status, amount FROM wallet_funding_transactions WHERE paystack_reference = ? FOR UPDATE',
           reference
         );
-
-        const txRecord = existing || { id: null };
 
         if (existing && existing.status === 'completed') {
           result = { credited: false, existing: true };
           return;
         }
 
+        if (existing && Number(existing.amount) !== amountInNaira) {
+          logger.error({ reference, expected: existing.amount, received: amountInNaira }, 'Amount mismatch in verify callback');
+          result = { credited: false, existing: true };
+          return;
+        }
+
         if (existing) {
           await tx.run(
-            `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ? WHERE id = ?`,
-            'completed', channel, 'Successful', paidAtDate, existing.id
+            `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ?, paystack_transaction_id = ? WHERE id = ?`,
+            'completed', channel, 'Successful', paidAtDate, paystackTransactionId, existing.id
           );
         } else {
           await tx.run(
             `INSERT INTO wallet_funding_transactions
-             (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paidAtDate
+             (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at, paystack_transaction_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paidAtDate, paystackTransactionId
           );
         }
 
