@@ -10,3 +10,5 @@ server/.env
 .DS_Store
 *.tsbuildinfo
 .impeccable/
+*.md
+!README.md

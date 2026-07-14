@@ -73,7 +73,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
     <div className="flex justify-center space-x-3 mb-4">
       {pinArray.map((digit, index) => (
         <div key={index}>
-          <label htmlFor={`${prefix}-${index}`} className="srOnly">
+          <label htmlFor={`${prefix}-${index}`} className="sr-only">
             {isConfirm ? 'Confirm PIN digit' : 'PIN digit'} {index + 1}
           </label>
           <input
@@ -98,13 +98,14 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
         ref={containerRef}
         role="dialog"
         aria-modal="true"
+        aria-describedby="pin-desc"
         className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-secondary dark:text-white">
             {step === 1 ? "Set Transaction PIN" : "Confirm PIN"}
           </h2>
-          <button onClick={onClose} aria-label="Close modal" className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-colors">
+          <button onClick={onClose} aria-label="Close modal" className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-all active:scale-[0.98]">
             <X className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
           </button>
         </div>
@@ -113,7 +114,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-secondary dark:text-white" aria-hidden="true" />
           </div>
-          <p className="text-black dark:text-white">
+          <p id="pin-desc" className="text-black dark:text-white">
             {step === 1 ? "Create a 4-digit PIN to secure your transactions" : "Re-enter your PIN to confirm"}
           </p>
         </div>
@@ -129,7 +130,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             <button
               onClick={handleContinue}
               disabled={pin.join("").length !== 4}
-              className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Continue
             </button>
@@ -145,14 +146,14 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             <div className="flex space-x-3">
               <button
                 onClick={() => { setStep(1); setConfirmPin(["", "", "", ""]); setErrors(""); }}
-                className="flex-1 bg-gray-100 dark:bg-dark-700 text-black dark:text-white py-4 px-4 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-dark-600 transition-all"
+                className="flex-1 bg-gray-100 dark:bg-dark-700 text-black dark:text-white py-4 px-4 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-dark-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Back
               </button>
               <button
                 onClick={handleConfirm}
                 disabled={confirmPin.join("").length !== 4}
-                className="flex-1 bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="flex-1 bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 Confirm PIN
               </button>

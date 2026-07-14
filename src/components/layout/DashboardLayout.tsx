@@ -73,7 +73,7 @@ const DashboardLayout = ({
                 aria-label="Open sidebar"
                 aria-expanded={sidebarOpen}
                 onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary cursor-pointer"
+                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary cursor-pointer active:scale-[0.98]"
               >
                 <Menu className="h-5 w-5" aria-hidden="true" />
               </button>

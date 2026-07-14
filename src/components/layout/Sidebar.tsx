@@ -46,7 +46,8 @@ function NavItem({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
     <Link
       to={item.path}
       onClick={onNavigate}
-      className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full text-left cursor-pointer ${
+      aria-current={isActive ? 'page' : undefined}
+      className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full text-left cursor-pointer active:scale-[0.98] ${
         isActive
           ? "bg-primary-50 text-primary-700 dark:bg-dark-700 dark:text-primary-300 shadow-sm"
           : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"

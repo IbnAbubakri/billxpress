@@ -14,8 +14,9 @@ export function NotificationBell({ show, onToggle }: NotificationBellProps) {
       <button
         type="button"
         aria-label="Notifications"
+        aria-expanded={show}
         onClick={onToggle}
-        className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary"
+        className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary cursor-pointer active:scale-[0.98]"
       >
         <Bell className="h-5 w-5" aria-hidden="true" />
       </button>

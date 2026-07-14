@@ -30,7 +30,8 @@ function MobileNavItem({ item }: { item: MobileNavItem }) {
   return (
     <Link
       to={item.path}
-      className={`flex-1 flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors cursor-pointer ${
+      aria-current={isActive ? 'page' : undefined}
+      className={`flex-1 flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors cursor-pointer active:scale-[0.98] ${
         isActive ? "text-primary dark:text-white" : "text-black dark:text-white"
       }`}
     >

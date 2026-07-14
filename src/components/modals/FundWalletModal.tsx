@@ -92,6 +92,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
         ref={containerRef}
         role="dialog"
         aria-modal="true"
+        aria-describedby={step >= 2 ? `fund-desc-${step}` : undefined}
         className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
@@ -100,7 +101,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-all active:scale-[0.98]"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -140,7 +141,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
                   <button
                     key={quickAmount}
                     onClick={() => setAmount(quickAmount)}
-                    className={`py-2 px-2 md:px-4 border-2 rounded-xl font-medium text-sm md:text-sm transition-all ${
+                    className={`py-2 px-2 md:px-4 border-2 rounded-xl font-medium text-sm md:text-sm transition-all hover:scale-[1.02] active:scale-[0.98] ${
                       amount === quickAmount
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-600'
                         : 'border-gray-200 dark:border-dark-700 hover:border-gray-300 dark:border-dark-600'
@@ -164,7 +165,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
                     <button
                       key={method.id}
                       onClick={() => setSelectedMethod(method.id)}
-                      className={`w-full p-4 border-2 rounded-2xl transition-all text-left ${
+                      className={`w-full p-4 border-2 rounded-2xl transition-all text-left hover:scale-[1.02] active:scale-[0.98] ${
                         selectedMethod === method.id
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
                           : 'border-gray-200 dark:border-dark-700 hover:border-gray-300 dark:border-dark-600'
@@ -191,7 +192,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               Continue
             </button>
@@ -209,7 +210,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
                 <CreditCard className="w-8 h-8 text-blue-600" aria-hidden="true" />
               </div>
               <h3 className="text-base font-bold text-black dark:text-white mb-2">Confirm Payment</h3>
-              <p className="text-black dark:text-white">Review your funding details</p>
+              <p id="fund-desc-2" className="text-black dark:text-white">Review your funding details</p>
             </div>
 
             <div className="space-y-3 mb-4">
@@ -237,13 +238,13 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
             <div className="flex space-x-3">
               <button
                 onClick={() => setStep(1)}
-                className="flex-1 py-3 border border-gray-300 dark:border-dark-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors"
+                className="flex-1 py-3 border border-gray-300 dark:border-dark-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-dark-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Back
               </button>
               <button
                 onClick={handlePayment}
-                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Pay Now
               </button>
@@ -257,7 +258,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
               <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
             </div>
             <h3 className="text-base font-bold text-black dark:text-white mb-2">Redirecting to Payment...</h3>
-            <p className="text-black dark:text-white">
+            <p id="fund-desc-3" className="text-black dark:text-white">
               You'll be redirected to Paystack's secure checkout page.
             </p>
           </div>

@@ -119,6 +119,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
         ref={containerRef}
         role="dialog"
         aria-modal="true"
+        aria-describedby={step >= 2 ? `withdraw-desc-${step}` : undefined}
         className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
@@ -127,7 +128,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-[0.98]"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -235,7 +236,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               Continue
             </button>
@@ -249,7 +250,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 <Banknote className="w-8 h-8 text-blue-600" aria-hidden="true" />
               </div>
               <h3 className="text-base font-bold text-black dark:text-white mb-2">Confirm Withdrawal</h3>
-              <p className="text-black dark:text-white">Review your withdrawal details</p>
+              <p id="withdraw-desc-2" className="text-black dark:text-white">Review your withdrawal details</p>
             </div>
 
             <div className="space-y-3 mb-4">
@@ -283,13 +284,13 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
             <div className="flex space-x-3">
               <button
                 onClick={() => setStep(1)}
-                className="flex-1 py-3 border border-gray-300 dark:border-dark-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors"
+                className="flex-1 py-3 border border-gray-300 dark:border-dark-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-dark-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Back
               </button>
               <button
                 onClick={handleWithdraw}
-                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Withdraw
               </button>
@@ -303,7 +304,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
             <h3 className="text-base font-bold text-black dark:text-white mb-2">Withdrawal Initiated!</h3>
-            <p className="text-black dark:text-white mb-4">
+            <p id="withdraw-desc-3" className="text-black dark:text-white mb-4">
               Your withdrawal of ₦{Number(amount).toLocaleString()} is being processed
             </p>
             <p className="text-sm text-black dark:text-white mb-4">
@@ -312,7 +313,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
             <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
             <button
               onClick={onClose}
-              className="mt-4 px-6 py-2 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               Close
             </button>

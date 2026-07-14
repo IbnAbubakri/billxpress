@@ -88,7 +88,7 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1, duration: 0.2 }} className="stats-card group hover:scale-105">
+          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1, duration: 0.2 }} className="stats-card group hover:scale-105 active:scale-[0.98]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>

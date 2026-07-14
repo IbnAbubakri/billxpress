@@ -78,7 +78,7 @@ export default function LandingPage() {
               <a href="#features" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Features</a>
               <a href="#trust" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Trust</a>
               <Link to="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Sign In</Link>
-              <Link to="/register" className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:scale-[1.02]">
+              <Link to="/register" className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 Get Started
                 <ArrowRight className="ml-1.5 w-4 h-4" />
               </Link>
@@ -88,9 +88,8 @@ export default function LandingPage() {
             </button>
           </div>
         </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t dark:border-dark-700 bg-white dark:bg-dark-900">
-            <div className="px-4 py-4 space-y-3">
+        <div className={`md:hidden border-t dark:border-dark-700 bg-white dark:bg-dark-900 transition-all duration-300 overflow-hidden ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="px-4 py-4 space-y-3">
               <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Features</a>
               <a href="#trust" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Trust</a>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300">Sign In</Link>
@@ -98,8 +97,7 @@ export default function LandingPage() {
                 Get Started
               </Link>
             </div>
-          </div>
-        )}
+        </div>
       </header>
 
       {/* Hero */}
@@ -126,7 +124,7 @@ export default function LandingPage() {
                 Create Free Account
                 <ChevronRight className="ml-1.5 w-5 h-5" />
               </Link>
-              <Link to="/login" className="inline-flex items-center px-8 py-4 bg-white dark:bg-dark-800 text-gray-700 dark:text-gray-200 text-base font-semibold rounded-2xl border border-gray-200 dark:border-dark-700 hover:shadow-lg transition-all duration-200">
+              <Link to="/login" className="inline-flex items-center px-8 py-4 bg-white dark:bg-dark-800 text-gray-700 dark:text-gray-200 text-base font-semibold rounded-2xl border border-gray-200 dark:border-dark-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
                 Sign In
               </Link>
             </div>
@@ -140,7 +138,7 @@ export default function LandingPage() {
           <p className="text-center text-sm font-medium text-gray-600 dark:text-gray-500 mb-8 uppercase tracking-wider">Trusted partners</p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             {partners.map((p) => (
-              <div key={p.name} className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-dark-800 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-dark-700 hover:shadow-lg hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 cursor-pointer p-3">
+              <div key={p.name} className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-dark-800 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-dark-700 hover:shadow-lg hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 p-3">
                 <img src={p.icon} alt={p.name} loading="lazy" className="w-full h-full object-contain" />
               </div>
             ))}
@@ -166,7 +164,7 @@ export default function LandingPage() {
                 <button
                   key={f.title}
                   onClick={() => navigate(servicePaths[f.title])}
-                  className="group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1 text-left"
+                  className="group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] text-left"
                 >
                   <div className={`w-12 h-12 rounded-xl ${f.bg} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-6 h-6" />

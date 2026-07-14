@@ -89,7 +89,7 @@ const ServiceGrid = () => {
           <button
             key={service.id}
             onClick={() => navigate(service.path)}
-            className={`bg-white dark:bg-dark-800 rounded-2xl p-3 sm:p-4 shadow-sm ${service.hoverColor} transition-all duration-200 hover:shadow-md hover:scale-105 text-left group`}
+            className={`bg-white dark:bg-dark-800 rounded-2xl p-3 sm:p-4 shadow-sm ${service.hoverColor} transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-[0.98] text-left group`}
           >
             <div
               className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl ${service.color} flex items-center justify-center mb-2 sm:mb-4 transition-transform group-hover:scale-110`}
