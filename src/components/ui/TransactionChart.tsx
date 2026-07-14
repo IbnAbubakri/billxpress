@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
 import { walletApi } from '../../api/client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useDarkMode } from "../../hooks/useDarkMode";
@@ -36,6 +35,7 @@ const TransactionChart = () => {
       return data.data as Array<{ day_idx: number; amount: number }>;
     },
     staleTime: 2 * 60 * 1000,
+    refetchOnMount: true,
   });
 
   const data = apiData && apiData.length > 0

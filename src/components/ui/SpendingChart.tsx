@@ -34,6 +34,7 @@ const SpendingChart = () => {
       return data.data as Array<{ month: string; spending: number }>;
     },
     staleTime: 2 * 60 * 1000,
+    refetchOnMount: true,
   });
 
   const data = apiData && apiData.length > 0
