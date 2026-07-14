@@ -16,7 +16,7 @@ import BankDetailsModal from "./BankDetailsModal";
 import BasicInfoModal from "./BasicInfoModal";
 
 const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) => {
-  const { handleChangePassword, handleSetTransactionPin } = useAuth();
+  const { handleChangePassword, handleSetTransactionPin, handleDeleteAccount } = useAuth();
   const fullName = (user?.name || '').split(' ');
   const defaultFirstName = fullName[0] || '';
   const defaultLastName = fullName.slice(1).join(' ') || '';
@@ -542,7 +542,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         aria-describedby={errors.firstName ? 'profileFirstName-error' : undefined}
                       />
                       {errors.firstName && (
-                        <p id="profileFirstName-error" className="text-red-500 text-sm mt-1">
+                        <p id="profileFirstName-error" role="alert" className="text-red-500 text-sm mt-1">
                           {errors.firstName}
                         </p>
                       )}
@@ -564,7 +564,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         aria-describedby={errors.lastName ? 'profileLastName-error' : undefined}
                       />
                       {errors.lastName && (
-                        <p id="profileLastName-error" className="text-red-500 text-sm mt-1">
+                        <p id="profileLastName-error" role="alert" className="text-red-500 text-sm mt-1">
                           {errors.lastName}
                         </p>
                       )}
@@ -608,7 +608,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                         aria-describedby={errors.phone ? 'profilePhone-error' : undefined}
                       />
                       {errors.phone && (
-                        <p id="profilePhone-error" className="text-red-500 text-sm mt-1">
+                        <p id="profilePhone-error" role="alert" className="text-red-500 text-sm mt-1">
                           {errors.phone}
                         </p>
                       )}
@@ -710,7 +710,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
                         />
                         {errors.currentPassword && (
-                          <p id="currentPassword-error" className="text-red-500 text-sm mt-1">
+                          <p id="currentPassword-error" role="alert" className="text-red-500 text-sm mt-1">
                             {errors.currentPassword}
                           </p>
                         )}
@@ -732,7 +732,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           aria-describedby={errors.newPassword ? 'newPassword-error' : undefined}
                         />
                         {errors.newPassword && (
-                          <p id="newPassword-error" className="text-red-500 text-sm mt-1">
+                          <p id="newPassword-error" role="alert" className="text-red-500 text-sm mt-1">
                             {errors.newPassword}
                           </p>
                         )}
@@ -754,7 +754,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           aria-describedby={errors.confirmPassword ? 'profileConfirmPassword-error' : undefined}
                         />
                         {errors.confirmPassword && (
-                          <p id="profileConfirmPassword-error" className="text-red-500 text-sm mt-1">
+                          <p id="profileConfirmPassword-error" role="alert" className="text-red-500 text-sm mt-1">
                             {errors.confirmPassword}
                           </p>
                         )}
@@ -795,7 +795,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           aria-describedby={errors.transactionPin ? 'transactionPin-error' : undefined}
                         />
                         {errors.transactionPin && (
-                          <p id="transactionPin-error" className="text-red-500 text-sm mt-1">
+                          <p id="transactionPin-error" role="alert" className="text-red-500 text-sm mt-1">
                             {errors.transactionPin}
                           </p>
                         )}
@@ -818,7 +818,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
       {/* Email Change Modal */}
       {showEmailChangeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Change email address">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Change email address">
           <div ref={emailChangeRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-black dark:text-white mb-4">Change Email Address</h2>
             {!emailChangeSent ? (
@@ -826,7 +826,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                 <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="New email address"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
                 />
-                {emailChangeError && <p className="text-red-500 text-sm mb-3">{emailChangeError}</p>}
+                {emailChangeError && <p role="alert" className="text-red-500 text-sm mb-3">{emailChangeError}</p>}
                 <div className="flex gap-3">
                   <button onClick={() => { setShowEmailChangeModal(false); setNewEmail(''); setEmailChangeError(''); }}
                     className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
@@ -858,14 +858,14 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
       {/* Phone OTP Verification Modal */}
       {showPhoneOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Verify phone number">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Verify phone number">
           <div ref={phoneOtpRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-black dark:text-white mb-2">Verify Phone Number</h2>
             <p className="text-sm text-black dark:text-white mb-4">Enter the OTP sent to {pendingPhone}</p>
             <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="6-digit OTP"
               className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-center text-lg tracking-widest text-black dark:text-white bg-white dark:bg-dark-800"
             />
-            {phoneOtpError && <p className="text-red-500 text-sm mb-3">{phoneOtpError}</p>}
+            {phoneOtpError && <p role="alert" className="text-red-500 text-sm mb-3">{phoneOtpError}</p>}
             <div className="flex gap-3">
               <button onClick={() => { setShowPhoneOtpModal(false); setOtpCode(''); setPhoneOtpError(''); }}
                 className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
@@ -894,7 +894,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
       {/* Account Deletion Modal */}
       {showAccountDeletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Delete account">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Delete account">
           <div ref={accountDeletionRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
             <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
@@ -907,7 +907,6 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
               <button onClick={async () => {
                 if (deletionConfirmText !== 'DELETE') return;
                 try {
-                  const { handleDeleteAccount } = await import('../../hooks/useAuth').then(m => ({ handleDeleteAccount: m.useAuth().handleDeleteAccount }));
                   await handleDeleteAccount();
                   onLogout();
                 } catch { /* ignore */ }

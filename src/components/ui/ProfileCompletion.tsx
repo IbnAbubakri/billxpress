@@ -90,7 +90,7 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
     <div className="mb-6 w-full bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 relative">
       <button
         onClick={() => setShowDismissConfirm(true)}
-        className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+        className="absolute top-3 right-3 p-1 text-gray-600 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
         aria-label="Dismiss profile completion"
         title="Skip for now"
       >
@@ -110,7 +110,7 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
         <button className="text-xs text-black dark:text-white hover:underline" onClick={() => setCollapsed((p) => !p)}>
           {collapsed ? 'Show more' : 'Show less'}
         </button>
-        <button onClick={() => setShowDismissConfirm(true)} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <button onClick={() => setShowDismissConfirm(true)} className="text-xs text-gray-600 hover:text-gray-800 dark:hover:text-gray-300">
           Skip for now
         </button>
       </div>

@@ -106,3 +106,14 @@ Skipped: C-1 (deployment concern, not code), H-1 (intentional tradeoff for mobil
 | `GET /api/charts/weekly` | Weekly transaction amounts by day |
 | `GET /api/charts/monthly` | Monthly spending by month |
 | `GET /api/transactions` | Authenticated user's transactions |
+
+## Design Context
+
+Refer to `PRODUCT.md` at the project root for strategic context (users, positioning, brand personality, design principles) and `DESIGN.md` for the visual system (colours, typography, components, elevation). Both are authoritative — visual decisions should stay on-brand per these files.
+
+Key rules:
+- Purple (`#7C3AED`) is the brand anchor; use ≤15% per screen
+- Ginto (headings) + Inter (body) — never Ginto for body text
+- Flat surfaces at rest, lifted on interaction
+- 1rem (rounded-2xl) is the default corner radius
+- Service categories use consistent colour coding (blue=airtime, green=data, purple=TV, yellow=electricity, red=betting)

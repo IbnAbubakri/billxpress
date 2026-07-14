@@ -19,6 +19,7 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
   const [selectedAmount, setSelectedAmount] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -85,8 +86,11 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
     }
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
+    setIsPurchasing(true);
+    await new Promise(r => setTimeout(r, 1500));
     setShowConfirmModal(false);
+    setIsPurchasing(false);
     addToast('Purchase successful!', 'success');
     navigateTimerRef.current = setTimeout(() => {
       navigate("/dashboard");
@@ -136,15 +140,15 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
               aria-describedby={errors.phoneNumber ? 'airtimePhone-error' : undefined}
             />
             {errors.phoneNumber && (
-              <p id="airtimePhone-error" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+              <p id="airtimePhone-error" role="alert" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
             )}
           </div>
 
           {/* Network Selection */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">
+          <fieldset className="mb-4">
+            <legend className="block text-sm font-medium text-black dark:text-white mb-2">
               Network
-            </label>
+            </legend>
             <div className="grid grid-cols-2 gap-3">
               {networks.map((network) => (
                 <button
@@ -167,9 +171,9 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
               ))}
             </div>
             {errors.network && (
-              <p className="text-red-500 text-sm mt-1">{errors.network}</p>
+              <p role="alert" className="text-red-500 text-sm mt-1">{errors.network}</p>
             )}
-          </div>
+          </fieldset>
 
           {/* Quick Amount Selection */}
           <div className="mb-4">
@@ -210,7 +214,7 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
               aria-describedby={errors.amount ? 'airtimeCustomAmount-error' : undefined}
             />
             {errors.amount && (
-              <p id="airtimeCustomAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>
+              <p id="airtimeCustomAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>
             )}
           </div>
 
@@ -228,6 +232,7 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
           title="Confirm Purchase"
           message="Please review your airtime purchase"
           confirmLabel="Confirm & Buy"
+          isLoading={isPurchasing}
           onConfirm={handleConfirmPurchase}
           onCancel={() => setShowConfirmModal(false)}
           icon={<div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"><Check className="w-8 h-8 text-green-600" aria-hidden="true" /></div>}

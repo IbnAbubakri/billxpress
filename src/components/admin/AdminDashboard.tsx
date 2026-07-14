@@ -88,11 +88,11 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="stats-card group hover:scale-105">
+          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1, duration: 0.2 }} className="stats-card group hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>
-                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{stat.value}</p>
+                <p className="text-xl font-bold text-black dark:text-white mt-1">{stat.value}</p>
                 {stat.change && (
                   <div className="flex items-center mt-2">
                     <ArrowUpRight className="w-4 h-4 text-success-500" />
@@ -109,9 +109,9 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 chart-container">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.2 }} className="lg:col-span-2 chart-container">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Revenue Trend</h3>
+            <h2 className="text-base font-ginto font-semibold text-black dark:text-white">Revenue Trend</h2>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={revenueChart || []}>
@@ -130,8 +130,8 @@ const AdminDashboard = () => {
           </ResponsiveContainer>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="chart-container">
-          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Service Distribution</h3>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.2 }} className="chart-container">
+          <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Service Distribution</h2>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={serviceDist || []} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
@@ -156,9 +156,9 @@ const AdminDashboard = () => {
         </motion.div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.2 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700">
         <div className="p-4 border-b border-neutral-100 dark:border-dark-700">
-          <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Recent Transactions</h3>
+          <h2 className="text-base font-ginto font-semibold text-black dark:text-white">Recent Transactions</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">

@@ -244,7 +244,7 @@ const RegisterPage = () => {
     `w-full pl-12 pr-12 py-4 border rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 ${errors[field] ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-300 dark:border-dark-700'}`;
 
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full">
         <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6" role="region" aria-label="Registration form">
           <div className="text-center mb-6">
@@ -271,7 +271,7 @@ const RegisterPage = () => {
                   <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-medium transition-all ${
                     isDone ? 'bg-green-500 text-white' :
                     isActive ? 'bg-secondary text-white ring-2 ring-secondary/30' :
-                    'bg-gray-200 dark:bg-dark-700 text-gray-400'
+                    'bg-gray-200 dark:bg-dark-700 text-gray-600'
                   }`}>
                     {isDone ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                   </div>
@@ -342,7 +342,7 @@ const RegisterPage = () => {
                       <span className="absolute left-11 top-1/2 -translate-y-1/2 text-black dark:text-white text-sm font-medium pointer-events-none select-none">+234</span>
                       <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={`${inputClass('phone')} pl-[7.5rem]`} placeholder="8012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
                     </div>
-                    {errors.phone && <p id="phone-error" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                    {errors.phone && <p id="phone-error" role="alert" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                   </div>
                   <button type="submit" disabled={isLoading || !phone} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     {isLoading ? (
@@ -371,7 +371,7 @@ const RegisterPage = () => {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-black dark:text-white mb-3 text-center">Verification Code</label>
+                <label htmlFor="regOtp" className="block text-sm font-medium text-black dark:text-white mb-3 text-center">Verification Code</label>
                 <div className="flex justify-center gap-2">
                   {otpCode.map((digit, idx) => (
                     <input
@@ -390,7 +390,7 @@ const RegisterPage = () => {
                     />
                   ))}
                 </div>
-                {errors.otp && <p className="mt-2 text-sm text-red-600 text-center">{errors.otp}</p>}
+                {errors.otp && <p role="alert" className="mt-2 text-sm text-red-600 text-center">{errors.otp}</p>}
               </div>
               <button type="submit" disabled={isLoading || otpCode.join('').length !== 6} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 {isLoading ? (
@@ -413,7 +413,7 @@ const RegisterPage = () => {
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                     <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputClass('firstName')} placeholder="First name" aria-invalid={!!errors.firstName} aria-describedby={errors.firstName ? 'firstName-error' : undefined} />
                   </div>
-                  {errors.firstName && <p id="firstName-error" className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                  {errors.firstName && <p id="firstName-error" role="alert" className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-black dark:text-white mb-2">Last Name</label>
@@ -421,7 +421,7 @@ const RegisterPage = () => {
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                     <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputClass('lastName')} placeholder="Last name" aria-invalid={!!errors.lastName} aria-describedby={errors.lastName ? 'lastName-error' : undefined} />
                   </div>
-                  {errors.lastName && <p id="lastName-error" className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+                  {errors.lastName && <p id="lastName-error" role="alert" className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
                 </div>
               </div>
               <div>
@@ -430,7 +430,7 @@ const RegisterPage = () => {
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                   <input id="regEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass('email')} placeholder="Enter your email" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'email-error' : undefined} />
                 </div>
-                {errors.email && <p id="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                {errors.email && <p id="email-error" role="alert" className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
               <button type="submit" disabled={!firstName || !lastName || !email} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 Continue
@@ -450,7 +450,7 @@ const RegisterPage = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.password && <p id="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                {errors.password && <p id="password-error" role="alert" className="mt-1 text-sm text-red-600">{errors.password}</p>}
                 {passwordStrength && (
                   <div className="mt-2">
                     <div className="flex gap-1 h-1.5">
@@ -471,7 +471,7 @@ const RegisterPage = () => {
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.confirmPassword && <p id="confirmPassword-error" className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p id="confirmPassword-error" role="alert" className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
               </div>
               <div className="flex items-start gap-3">
                 <input
@@ -492,7 +492,7 @@ const RegisterPage = () => {
                   </a>
                 </label>
               </div>
-              {errors.tos && <p className="text-sm text-red-600">{errors.tos}</p>}
+              {errors.tos && <p role="alert" className="text-sm text-red-600">{errors.tos}</p>}
               <button type="submit" disabled={isLoading || !password || !confirmPassword} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 {isLoading ? (
                   <div className="flex items-center justify-center">

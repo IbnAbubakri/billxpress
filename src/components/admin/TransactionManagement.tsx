@@ -95,11 +95,11 @@ const TransactionManagement: React.FC = () => {
           { title: 'Pending', value: pendingCount.toString(), icon: Clock, color: 'warning' },
           { title: 'Failed', value: failedCount.toString(), icon: XCircle, color: 'error' },
         ].map((stat, index) => (
-          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="stats-card">
+          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1, duration: 0.2 }} className="stats-card">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>
-                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{stat.value}</p>
+                <p className="text-xl font-bold text-black dark:text-white mt-1">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                 stat.color === 'primary' ? 'bg-primary-500' : stat.color === 'success' ? 'bg-success-500' : stat.color === 'warning' ? 'bg-warning-500' : 'bg-error-500'
@@ -126,7 +126,7 @@ const TransactionManagement: React.FC = () => {
         </select>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
@@ -186,12 +186,12 @@ const TransactionManagement: React.FC = () => {
       </motion.div>
 
       {showTransactionModal && selectedTransaction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white">Transaction Details</h3>
+                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white">Transaction Details</h2>
                 <button onClick={() => setShowTransactionModal(false)} className="p-2 text-black dark:text-white rounded-lg transition-colors"><X className="w-5 h-5" /></button>
               </div>
             </div>
@@ -211,7 +211,7 @@ const TransactionManagement: React.FC = () => {
               </div>
               <div className="bg-neutral-50 dark:bg-dark-800 rounded-xl p-4">
                 <p className="text-sm font-medium text-black dark:text-white mb-1">Amount</p>
-                <p className="text-2xl font-ginto font-bold text-black dark:text-white">₦{Number(selectedTransaction.amount).toLocaleString()}</p>
+                <p className="text-2xl font-bold text-black dark:text-white">₦{Number(selectedTransaction.amount).toLocaleString()}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

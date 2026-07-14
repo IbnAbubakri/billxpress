@@ -170,7 +170,7 @@ const TransactionsPage: React.FC<PageProps> = ({
 
         <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-dark-700">
-            <h3 className="text-base font-semibold text-black dark:text-white">Transaction History ({filteredTransactions.length})</h3>
+            <h2 className="text-base font-semibold text-black dark:text-white">Transaction History ({filteredTransactions.length})</h2>
           </div>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -236,7 +236,7 @@ const TransactionsPage: React.FC<PageProps> = ({
       </div>
 
       {showExportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 dark:bg-dark-900/80">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
             <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">Export Transactions</h2>
             <div className="space-y-3">

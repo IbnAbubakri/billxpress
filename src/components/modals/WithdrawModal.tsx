@@ -71,11 +71,8 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     const cleaned = value.replace(/\D/g, '').substring(0, 10);
     setAccountNumber(cleaned);
     
-    // Simulate account name lookup
     if (cleaned.length === 10) {
-      setTimeout(() => {
-        setAccountName(user?.name || 'Account Holder');
-      }, 1000);
+      setAccountName(user?.name || 'Account Holder');
     } else {
       setAccountName('');
     }
@@ -106,10 +103,11 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     try {
       await withdrawFunds(Number(amount), bankName, accountNumber, accountName);
       onSuccess?.();
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('Withdrawal failed:', err);
+      setErrors({ amount: 'Withdrawal failed. Please try again.' });
+      setStep(1);
     }
-    closeTimerRef.current = setTimeout(() => onClose(), 2000);
   };
 
   const withdrawalFee = amount ? Math.max(50, Number(amount) * 0.01) : 0;
@@ -161,7 +159,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 aria-describedby={errors.amount ? 'withdrawAmount-error' : undefined}
               />
               {errors.amount && (
-                <p id="withdrawAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>
+                <p id="withdrawAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>
               )}
             </div>
 
@@ -186,7 +184,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 ))}
               </select>
               {errors.bankName && (
-                <p id="selectBank-error" className="text-red-500 text-sm mt-1">{errors.bankName}</p>
+                <p id="selectBank-error" role="alert" className="text-red-500 text-sm mt-1">{errors.bankName}</p>
               )}
             </div>
 
@@ -211,7 +209,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 <p className="text-green-600 text-sm mt-1">Account Name: {accountName}</p>
               )}
               {errors.accountNumber && (
-                <p id="withdrawAccountNumber-error" className="text-red-500 text-sm mt-1">{errors.accountNumber}</p>
+                <p id="withdrawAccountNumber-error" role="alert" className="text-red-500 text-sm mt-1">{errors.accountNumber}</p>
               )}
             </div>
 
@@ -237,7 +235,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 transition-colors"
             >
               Continue
             </button>
@@ -291,7 +289,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               </button>
               <button
                 onClick={handleWithdraw}
-                className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
               >
                 Withdraw
               </button>
@@ -312,6 +310,12 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               Funds will be credited to your account within 24 hours
             </p>
             <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+            <button
+              onClick={onClose}
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+            >
+              Close
+            </button>
           </div>
         )}
       </div>

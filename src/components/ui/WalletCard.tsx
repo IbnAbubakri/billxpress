@@ -90,4 +90,4 @@ const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
   );
 };
 
-export default WalletCard;
+export default React.memo(WalletCard);

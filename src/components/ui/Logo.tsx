@@ -21,7 +21,7 @@ export function Logo({ className = '', iconOnly = false, size = 'md' }: LogoProp
         <span className={`${s.mark} font-bold text-white leading-none tracking-tight`}>BX</span>
       </div>
       {!iconOnly && (
-        <span className={`${s.text} font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent`}>
+        <span className={`${s.text} font-bold text-primary`}>
           BillXpress
         </span>
       )}

@@ -23,6 +23,7 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
   const [smartCardNumber, setSmartCardNumber] = useState("");
   const [selectedPackage, setSelectedPackage] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -107,8 +108,11 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
     }
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
+    setIsPurchasing(true);
+    await new Promise(r => setTimeout(r, 1500));
     setShowConfirmModal(false);
+    setIsPurchasing(false);
     addToast('Purchase successful!', 'success');
     navigateTimerRef.current = setTimeout(() => {
       navigate("/dashboard");
@@ -160,10 +164,10 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
         </div>
 
         <div className="max-w-md mx-auto">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">
+          <fieldset className="mb-4">
+            <legend className="block text-sm font-medium text-black dark:text-white mb-2">
               TV Provider
-            </label>
+            </legend>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {providers.map((provider) => (
                 <button
@@ -186,9 +190,9 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
               ))}
             </div>
             {errors.provider && (
-              <p className="text-red-500 text-sm mt-1">{errors.provider}</p>
+              <p role="alert" className="text-red-500 text-sm mt-1">{errors.provider}</p>
             )}
-          </div>
+          </fieldset>
 
           <div className="mb-4">
             <label htmlFor="smartCardNumber" className="block text-sm font-medium text-black dark:text-white mb-2">
@@ -207,17 +211,17 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
               aria-describedby={errors.smartCardNumber ? 'smartCardNumber-error' : undefined}
             />
             {errors.smartCardNumber && (
-              <p id="smartCardNumber-error" className="text-red-500 text-sm mt-1">
+              <p id="smartCardNumber-error" role="alert" className="text-red-500 text-sm mt-1">
                 {errors.smartCardNumber}
               </p>
             )}
           </div>
 
           {selectedProvider && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-black dark:text-white mb-2">
+            <fieldset className="mb-4">
+              <legend className="block text-sm font-medium text-black dark:text-white mb-2">
                 Select Package
-              </label>
+              </legend>
               <div className="space-y-3">
                 {packages[selectedProvider as keyof typeof packages]?.map(
                   (pkg) => (
@@ -246,9 +250,9 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
                 )}
               </div>
               {errors.package && (
-                <p className="text-red-500 text-sm mt-1">{errors.package}</p>
+                <p role="alert" className="text-red-500 text-sm mt-1">{errors.package}</p>
               )}
-            </div>
+            </fieldset>
           )}
 
           <button
@@ -264,6 +268,7 @@ const TVSubscriptionPage: React.FC<PageProps> = ({
           title="Confirm Subscription"
           message="Please review your TV subscription"
           confirmLabel="Confirm"
+          isLoading={isPurchasing}
           onConfirm={handleConfirmPurchase}
           onCancel={() => setShowConfirmModal(false)}
           icon={

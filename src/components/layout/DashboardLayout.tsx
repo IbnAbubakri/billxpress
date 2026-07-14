@@ -26,7 +26,7 @@ const DashboardLayout = ({
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-neutral-50 dark:bg-dark-900">
       <a href="#main-content" className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-primary-700 focus-visible:rounded-2xl focus-visible:shadow-lg focus-visible:outline-none">
         Skip to content
       </a>

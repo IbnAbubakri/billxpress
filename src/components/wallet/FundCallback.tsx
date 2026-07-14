@@ -1,7 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { verifyWalletFunding } from '../../api/client';
@@ -13,6 +13,13 @@ export default function FundCallback() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [amountFunded, setAmountFunded] = useState<number | null>(null);
   const [serverMessage, setServerMessage] = useState('');
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const reference = searchParams.get('reference');
@@ -34,7 +41,7 @@ export default function FundCallback() {
         }
         queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
         queryClient.invalidateQueries({ queryKey: ['charts'] });
-        setTimeout(() => navigate('/wallet'), 3000);
+        redirectTimerRef.current = setTimeout(() => navigate('/wallet'), 3000);
       })
       .catch((err) => {
         setStatus('error');
@@ -58,13 +65,19 @@ export default function FundCallback() {
               <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             </div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Payment Successful!</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-2">Your wallet has been funded. Redirecting...</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-2">Your wallet has been funded.</p>
             {amountFunded !== null && amountFunded > 0 && (
               <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                 ₦{Number(amountFunded).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} has been verified
               </p>
             )}
-            <p className="text-xs text-gray-400 mt-3">{serverMessage}</p>
+            <p className="text-xs text-gray-600 mt-3">{serverMessage}</p>
+            <button
+              onClick={() => { if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current); navigate('/wallet'); }}
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
+            >
+              Go to Wallet
+            </button>
           </>
         )}
         {status === 'error' && (
@@ -76,7 +89,7 @@ export default function FundCallback() {
             <p className="text-red-600 dark:text-red-400 text-sm mb-4">{serverMessage}</p>
             <button
               onClick={() => navigate('/wallet')}
-              className="px-6 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+              className="px-6 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
             >
               Back to Wallet
             </button>

@@ -28,6 +28,7 @@ const ElectricityPage: React.FC<PageProps> = ({
   const [meterNumber, setMeterNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -102,8 +103,11 @@ const ElectricityPage: React.FC<PageProps> = ({
     if (Object.keys(newErrors).length === 0) setShowConfirmModal(true);
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
+    setIsPurchasing(true);
+    await new Promise(r => setTimeout(r, 1500));
     setShowConfirmModal(false);
+    setIsPurchasing(false);
     addToast('Purchase successful!', 'success');
     navigateTimerRef.current = setTimeout(() => navigate("/dashboard"), 1000);
   };
@@ -135,8 +139,8 @@ const ElectricityPage: React.FC<PageProps> = ({
         </div>
 
         <div className="max-w-md mx-auto">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">Distribution Company</label>
+          <fieldset className="mb-4">
+            <legend className="block text-sm font-medium text-black dark:text-white mb-2">Distribution Company</legend>
             <div className="grid grid-cols-2 gap-3">
               {discos.map((disco) => (
                 <button
@@ -149,11 +153,11 @@ const ElectricityPage: React.FC<PageProps> = ({
                 </button>
               ))}
             </div>
-            {errors.disco && <p className="text-red-500 text-sm mt-1">{errors.disco}</p>}
-          </div>
+            {errors.disco && <p role="alert" className="text-red-500 text-sm mt-1">{errors.disco}</p>}
+          </fieldset>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">Meter Type</label>
+          <fieldset className="mb-4">
+            <legend className="block text-sm font-medium text-black dark:text-white mb-2">Meter Type</legend>
             <div className="grid grid-cols-2 gap-3">
               {meterTypes.map((type) => (
                 <button
@@ -166,15 +170,15 @@ const ElectricityPage: React.FC<PageProps> = ({
                 </button>
               ))}
             </div>
-            {errors.meterType && <p className="text-red-500 text-sm mt-1">{errors.meterType}</p>}
-          </div>
+            {errors.meterType && <p role="alert" className="text-red-500 text-sm mt-1">{errors.meterType}</p>}
+          </fieldset>
 
           <div className="mb-4">
             <label htmlFor="meterNumber" className="block text-sm font-medium text-black dark:text-white mb-2">Meter Number</label>
             <input id="meterNumber" type="text" value={meterNumber} onChange={(e) => handleMeterNumberChange(e.target.value)} placeholder="Enter your meter number"
               className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.meterNumber ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.meterNumber} aria-describedby={errors.meterNumber ? 'meterNumber-error' : undefined} />
-            {errors.meterNumber && <p id="meterNumber-error" className="text-red-500 text-sm mt-1">{errors.meterNumber}</p>}
+            {errors.meterNumber && <p id="meterNumber-error" role="alert" className="text-red-500 text-sm mt-1">{errors.meterNumber}</p>}
           </div>
 
           <div className="mb-4">
@@ -182,7 +186,7 @@ const ElectricityPage: React.FC<PageProps> = ({
             <input id="electricityAmount" type="text" value={amount} onChange={(e) => handleAmountChange(e.target.value)} placeholder="Enter amount"
               className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.amount ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.amount} aria-describedby={errors.amount ? 'electricityAmount-error' : undefined} />
-            {errors.amount && <p id="electricityAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>}
+            {errors.amount && <p id="electricityAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>}
           </div>
 
           <button onClick={handleSubmit} className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors cursor-pointer">Continue</button>
@@ -193,6 +197,7 @@ const ElectricityPage: React.FC<PageProps> = ({
           title="Confirm Payment"
           message="Please review your electricity bill payment"
           confirmLabel="Confirm"
+          isLoading={isPurchasing}
           onConfirm={handleConfirmPurchase}
           onCancel={() => setShowConfirmModal(false)}
           icon={<div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"><Check className="w-8 h-8 text-green-600" aria-hidden="true" /></div>}

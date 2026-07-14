@@ -72,16 +72,20 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
   const renderPinInputs = (pinArray: string[], prefix: string, isConfirm = false) => (
     <div className="flex justify-center space-x-3 mb-4">
       {pinArray.map((digit, index) => (
-        <input
-          key={index}
-          id={`${prefix}-${index}`}
-          type="password"
-          maxLength={1}
-          value={digit}
-          onChange={(e) => handlePinChange(index, e.target.value, isConfirm)}
-          onKeyDown={(e) => handleKeyDown(index, e, isConfirm)}
-          className="w-14 h-14 text-center text-xl font-bold border-2 border-gray-300 dark:border-dark-600 rounded-xl focus-visible:border-secondary focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-opacity-20 transition-all dark:bg-dark-900 dark:text-neutral-100"
-        />
+        <div key={index}>
+          <label htmlFor={`${prefix}-${index}`} className="srOnly">
+            {isConfirm ? 'Confirm PIN digit' : 'PIN digit'} {index + 1}
+          </label>
+          <input
+            id={`${prefix}-${index}`}
+            type="password"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => handlePinChange(index, e.target.value, isConfirm)}
+            onKeyDown={(e) => handleKeyDown(index, e, isConfirm)}
+            className="w-14 h-14 text-center text-xl font-bold border-2 border-gray-300 dark:border-dark-600 rounded-xl focus-visible:border-secondary focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-opacity-20 transition-all dark:bg-dark-900 dark:text-neutral-100"
+          />
+        </div>
       ))}
     </div>
   );

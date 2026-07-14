@@ -132,7 +132,7 @@ const AdminProfile: React.FC = () => {
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Basic Information</h3>
+              <h2 className="text-base font-ginto font-semibold text-black dark:text-white">Basic Information</h2>
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
@@ -203,11 +203,12 @@ const AdminProfile: React.FC = () => {
               {/* Form Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                  <label htmlFor="admin-name" className="block text-sm font-medium text-black dark:text-white mb-2">
                     Full Name
                   </label>
                   {isEditing ? (
                     <input
+                      id="admin-name"
                       type="text"
                       value={editForm.name}
                       onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
@@ -222,11 +223,12 @@ const AdminProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                  <label htmlFor="admin-email" className="block text-sm font-medium text-black dark:text-white mb-2">
                     Email Address
                   </label>
                   {isEditing ? (
                     <input
+                      id="admin-email"
                       type="email"
                       value={editForm.email}
                       onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
@@ -241,11 +243,12 @@ const AdminProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                  <label htmlFor="admin-phone" className="block text-sm font-medium text-black dark:text-white mb-2">
                     Phone Number
                   </label>
                   {isEditing ? (
                     <input
+                      id="admin-phone"
                       type="tel"
                       value={editForm.phone}
                       onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
@@ -260,10 +263,10 @@ const AdminProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                  <label htmlFor="admin-role" className="block text-sm font-medium text-black dark:text-white mb-2">
                     Role
                   </label>
-                  <div className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
+                  <div id="admin-role" className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                     <Shield className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                     <span className="text-black dark:text-white">{adminData.role}</span>
                   </div>
@@ -279,7 +282,7 @@ const AdminProfile: React.FC = () => {
             transition={{ delay: 0.1 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
           >
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Security Settings</h3>
+            <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Security Settings</h2>
             
             <div className="space-y-3">
               <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl">
@@ -333,7 +336,7 @@ const AdminProfile: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
           >
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Notification Preferences</h3>
+            <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Notification Preferences</h2>
             
             <div className="space-y-3">
               {[
@@ -370,7 +373,7 @@ const AdminProfile: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
           >
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Account Summary</h3>
+            <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Account Summary</h2>
             
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
@@ -405,7 +408,7 @@ const AdminProfile: React.FC = () => {
             transition={{ delay: 0.1 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
           >
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Permissions</h3>
+            <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Permissions</h2>
             
             <div className="space-y-2">
               {adminData.permissions.map((permission) => (
@@ -424,7 +427,7 @@ const AdminProfile: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 p-4"
           >
-            <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Account Actions</h3>
+            <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Account Actions</h2>
             <div className="space-y-2">
               <button
                 onClick={() => setShowAccountDeletionModal(true)}
@@ -439,10 +442,10 @@ const AdminProfile: React.FC = () => {
 
       {/* Account Deletion Modal */}
       {showAccountDeletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, ease: 'easeIn' }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-ginto font-semibold text-red-600 mb-2">Delete Account</h3>
+            <h2 className="text-lg font-ginto font-semibold text-red-600 mb-2">Delete Account</h2>
             <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
             <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
               className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-3" />
@@ -464,17 +467,18 @@ const AdminProfile: React.FC = () => {
 
       {/* MFA Modal */}
       {showMFAModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: 'easeIn' }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full p-6"
           >
             {user?.mfaEnabled && mfaStep === 'initial' ? (
               <div className="text-center">
                 <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
-                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Two-Factor Authentication</h3>
+                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Two-Factor Authentication</h2>
                 <p className="text-black dark:text-white mb-4">2FA is currently enabled on your account.</p>
                 <button onClick={async () => {
                   try {
@@ -484,12 +488,12 @@ const AdminProfile: React.FC = () => {
                   } catch { setMfaError('Failed to disable 2FA.'); }
                 }} className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 mb-2 w-full">Disable 2FA</button>
                 <button onClick={() => setShowMFAModal(false)} className="premium-button w-full">Close</button>
-                {mfaError && <p className="text-red-500 text-sm mt-2">{mfaError}</p>}
+                {mfaError && <p role="alert" className="text-red-500 text-sm mt-2">{mfaError}</p>}
               </div>
             ) : mfaStep === 'setup' || mfaStep === 'initial' ? (
               <div className="text-center">
                 <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
-                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Set Up Two-Factor Authentication</h3>
+                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Set Up Two-Factor Authentication</h2>
                 <p className="text-black dark:text-white mb-4">Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.).</p>
                 {mfaUri && (
                   <div className="bg-white p-4 rounded-xl inline-block mb-4">
@@ -500,7 +504,7 @@ const AdminProfile: React.FC = () => {
                 <input type="text" value={mfaToken} onChange={(e) => setMfaToken(e.target.value)} placeholder="Enter 6-digit code"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-3 text-center text-lg tracking-widest"
                 />
-                {mfaError && <p className="text-red-500 text-sm mb-3">{mfaError}</p>}
+                {mfaError && <p role="alert" className="text-red-500 text-sm mb-3">{mfaError}</p>}
                 <div className="flex gap-3">
                   <button onClick={() => { setShowMFAModal(false); setMfaStep('initial'); setMfaToken(''); setMfaError(''); }}
                     className="w-1/2 bg-gray-200 text-black py-3 rounded-xl hover:bg-gray-300 transition-colors">Cancel</button>
@@ -521,7 +525,7 @@ const AdminProfile: React.FC = () => {
             ) : mfaStep === 'done' ? (
               <div className="text-center">
                 <Key className="w-12 h-12 text-green-600 mx-auto mb-4" aria-hidden="true" />
-                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">2FA Enabled Successfully</h3>
+                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">2FA Enabled Successfully</h2>
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-4 mb-4">
                   <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">Save these backup codes:</p>
                   <div className="grid grid-cols-2 gap-2">
@@ -541,16 +545,17 @@ const AdminProfile: React.FC = () => {
 
       {/* Password Change Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: 'easeIn' }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full"
           >
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white">Change Password</h3>
+                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white">Change Password</h2>
                 <button
                   onClick={() => setShowPasswordModal(false)}
                   aria-label="Close modal"
@@ -562,11 +567,12 @@ const AdminProfile: React.FC = () => {
             </div>
             <div className="p-4 space-y-3">
               <div>
-                <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                <label htmlFor="admin-current-password" className="block text-sm font-medium text-black dark:text-white mb-2">
                   Current Password
                 </label>
                 <div className="relative">
                   <input
+                    id="admin-current-password"
                     type={showPassword ? 'text' : 'password'}
                     value={passwordForm.current_password}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, current_password: e.target.value }))}
@@ -585,11 +591,12 @@ const AdminProfile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                <label htmlFor="admin-new-password" className="block text-sm font-medium text-black dark:text-white mb-2">
                   New Password
                 </label>
                 <div className="relative">
                   <input
+                    id="admin-new-password"
                     type={showNewPassword ? 'text' : 'password'}
                     value={passwordForm.new_password}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, new_password: e.target.value }))}
@@ -608,11 +615,12 @@ const AdminProfile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                <label htmlFor="admin-confirm-password" className="block text-sm font-medium text-black dark:text-white mb-2">
                   Confirm New Password
                 </label>
                 <div className="relative">
                   <input
+                    id="admin-confirm-password"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={passwordForm.confirm_password}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm_password: e.target.value }))}
@@ -631,7 +639,7 @@ const AdminProfile: React.FC = () => {
               </div>
 
               {passwordError && (
-                <p className="text-red-500 text-sm">{passwordError}</p>
+                <p role="alert" className="text-red-500 text-sm">{passwordError}</p>
               )}
               <div className="flex items-center space-x-3 pt-4">
                 <button

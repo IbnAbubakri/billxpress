@@ -334,7 +334,7 @@ const PricingControl: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black dark:text-white">Average Profit Margin</p>
-              <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">2.8%</p>
+              <p className="text-xl font-bold text-black dark:text-white mt-1">2.8%</p>
             </div>
             <div className="w-12 h-12 bg-success-500 rounded-2xl flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-white" aria-hidden="true" />
@@ -351,7 +351,7 @@ const PricingControl: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black dark:text-white">Active Services</p>
-              <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
+              <p className="text-xl font-bold text-black dark:text-white mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
             </div>
             <div className="w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center">
               <Smartphone className="w-6 h-6 text-white" aria-hidden="true" />
@@ -368,7 +368,7 @@ const PricingControl: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black dark:text-white">Total Services</p>
-              <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{pricingData.length}</p>
+              <p className="text-xl font-bold text-black dark:text-white mt-1">{pricingData.length}</p>
             </div>
             <div className="w-12 h-12 bg-accent-500 rounded-2xl flex items-center justify-center">
               <Wifi className="w-6 h-6 text-white" aria-hidden="true" />

@@ -54,10 +54,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeIn' }}
             className="fixed inset-0 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           >
-            <div className="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-neutral-900/50" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -154,7 +155,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             <div className="flex items-center space-x-4">
               <button aria-label="Notifications" className="relative p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors">
                 <Bell className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-error-500 rounded-full"></span>
               </button>
             </div>
           </div>
@@ -166,7 +166,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: 'easeIn' }}
           >
             {children}
           </motion.div>

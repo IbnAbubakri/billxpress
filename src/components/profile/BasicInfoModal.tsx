@@ -57,7 +57,7 @@ const BasicInfoModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-label="Complete your basic information">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-label="Complete your basic information">
       <div ref={modalRef} tabIndex={-1} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-lg w-full mx-4 outline-none">
         <div className="text-center mb-4">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -117,7 +117,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.billingStreet ? 'billingStreet-error' : undefined}
               />
               {errors.billingStreet && (
-                <p id="billingStreet-error" className="text-red-500 text-xs mt-1">
+                <p id="billingStreet-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.billingStreet}
                 </p>
               )}
@@ -138,7 +138,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.billingCity ? 'billingCity-error' : undefined}
               />
               {errors.billingCity && (
-                <p id="billingCity-error" className="text-red-500 text-xs mt-1">
+                <p id="billingCity-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.billingCity}
                 </p>
               )}
@@ -159,7 +159,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.billingState ? 'billingState-error' : undefined}
               />
               {errors.billingState && (
-                <p id="billingState-error" className="text-red-500 text-xs mt-1">
+                <p id="billingState-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.billingState}
                 </p>
               )}
@@ -180,7 +180,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.billingCountry ? 'billingCountry-error' : undefined}
               />
               {errors.billingCountry && (
-                <p id="billingCountry-error" className="text-red-500 text-xs mt-1">
+                <p id="billingCountry-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.billingCountry}
                 </p>
               )}
@@ -203,7 +203,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.homeStreet ? 'homeStreet-error' : undefined}
               />
               {errors.homeStreet && (
-                <p id="homeStreet-error" className="text-red-500 text-xs mt-1">
+                <p id="homeStreet-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.homeStreet}
                 </p>
               )}
@@ -224,7 +224,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.homeCity ? 'homeCity-error' : undefined}
               />
               {errors.homeCity && (
-                <p id="homeCity-error" className="text-red-500 text-xs mt-1">
+                <p id="homeCity-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.homeCity}
                 </p>
               )}
@@ -245,7 +245,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.homeState ? 'homeState-error' : undefined}
               />
               {errors.homeState && (
-                <p id="homeState-error" className="text-red-500 text-xs mt-1">
+                <p id="homeState-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.homeState}
                 </p>
               )}
@@ -266,7 +266,7 @@ const BasicInfoModal = ({
                 aria-describedby={errors.homeZip ? 'homeZip-error' : undefined}
               />
               {errors.homeZip && (
-                <p id="homeZip-error" className="text-red-500 text-xs mt-1">
+                <p id="homeZip-error" role="alert" className="text-red-500 text-xs mt-1">
                   {errors.homeZip}
                 </p>
               )}

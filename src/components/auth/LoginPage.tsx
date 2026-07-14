@@ -87,7 +87,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center px-4">
+    <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
           <div className="text-center mb-6">
@@ -123,7 +123,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               <button
                 type="submit"
                 disabled={isLoading || mfaCode.length < 6}
-                className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full bg-primary text-white py-4 px-4 rounded-2xl font-medium hover:bg-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
@@ -178,7 +178,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   aria-describedby={errors.login ? 'login-error' : undefined}
                 />
               </div>
-              {errors.login && <p id="login-error" className="mt-1 text-sm text-red-600">{errors.login}</p>}
+              {errors.login && <p id="login-error" role="alert" className="mt-1 text-sm text-red-600">{errors.login}</p>}
             </div>
 
             <div>
@@ -199,7 +199,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                 </button>
               </div>
-              {errors.password && <p id="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>}
+              {errors.password && <p id="password-error" role="alert" className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
             <div className="flex items-center justify-end">
@@ -209,7 +209,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full bg-primary text-white py-4 px-4 rounded-2xl font-medium hover:bg-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -220,7 +220,11 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             </button>
           </form>
           )}
-          <div className="mt-8 text-center">
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+            <span>Secured with 256-bit encryption</span>
+          </div>
+          <div className="mt-4 text-center">
             <p className="text-black dark:text-white">
               Don't have an account?{' '}
               <Link to="/register" className="text-secondary dark:text-white hover:underline font-medium">Sign up</Link>

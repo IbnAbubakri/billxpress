@@ -64,11 +64,11 @@ const UserManagement: React.FC = () => {
           { title: 'Total Users', value: users.length.toString(), icon: Users, color: 'primary' },
           { title: 'Active Users', value: activeUsers.toString(), icon: CheckCircle, color: 'success' },
         ].map((stat, index) => (
-          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="stats-card">
+          <motion.div key={stat.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1, duration: 0.2 }} className="stats-card">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black dark:text-white">{stat.title}</p>
-                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{stat.value}</p>
+                <p className="text-xl font-bold text-black dark:text-white mt-1">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                 stat.color === 'primary' ? 'bg-primary-500' : 'bg-success-500'
@@ -88,7 +88,7 @@ const UserManagement: React.FC = () => {
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-neutral-50 dark:bg-dark-700">
@@ -141,12 +141,12 @@ const UserManagement: React.FC = () => {
       </motion.div>
 
       {showUserModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, ease: 'easeIn' }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-ginto font-semibold text-black dark:text-white">User Details</h3>
+                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white">User Details</h2>
                 <button onClick={() => setShowUserModal(false)} aria-label="Close modal" className="p-2 text-black dark:text-white hover:text-black dark:hover:text-white rounded-lg transition-colors">
                   <XCircle className="w-5 h-5" />
                 </button>

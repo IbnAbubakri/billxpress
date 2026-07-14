@@ -126,15 +126,15 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
                 aria-describedby={errors.amount ? 'fundAmount-error' : undefined}
               />
               {errors.amount && (
-                <p id="fundAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>
+                <p id="fundAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>
               )}
             </div>
 
             {/* Quick Amount Buttons */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-black dark:text-white mb-2">
+            <fieldset className="mb-4">
+              <legend className="block text-sm font-medium text-black dark:text-white mb-2">
                 Quick Select
-              </label>
+              </legend>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {quickAmounts.map((quickAmount) => (
                   <button
@@ -150,13 +150,13 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             {/* Payment Methods */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-black dark:text-white mb-2">
+            <fieldset className="mb-4">
+              <legend className="block text-sm font-medium text-black dark:text-white mb-2">
                 Payment Method
-              </label>
+              </legend>
               <div className="space-y-3">
                 {paymentMethods.map((method) => {
                   const IconComponent = method.icon;
@@ -184,17 +184,21 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
                 })}
               </div>
               {errors.method && (
-                <p className="text-red-500 text-sm mt-1">{errors.method}</p>
+                <p role="alert" className="text-red-500 text-sm mt-1">{errors.method}</p>
               )}
-            </div>
+            </fieldset>
 
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 transition-colors"
             >
               Continue
             </button>
+            <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1.5">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+              Secured connection
+            </p>
           </div>
         )}
 
@@ -239,7 +243,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
               </button>
               <button
                 onClick={handlePayment}
-                className="flex-1 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
+                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 transition-colors"
               >
                 Pay Now
               </button>

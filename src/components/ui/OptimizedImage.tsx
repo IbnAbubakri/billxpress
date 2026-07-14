@@ -22,7 +22,7 @@ export function OptimizedImage({ src, alt, className = '', width, height }: Opti
         style={{ width, height }}
         aria-label={alt}
       >
-        <span className="text-gray-400 text-xs">{alt?.charAt(0)?.toUpperCase() || '?'}</span>
+        <span className="text-gray-600 text-xs">{alt?.charAt(0)?.toUpperCase() || '?'}</span>
       </div>
     );
   }

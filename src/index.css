@@ -14,7 +14,7 @@
 }
 
 :root {
-  --color-bg: #EFF9F0;
+  --color-bg: #FAFAFA;
   --color-bg-card: #ffffff;
   --color-bg-sidebar: #ffffff;
   --color-text-primary: #0f172a;
@@ -53,23 +53,31 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-ginto;
   }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-secondary ring-offset-2;
+  }
+
+  button:active:not(:disabled) {
+    @apply scale-[0.97];
+  }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl;
+    @apply bg-white border border-neutral-200 shadow-xl;
   }
 
   .dark .glass-card {
-    @apply bg-dark-800/80 border-dark-700/20;
+    @apply bg-dark-800 border-dark-700;
   }
 
   .premium-button {
-    @apply bg-primary hover:bg-primary-600 text-white font-medium px-6 py-3 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98];
+    @apply bg-primary hover:bg-primary-600 text-white font-medium px-6 py-3 rounded-2xl transition-transform duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98];
   }
 
   .premium-input {
-    @apply w-full px-4 py-3 bg-white/50 border border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 placeholder-neutral-400;
+    @apply w-full px-4 py-3 bg-white/50 border border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 placeholder-neutral-400;
   }
 
   .dark .premium-input {
@@ -77,7 +85,7 @@
   }
 
   .sidebar-item {
-    @apply flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer hover:bg-primary-50 hover:text-primary-700;
+    @apply flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 cursor-pointer hover:bg-primary-50 hover:text-primary-700;
   }
 
   .dark .sidebar-item {
@@ -93,7 +101,7 @@
   }
 
   .stats-card {
-    @apply bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-neutral-100;
+    @apply bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-neutral-100;
   }
 
   .dark .stats-card {
@@ -101,7 +109,7 @@
   }
 
   .chart-container {
-    @apply bg-white rounded-2xl p-6 shadow-lg border border-neutral-100;
+    @apply bg-white rounded-2xl p-6 shadow-sm border border-neutral-100;
   }
 
   .dark .chart-container {

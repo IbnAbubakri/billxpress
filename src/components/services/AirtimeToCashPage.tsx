@@ -20,6 +20,7 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -87,8 +88,11 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
     if (Object.keys(newErrors).length === 0) setShowConfirmModal(true);
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
+    setIsPurchasing(true);
+    await new Promise(r => setTimeout(r, 1500));
     setShowConfirmModal(false);
+    setIsPurchasing(false);
     addToast('Purchase successful!', 'success');
     navigateTimerRef.current = setTimeout(() => navigate("/dashboard"), 1000);
   };
@@ -120,11 +124,11 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
             <input id="airtimeToCashPhone" type="tel" value={phoneNumber} onChange={(e) => handlePhoneChange(e.target.value)} placeholder="08012345678"
               className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.phoneNumber ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.phoneNumber} aria-describedby={errors.phoneNumber ? 'airtimeToCashPhone-error' : undefined} />
-            {errors.phoneNumber && <p id="airtimeToCashPhone-error" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
+            {errors.phoneNumber && <p id="airtimeToCashPhone-error" role="alert" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">Network</label>
+          <fieldset className="mb-4">
+            <legend className="block text-sm font-medium text-black dark:text-white mb-2">Network</legend>
             <div className="grid grid-cols-2 gap-3">
               {networks.map((network) => (
                 <button key={network.id} onClick={() => setSelectedNetwork(network.id)}
@@ -135,15 +139,15 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
                 </button>
               ))}
             </div>
-            {errors.network && <p className="text-red-500 text-sm mt-1">{errors.network}</p>}
-          </div>
+            {errors.network && <p role="alert" className="text-red-500 text-sm mt-1">{errors.network}</p>}
+          </fieldset>
 
           <div className="mb-4">
             <label htmlFor="airtimeToCashAmount" className="block text-sm font-medium text-black dark:text-white mb-2">Airtime Amount (₦100 - ₦50,000)</label>
             <input id="airtimeToCashAmount" type="text" value={amount} onChange={(e) => handleAmountChange(e.target.value)} placeholder="Enter airtime amount"
               className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.amount ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.amount} aria-describedby={errors.amount ? 'airtimeToCashAmount-error' : undefined} />
-            {errors.amount && <p id="airtimeToCashAmount-error" className="text-red-500 text-sm mt-1">{errors.amount}</p>}
+            {errors.amount && <p id="airtimeToCashAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>}
           </div>
 
           {selectedNetworkData && amount && !errors.amount && (
@@ -179,6 +183,7 @@ const AirtimeToCashPage = ({ user, onLogout }: PageProps) => {
           title="Confirm Conversion"
           message="Please review your airtime to cash conversion"
           confirmLabel="Confirm"
+          isLoading={isPurchasing}
           onConfirm={handleConfirmPurchase}
           onCancel={() => setShowConfirmModal(false)}
           icon={<div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"><Check className="w-8 h-8 text-green-600" aria-hidden="true" /></div>}

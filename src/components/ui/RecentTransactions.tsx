@@ -1,7 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wifi, Phone, Zap, Tv, GraduationCap, Target, RefreshCw, CreditCard, MoreHorizontal, Loader2, ArrowRight } from 'lucide-react';
 import VirtualTransactionList from './VirtualTransactionList';
@@ -73,7 +73,7 @@ const RecentTransactions = () => {
           <RefreshCw className="w-8 h-8 text-gray-300 dark:text-gray-500" />
         </div>
         <p className="text-gray-900 dark:text-white font-semibold mb-1">No transactions yet</p>
-        <p className="text-gray-400 text-sm mb-6">Your payment history will appear here</p>
+        <p className="text-gray-600 text-sm mb-6">Your payment history will appear here</p>
         <button
           onClick={() => navigate('/airtime')}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
@@ -144,4 +144,4 @@ const RecentTransactions = () => {
   );
 };
 
-export default RecentTransactions;
+export default memo(RecentTransactions);

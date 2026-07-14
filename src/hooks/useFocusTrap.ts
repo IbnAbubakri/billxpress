@@ -6,10 +6,17 @@ import { useEffect, useRef } from 'react';
 export function useFocusTrap(isActive: boolean, onClose?: () => void) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   onCloseRef.current = onClose;
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {
+      previousFocusRef.current?.focus();
+      previousFocusRef.current = null;
+      return;
+    }
+
+    previousFocusRef.current = document.activeElement as HTMLElement;
 
     const container = containerRef.current;
     if (!container) return;

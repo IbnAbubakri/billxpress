@@ -73,7 +73,7 @@ const BankDetailsModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-40 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-label="Add bank details">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-label="Add bank details">
       <div ref={modalRef} tabIndex={-1} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-sm w-full mx-4 outline-none">
         <div className="text-center mb-4">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -113,7 +113,7 @@ const BankDetailsModal = ({
               aria-describedby={errors.accountNumber ? 'bankAccountNumber-error' : undefined}
             />
             {errors.accountNumber && (
-              <p id="bankAccountNumber-error" className="text-red-500 text-xs mt-1">
+              <p id="bankAccountNumber-error" role="alert" className="text-red-500 text-xs mt-1">
                 {errors.accountNumber}
               </p>
             )}
@@ -138,7 +138,7 @@ const BankDetailsModal = ({
               ))}
             </select>
             {errors.bankName && (
-              <p id="bankName-error" className="text-red-500 text-xs mt-1">
+              <p id="bankName-error" role="alert" className="text-red-500 text-xs mt-1">
                 {errors.bankName}
               </p>
             )}
@@ -159,7 +159,7 @@ const BankDetailsModal = ({
               aria-describedby={errors.accountName ? 'bankAccountName-error' : undefined}
             />
             {errors.accountName && (
-              <p id="bankAccountName-error" className="text-red-500 text-xs mt-1">
+              <p id="bankAccountName-error" role="alert" className="text-red-500 text-xs mt-1">
                 {errors.accountName}
               </p>
             )}

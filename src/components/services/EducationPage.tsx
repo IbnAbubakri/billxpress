@@ -22,6 +22,7 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
   const [examNumber, setExamNumber] = useState("");
   const [selectedPackage, setSelectedPackage] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -86,8 +87,11 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
     if (Object.keys(newErrors).length === 0) setShowConfirmModal(true);
   };
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
+    setIsPurchasing(true);
+    await new Promise(r => setTimeout(r, 1500));
     setShowConfirmModal(false);
+    setIsPurchasing(false);
     addToast('Purchase successful!', 'success');
     navigateTimerRef.current = setTimeout(() => navigate("/dashboard"), 1000);
   };
@@ -120,8 +124,8 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
         </div>
 
         <div className="max-w-md mx-auto">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">Education Service</label>
+          <fieldset className="mb-4">
+            <legend className="block text-sm font-medium text-black dark:text-white mb-2">Education Service</legend>
             <div className="grid grid-cols-2 gap-3">
               {educationServices.map((service) => (
                 <button key={service.id} onClick={() => handleServiceChange(service.id)}
@@ -132,20 +136,20 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
                 </button>
               ))}
             </div>
-            {errors.service && <p className="text-red-500 text-sm mt-1">{errors.service}</p>}
-          </div>
+            {errors.service && <p role="alert" className="text-red-500 text-sm mt-1">{errors.service}</p>}
+          </fieldset>
 
           <div className="mb-4">
             <label htmlFor="examNumber" className="block text-sm font-medium text-black dark:text-white mb-2">Exam/Registration Number</label>
             <input id="examNumber" type="text" value={examNumber} onChange={(e) => handleExamNumberChange(e.target.value)} placeholder="Enter your exam number"
               className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${errors.examNumber ? "border-red-500" : "border-gray-300"}`}
               aria-invalid={!!errors.examNumber} aria-describedby={errors.examNumber ? 'examNumber-error' : undefined} />
-            {errors.examNumber && <p id="examNumber-error" className="text-red-500 text-sm mt-1">{errors.examNumber}</p>}
+            {errors.examNumber && <p id="examNumber-error" role="alert" className="text-red-500 text-sm mt-1">{errors.examNumber}</p>}
           </div>
 
           {selectedService && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-black dark:text-white mb-2">Select Service</label>
+            <fieldset className="mb-4">
+              <legend className="block text-sm font-medium text-black dark:text-white mb-2">Select Service</legend>
               <div className="space-y-3">
                 {packages[selectedService]?.map((pkg) => (
                   <button key={pkg.id} onClick={() => setSelectedPackage(pkg.id)}
@@ -160,8 +164,8 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
                   </button>
                 ))}
               </div>
-              {errors.package && <p className="text-red-500 text-sm mt-1">{errors.package}</p>}
-            </div>
+              {errors.package && <p role="alert" className="text-red-500 text-sm mt-1">{errors.package}</p>}
+            </fieldset>
           )}
 
           <button onClick={handleSubmit} className="w-full bg-secondary text-white py-4 rounded-2xl font-medium hover:bg-opacity-90 transition-colors cursor-pointer">Continue</button>
@@ -172,6 +176,7 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
           title="Confirm Payment"
           message="Please review your education payment"
           confirmLabel="Confirm"
+          isLoading={isPurchasing}
           onConfirm={handleConfirmPurchase}
           onCancel={() => setShowConfirmModal(false)}
           icon={<div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"><Check className="w-8 h-8 text-green-600" aria-hidden="true" /></div>}

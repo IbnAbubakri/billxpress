@@ -63,7 +63,7 @@ const ResetPasswordPage = () => {
 
   if (resetToken) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center px-4">
+      <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
         <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
             <div className="text-center mb-6">
@@ -105,7 +105,7 @@ const ResetPasswordPage = () => {
                   placeholder="Confirm new password"
                 />
               </div>
-              <button type="submit" disabled={isLoading || !newPassword || !confirmPassword} className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+              <button type="submit" disabled={isLoading || !newPassword || !confirmPassword} className="w-full bg-primary text-white py-4 px-4 rounded-2xl font-medium hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 {isLoading ? 'Resetting...' : 'Reset Password'}
               </button>
             </form>
@@ -117,7 +117,7 @@ const ResetPasswordPage = () => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center px-4">
+      <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
         <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -140,7 +140,7 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center px-4">
+    <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
           <div className="text-center mb-6">
@@ -170,13 +170,13 @@ const ResetPasswordPage = () => {
                   aria-describedby={error ? 'resetEmail-error' : undefined}
                 />
               </div>
-              {error && <p id="resetEmail-error" className="mt-1 text-sm text-red-600">{error}</p>}
+              {error && <p id="resetEmail-error" role="alert" className="mt-1 text-sm text-red-600">{error}</p>}
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full bg-primary text-white py-4 px-4 rounded-2xl font-medium hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">

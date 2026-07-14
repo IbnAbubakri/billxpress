@@ -69,11 +69,11 @@ const Analytics: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric, index) => (
-          <motion.div key={metric.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="stats-card">
+          <motion.div key={metric.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1, duration: 0.2 }} className="stats-card">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black dark:text-white">{metric.title}</p>
-                <p className="text-xl font-ginto font-bold text-black dark:text-white mt-1">{metric.value}</p>
+                <p className="text-xl font-bold text-black dark:text-white mt-1">{metric.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                 metric.color === 'success' ? 'bg-success-500' : metric.color === 'primary' ? 'bg-primary-500' : metric.color === 'accent' ? 'bg-accent-500' : 'bg-info-500'
@@ -85,9 +85,9 @@ const Analytics: React.FC = () => {
         ))}
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="chart-container">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.2 }} className="chart-container">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4">
-          <h3 className="text-base font-ginto font-semibold text-black dark:text-white">Performance Overview</h3>
+          <h2 className="text-base font-ginto font-semibold text-black dark:text-white">Performance Overview</h2>
           <select value={selectedMetric} onChange={e => setSelectedMetric(e.target.value)} className="px-3 py-2 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
             <option value="revenue">Revenue</option>
             <option value="transactions">Transactions</option>
@@ -111,8 +111,8 @@ const Analytics: React.FC = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="chart-container">
-          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Service Performance</h3>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.2 }} className="chart-container">
+          <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Service Performance</h2>
           <div className="space-y-3">
             {(data?.serviceStats || []).map((svc: { service: string; transactions: number; revenue: number }) => (
               <div key={svc.service} className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-dark-800 rounded-xl">
@@ -128,8 +128,8 @@ const Analytics: React.FC = () => {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="chart-container">
-          <h3 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">User Growth</h3>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.2 }} className="chart-container">
+          <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">User Growth</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data?.userGrowth || []}>
               <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />

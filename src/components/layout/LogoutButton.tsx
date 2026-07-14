@@ -13,7 +13,7 @@ export function LogoutButton({ onLogout }: LogoutButtonProps) {
       <button
         type="button"
         onClick={onLogout}
-        className="group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left text-red-600 hover:bg-red-50"
+        className="group flex items-center px-3 py-3 text-sm font-medium rounded-2xl transition-all duration-200 w-full text-left text-red-600 hover:bg-red-50 cursor-pointer"
       >
         <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-red-400 group-hover:text-red-600" aria-hidden="true" />
         Logout
