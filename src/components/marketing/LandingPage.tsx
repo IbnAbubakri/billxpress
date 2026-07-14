@@ -13,7 +13,7 @@ import nineMobileIcon from '../../assets/icons/9mobile.png';
 import dstvIcon from '../../assets/icons/dstv.png';
 import gotvIcon from '../../assets/icons/gotv.png';
 import bet9jaIcon from '../../assets/icons/bet9ja.png';
-import sportybetIcon from '../../assets/icons/sportybet.png';
+import sportybetIcon from '../../assets/icons/sportybet.svg';
 
 const features = [
   { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', bg: 'bg-blue-50 text-blue-600' },

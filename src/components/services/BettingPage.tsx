@@ -3,7 +3,7 @@ import { ArrowLeft, Target, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import bet9jaIcon from "../../assets/icons/bet9ja.png";
-import sportybetIcon from "../../assets/icons/sportybet.png";
+import sportybetIcon from "../../assets/icons/sportybet.svg";
 import nairabetIcon from "../../assets/icons/nairabet.png";
 import betkingIcon from "../../assets/icons/betking.svg";
 import x1betIcon from "../../assets/icons/1xbet.png";
