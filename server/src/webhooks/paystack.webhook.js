@@ -47,19 +47,20 @@ async function processSuccessfulPayment(data) {
   }
 
   const amountInNaira = amount / 100;
+  const paidAtDate = paid_at || new Date().toISOString();
 
   await db.transaction(async (tx) => {
     if (existing) {
       await tx.run(
         `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ? WHERE id = ?`,
-        'completed', channel, 'Successful', paid_at, existing.id
+        'completed', channel, 'Successful', paidAtDate, existing.id
       );
     } else {
       await tx.run(
         `INSERT INTO wallet_funding_transactions
          (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paid_at
+        userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paidAtDate
       );
     }
 
@@ -72,7 +73,7 @@ async function processSuccessfulPayment(data) {
       `INSERT INTO transactions (userId, type, amount, status, description, recipient, date)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       userId, 'wallet_funding', amountInNaira, 'completed',
-      `Wallet Funding via ${channel}`, 'Self', paid_at
+      `Wallet Funding via ${channel}`, 'Self', paidAtDate
     );
   });
 

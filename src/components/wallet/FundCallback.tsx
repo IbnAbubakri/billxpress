@@ -30,6 +30,7 @@ export default function FundCallback() {
           setServerMessage(`Status: ${result.status}`);
         }
         queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+        queryClient.invalidateQueries({ queryKey: ['charts'] });
         setTimeout(() => navigate('/wallet'), 3000);
       })
       .catch((err) => {
