@@ -80,7 +80,7 @@ export async function handleVerifyFunding(req, res, next) {
 
     if (existing && existing.status === 'completed') {
       const currentUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(existing.user_id);
-      return res.json({ status: 'completed', message: 'Payment already processed', balance: Number(currentUser.balance) });
+      return res.json({ status: 'completed', message: 'Payment already processed', balance: Number(currentUser.balance), amountFunded: 0 });
     }
 
     const verification = await verifyTransaction(reference);
@@ -121,7 +121,7 @@ export async function handleVerifyFunding(req, res, next) {
       });
 
       const updatedUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
-      return res.json({ status: 'completed', message: 'Payment verified successfully', balance: Number(updatedUser.balance) });
+      return res.json({ status: 'completed', message: 'Payment verified successfully', balance: Number(updatedUser.balance), amountFunded: amountInNaira });
     }
 
     res.json({ status: verification.data.status, message: 'Payment not successful' });

@@ -9,6 +9,7 @@ export default function FundCallback() {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [balance, setBalance] = useState<number | null>(null);
+  const [amountFunded, setAmountFunded] = useState<number | null>(null);
   const [serverMessage, setServerMessage] = useState('');
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function FundCallback() {
         if (result.status === 'completed') {
           setStatus('success');
           setBalance(result.balance ?? null);
+          setAmountFunded(result.amountFunded ?? null);
           setServerMessage(result.message);
         } else {
           setStatus('error');
@@ -55,9 +57,14 @@ export default function FundCallback() {
             </div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Payment Successful!</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-2">Your wallet has been funded. Redirecting...</p>
+            {amountFunded !== null && amountFunded > 0 && (
+              <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                ₦{amountFunded.toLocaleString()} added to your wallet
+              </p>
+            )}
             {balance !== null && (
-              <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                New Balance: ₦{balance.toLocaleString()}
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Total Balance: ₦{balance.toLocaleString()}
               </p>
             )}
             <p className="text-xs text-gray-400 mt-3">{serverMessage}</p>
