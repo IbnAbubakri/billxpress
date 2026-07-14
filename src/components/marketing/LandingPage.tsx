@@ -8,13 +8,13 @@ import {
 import { Logo } from '../ui/Logo';
 
 const features = [
-  { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', color: 'from-green-500 to-emerald-600' },
-  { icon: Wifi, title: 'Data Bundles', desc: 'Affordable data plans for all networks', color: 'from-blue-500 to-cyan-600' },
-  { icon: Tv, title: 'Cable TV', desc: 'DSTV, GOtv & Startimes subscriptions', color: 'from-purple-500 to-pink-600' },
-  { icon: Zap, title: 'Electricity', desc: 'Pay prepaid & postpaid bills instantly', color: 'from-yellow-500 to-orange-600' },
-  { icon: GraduationCap, title: 'Education', desc: 'JAMB, WAEC, NECO & school fees', color: 'from-indigo-500 to-violet-600' },
-  { icon: Target, title: 'Betting', desc: 'Fund Bet9ja, SportyBet & more', color: 'from-red-500 to-rose-600' },
-  { icon: ArrowRightLeft, title: 'Airtime to Cash', desc: 'Convert airtime to spendable cash', color: 'from-teal-500 to-emerald-600' },
+  { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', bg: 'bg-blue-50 text-blue-600' },
+  { icon: Wifi, title: 'Data Bundles', desc: 'Affordable data plans for all networks', bg: 'bg-green-50 text-green-600' },
+  { icon: Tv, title: 'Cable TV', desc: 'DSTV, GOtv & Startimes subscriptions', bg: 'bg-purple-50 text-purple-600' },
+  { icon: Zap, title: 'Electricity', desc: 'Pay prepaid & postpaid bills instantly', bg: 'bg-yellow-50 text-yellow-600' },
+  { icon: GraduationCap, title: 'Education', desc: 'JAMB, WAEC, NECO & school fees', bg: 'bg-indigo-50 text-indigo-600' },
+  { icon: Target, title: 'Betting', desc: 'Fund Bet9ja, SportyBet & more', bg: 'bg-red-50 text-red-600' },
+  { icon: ArrowRightLeft, title: 'Airtime to Cash', desc: 'Convert airtime to spendable cash', bg: 'bg-orange-50 text-orange-600' },
 ];
 
 const stats = [
@@ -30,6 +30,16 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+
+  const servicePaths: Record<string, string> = {
+    Airtime: '/airtime',
+    'Data Bundles': '/data',
+    'Cable TV': '/tv',
+    Electricity: '/electricity',
+    Education: '/education',
+    Betting: '/betting',
+    'Airtime to Cash': '/airtime-to-cash',
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -133,13 +143,17 @@ export default function LandingPage() {
             {features.map((f) => {
               const Icon = f.icon;
               return (
-                <div key={f.title} className="group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="w-6 h-6 text-white" />
+                <button
+                  key={f.title}
+                  onClick={() => navigate(servicePaths[f.title])}
+                  className="group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1 text-left"
+                >
+                  <div className={`w-12 h-12 rounded-xl ${f.bg} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="w-6 h-6" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1.5">{f.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
-                </div>
+                </button>
               );
             })}
           </div>
