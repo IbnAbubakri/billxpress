@@ -259,7 +259,7 @@ export async function verifyWalletFunding(reference: string) {
   const { data } = await walletApi.get('/wallet/fund/verify', {
     params: { reference },
   });
-  return data as { status: string; message: string };
+  return data as { status: string; message: string; balance?: number };
 }
 
 export async function withdrawFunds(amount: number, bank: string, accountNumber: string, accountName: string, transactionPin?: string) {
