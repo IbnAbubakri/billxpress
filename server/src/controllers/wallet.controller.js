@@ -74,7 +74,7 @@ export async function handleVerifyFunding(req, res, next) {
 
     const db = getDb();
     const existing = await db.prepare(
-      'SELECT id, status FROM wallet_funding_transactions WHERE paystack_reference = ?'
+      'SELECT id, status, user_id FROM wallet_funding_transactions WHERE paystack_reference = ?'
     ).get(reference);
 
     if (existing && existing.status === 'completed') {
@@ -85,18 +85,25 @@ export async function handleVerifyFunding(req, res, next) {
 
     if (verification.data.status === 'success') {
       const { amount, paid_at, channel } = verification.data;
-      const userId = verification.data.metadata?.user_id;
+      const userId = existing?.user_id || verification.data.metadata?.user_id;
       if (!userId) return res.status(400).json({ error: 'Missing user_id in metadata' });
 
       const amountInNaira = amount / 100;
 
       await db.transaction(async (tx) => {
-        await tx.run(
-          `INSERT INTO wallet_funding_transactions
-           (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paid_at
-        );
+        if (existing) {
+          await tx.run(
+            `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ? WHERE id = ?`,
+            'completed', channel, 'Successful', paid_at, existing.id
+          );
+        } else {
+          await tx.run(
+            `INSERT INTO wallet_funding_transactions
+             (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paid_at
+          );
+        }
 
         await tx.run(
           'UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?',

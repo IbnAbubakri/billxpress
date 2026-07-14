@@ -32,10 +32,10 @@ async function processSuccessfulPayment(data) {
   const db = getDb();
 
   const existing = await db.prepare(
-    'SELECT id FROM wallet_funding_transactions WHERE paystack_reference = ?'
+    'SELECT id, status FROM wallet_funding_transactions WHERE paystack_reference = ?'
   ).get(reference);
 
-  if (existing) {
+  if (existing && existing.status === 'completed') {
     logger.info({ reference }, 'Payment already processed');
     return;
   }
@@ -49,12 +49,19 @@ async function processSuccessfulPayment(data) {
   const amountInNaira = amount / 100;
 
   await db.transaction(async (tx) => {
-    await tx.run(
-      `INSERT INTO wallet_funding_transactions
-       (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paid_at
-    );
+    if (existing) {
+      await tx.run(
+        `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ? WHERE id = ?`,
+        'completed', channel, 'Successful', paid_at, existing.id
+      );
+    } else {
+      await tx.run(
+        `INSERT INTO wallet_funding_transactions
+         (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paid_at
+      );
+    }
 
     await tx.run(
       'UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?',
