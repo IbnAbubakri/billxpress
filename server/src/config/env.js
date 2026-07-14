@@ -39,6 +39,7 @@ const env = {
   PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
   PAYSTACK_WEBHOOK_SECRET: process.env.PAYSTACK_WEBHOOK_SECRET,
   APP_URL: process.env.APP_URL || 'http://localhost:5173',
+  MASTER_SECRET: process.env.MASTER_SECRET,
   isDev: () => env.NODE_ENV === 'development',
   isProd: () => env.NODE_ENV === 'production',
 };
