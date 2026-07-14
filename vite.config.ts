@@ -48,7 +48,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,svg,woff2}'],
         skipWaiting: true,
         clientsClaim: true,
         runtimeCaching: [
@@ -79,18 +79,18 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: /^https?:\/\/.*\.(?:js|css)$/i,
+            urlPattern: /^https?:\/\/.*\/assets\/.*\.(?:js|css)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
             },
           },
           {
-            urlPattern: ({ url }) => url.mode === 'navigate',
+            urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
               cacheName: 'pages',
