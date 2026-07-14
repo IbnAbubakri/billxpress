@@ -33,26 +33,26 @@ export async function handlePaystackWebhook(req, res, next) {
 async function processSuccessfulPayment(data) {
   const { reference, amount, status, paid_at, channel, metadata } = data;
   const db = getDb();
-
-  const existing = await db.prepare(
-    'SELECT id, status FROM wallet_funding_transactions WHERE paystack_reference = ?'
-  ).get(reference);
-
-  if (existing && existing.status === 'completed') {
-    logger.info({ reference }, 'Payment already processed');
-    return;
-  }
-
+  const amountInNaira = amount / 100;
+  const paidAtDate = paid_at || new Date().toISOString();
   const userId = metadata?.user_id;
+
   if (!userId) {
     logger.error({ reference }, 'Missing user_id in metadata');
     return;
   }
 
-  const amountInNaira = amount / 100;
-  const paidAtDate = paid_at || new Date().toISOString();
-
   await db.transaction(async (tx) => {
+    const existing = await tx.get(
+      'SELECT id, status FROM wallet_funding_transactions WHERE paystack_reference = ? FOR UPDATE',
+      reference
+    );
+
+    if (existing && existing.status === 'completed') {
+      logger.info({ reference }, 'Payment already processed');
+      return;
+    }
+
     if (existing) {
       await tx.run(
         `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ? WHERE id = ?`,

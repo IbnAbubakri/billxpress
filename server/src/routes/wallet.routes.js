@@ -21,7 +21,13 @@ const initializationLimiter = rateLimit({
   message: { error: 'Too many initialization attempts. Please wait.' },
 });
 
-router.get('/fund/verify', handleVerifyFunding);
+const verifyLimiter = rateLimit({
+  windowMs: 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many verification attempts. Please wait.' },
+});
+
+router.get('/fund/verify', verifyLimiter, handleVerifyFunding);
 
 router.use(authenticate);
 

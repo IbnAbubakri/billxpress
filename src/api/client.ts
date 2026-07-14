@@ -250,12 +250,12 @@ export async function fundWallet(amount: number, method?: string) {
   return data;
 }
 
-export async function initializeWalletFunding(amount: number) {
+export async function initializeWalletFunding(amount: number, method?: string) {
   const csrf = await ensureCSRF();
-  const { data } = await walletApi.post('/wallet/fund/initialize', { amount }, {
+  const { data } = await walletApi.post('/wallet/fund/initialize', { amount, method }, {
     headers: { 'x-csrf-token': csrf },
   });
-  return data as { authorization_url: string; access_code: string; reference: string };
+  return data as { authorization_url: string; reference: string };
 }
 
 export async function verifyWalletFunding(reference: string) {

@@ -16,9 +16,9 @@ const paystackApi = axios.create({
   },
 });
 
-export async function initializeTransaction({ email, amount, reference, callbackUrl, metadata = {} }) {
+export async function initializeTransaction({ email, amount, reference, callbackUrl, channels, metadata = {} }) {
   try {
-    const response = await paystackApi.post('/transaction/initialize', {
+    const body = {
       email,
       amount: Math.round(amount * 100),
       reference,
@@ -34,7 +34,11 @@ export async function initializeTransaction({ email, amount, reference, callback
           },
         ],
       },
-    });
+    };
+    if (channels) {
+      body.channels = channels;
+    }
+    const response = await paystackApi.post('/transaction/initialize', body);
     logger.info({ reference, amount }, 'Paystack transaction initialized');
     return response.data;
   } catch (error) {

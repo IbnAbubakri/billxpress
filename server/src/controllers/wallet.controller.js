@@ -8,12 +8,18 @@ import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { initializeTransaction, verifyTransaction, generateReference } from '../services/paystack.service.js';
 
-const MAX_AMOUNT = 1_000_000;
+const MAX_AMOUNT = 500_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
+
+const METHOD_CHANNEL_MAP = {
+  card: ['card'],
+  bank_transfer: ['bank_transfer'],
+  ussd: ['ussd'],
+};
 
 function validateWalletInputs(amount, bank, accountNumber) {
   if (!Number.isFinite(amount) || amount <= 0 || amount > MAX_AMOUNT) {
-    return 'Invalid amount. Must be between 0 and 1,000,000.';
+    return 'Invalid amount. Must be between 0 and 500,000.';
   }
   if (bank != null && (typeof bank !== 'string' || bank.length > 100)) {
     return 'Invalid bank name.';
@@ -26,7 +32,7 @@ function validateWalletInputs(amount, bank, accountNumber) {
 
 export async function handleInitializeFunding(req, res, next) {
   try {
-    const { amount } = req.body;
+    const { amount, method } = req.body;
     const userId = req.user.id;
     const email = req.user.email;
 
@@ -35,19 +41,20 @@ export async function handleInitializeFunding(req, res, next) {
     }
 
     const numAmount = parseFloat(amount);
-    if (!Number.isFinite(numAmount) || numAmount < 100 || numAmount > 500000) {
-      return res.status(400).json({ error: 'Amount must be between ₦100 and ₦500,000' });
+    if (!Number.isFinite(numAmount) || numAmount < 100 || numAmount > MAX_AMOUNT) {
+      return res.status(400).json({ error: `Amount must be between ₦100 and ₦${MAX_AMOUNT.toLocaleString()}` });
     }
 
     const reference = generateReference(userId);
-    const origin = req.headers.origin || req.headers.host || env.APP_URL;
-    const callbackUrl = `${origin.startsWith('http') ? origin : `https://${origin}`}/wallet/fund/verify`;
+    const callbackUrl = `${env.APP_URL}/wallet/fund/verify`;
+    const channels = METHOD_CHANNEL_MAP[method] || undefined;
 
     const result = await initializeTransaction({
       email,
       amount: numAmount,
       reference,
       callbackUrl,
+      channels,
       metadata: { user_id: userId, purpose: 'wallet_funding' },
     });
 
@@ -60,7 +67,6 @@ export async function handleInitializeFunding(req, res, next) {
 
     res.json({
       authorization_url: result.data.authorization_url,
-      access_code: result.data.access_code,
       reference,
     });
   } catch (error) {
@@ -76,27 +82,31 @@ export async function handleVerifyFunding(req, res, next) {
     const { reference } = req.query;
     if (!reference) return res.status(400).json({ error: 'Reference is required' });
 
-    const db = getDb();
-    const existing = await db.prepare(
-      'SELECT id, status, user_id FROM wallet_funding_transactions WHERE paystack_reference = ?'
-    ).get(reference);
-
-    if (existing && existing.status === 'completed') {
-      const currentUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(existing.user_id);
-      return res.json({ status: 'completed', message: 'Payment already processed', balance: Number(currentUser.balance), amountFunded: 0 });
-    }
-
     const verification = await verifyTransaction(reference);
 
     if (verification.data.status === 'success') {
       const { amount, paid_at, channel } = verification.data;
-      const userId = existing?.user_id || verification.data.metadata?.user_id;
+      const userId = verification.data.metadata?.user_id;
       if (!userId) return res.status(400).json({ error: 'Missing user_id in metadata' });
 
       const amountInNaira = amount / 100;
       const paidAtDate = paid_at || new Date().toISOString();
 
+      const db = getDb();
+      let result;
       await db.transaction(async (tx) => {
+        const existing = await tx.get(
+          'SELECT id, status, user_id FROM wallet_funding_transactions WHERE paystack_reference = ? FOR UPDATE',
+          reference
+        );
+
+        const txRecord = existing || { id: null };
+
+        if (existing && existing.status === 'completed') {
+          result = { credited: false, existing: true };
+          return;
+        }
+
         if (existing) {
           await tx.run(
             `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ? WHERE id = ?`,
@@ -122,7 +132,14 @@ export async function handleVerifyFunding(req, res, next) {
           userId, 'wallet_funding', amountInNaira, 'completed',
           `Wallet Funding via ${channel}`, 'Self', paidAtDate
         );
+
+        result = { credited: true, existing: false };
       });
+
+      if (result.existing) {
+        const currentUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
+        return res.json({ status: 'completed', message: 'Payment already processed', balance: Number(currentUser.balance), amountFunded: 0 });
+      }
 
       const updatedUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
       return res.json({ status: 'completed', message: 'Payment verified successfully', balance: Number(updatedUser.balance), amountFunded: Number(amountInNaira) });
@@ -136,6 +153,10 @@ export async function handleVerifyFunding(req, res, next) {
 
 export async function handleFundWallet(req, res, next) {
   try {
+    const user = req.user;
+    if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can perform direct wallet funding' });
+    }
     const amount = parseFloat(req.body.amount);
     const method = typeof req.body.method === 'string' ? req.body.method.slice(0, 50) : 'Bank Transfer';
     const inputError = validateWalletInputs(amount, null, null);
@@ -156,9 +177,9 @@ export async function handleFundWallet(req, res, next) {
       );
     });
 
-    const user = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
-    logger.info({ userId, amount }, 'Wallet funded');
-    res.json({ balance: Number(user.balance), message: 'Wallet funded successfully.' });
+    const updated = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
+    logger.info({ userId, amount }, 'Wallet funded by admin');
+    res.json({ balance: Number(updated.balance), message: 'Wallet funded successfully.' });
   } catch (err) {
     next(err);
   }

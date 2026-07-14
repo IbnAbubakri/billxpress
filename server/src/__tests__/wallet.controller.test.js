@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 function mockReq(body = {}, user = { id: 'user-1' }) {
-  return { body, user };
+  return { body, user: { ...user, role: user.role || 'user' } };
 }
 
 function mockRes() {
@@ -53,10 +53,22 @@ function seedUser(db, overrides = {}) {
 
 describe('wallet.controller', () => {
   describe('handleFundWallet', () => {
-    it('should fund wallet successfully', async () => {
+    it('should reject non-admin users', async () => {
       const db = dbRef.current;
       seedUser(db, { balance: 500 });
-      const req = mockReq({ amount: 200, method: 'Bank Transfer' });
+      const req = mockReq({ amount: 200, method: 'Bank Transfer' }, { id: 'user-1', role: 'user' });
+      const res = mockRes();
+
+      await handleFundWallet(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Only admins can perform direct wallet funding' });
+    });
+
+    it('should fund wallet successfully for admin', async () => {
+      const db = dbRef.current;
+      seedUser(db, { balance: 500 });
+      const req = mockReq({ amount: 200, method: 'Bank Transfer' }, { id: 'user-1', role: 'admin' });
       const res = mockRes();
 
       await handleFundWallet(req, res, vi.fn());
@@ -69,17 +81,17 @@ describe('wallet.controller', () => {
     });
 
     it('should reject zero amount', async () => {
-      const req = mockReq({ amount: 0 });
+      const req = mockReq({ amount: 0 }, { id: 'user-1', role: 'admin' });
       const res = mockRes();
 
       await handleFundWallet(req, res, vi.fn());
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid amount. Must be between 0 and 1,000,000.' });
+      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid amount. Must be between 0 and 500,000.' });
     });
 
     it('should reject negative amount', async () => {
-      const req = mockReq({ amount: -100 });
+      const req = mockReq({ amount: -100 }, { id: 'user-1', role: 'admin' });
       const res = mockRes();
 
       await handleFundWallet(req, res, vi.fn());
@@ -88,7 +100,7 @@ describe('wallet.controller', () => {
     });
 
     it('should reject excessive amount', async () => {
-      const req = mockReq({ amount: 1_500_000 });
+      const req = mockReq({ amount: 1_500_000 }, { id: 'user-1', role: 'admin' });
       const res = mockRes();
 
       await handleFundWallet(req, res, vi.fn());

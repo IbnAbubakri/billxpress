@@ -11,9 +11,13 @@ router.post(
   '/paystack',
   express.raw({ type: 'application/json' }),
   (req, res, next) => {
-    req.rawBody = req.body;
-    req.body = JSON.parse(req.body.toString());
-    next();
+    try {
+      req.rawBody = req.body;
+      req.body = JSON.parse(req.body.toString());
+      next();
+    } catch (err) {
+      res.status(400).json({ error: 'Invalid JSON payload' });
+    }
   },
   handlePaystackWebhook
 );
