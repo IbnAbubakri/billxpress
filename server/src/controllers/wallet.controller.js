@@ -37,7 +37,8 @@ export async function handleInitializeFunding(req, res, next) {
     }
 
     const reference = generateReference(userId);
-    const callbackUrl = `${env.APP_URL}/wallet/fund/verify`;
+    const origin = req.headers.origin || req.headers.host || env.APP_URL;
+    const callbackUrl = `${origin.startsWith('http') ? origin : `https://${origin}`}/wallet/fund/verify`;
 
     const result = await initializeTransaction({
       email,
