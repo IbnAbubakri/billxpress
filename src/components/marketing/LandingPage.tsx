@@ -6,6 +6,14 @@ import {
   Users, Star, ChevronRight, Menu, X, ArrowRight, Sparkles,
 } from 'lucide-react';
 import { Logo } from '../ui/Logo';
+import mtnIcon from '../../assets/icons/mtn.svg';
+import gloIcon from '../../assets/icons/glo.png';
+import airtelIcon from '../../assets/icons/airtel-logo1.png';
+import nineMobileIcon from '../../assets/icons/9mobile.png';
+import dstvIcon from '../../assets/icons/dstv.png';
+import gotvIcon from '../../assets/icons/gotv.png';
+import bet9jaIcon from '../../assets/icons/bet9ja.png';
+import sportybetIcon from '../../assets/icons/sportybet.png';
 
 const features = [
   { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', bg: 'bg-blue-50 text-blue-600' },
@@ -24,7 +32,16 @@ const stats = [
   { icon: Shield, value: '100%', label: 'Secure Payments' },
 ];
 
-const partners = ['MTN', 'Glo', 'Airtel', '9mobile', 'DSTV', 'GOtv', 'Bet9ja', 'SportyBet'];
+const partners = [
+  { name: 'MTN', icon: mtnIcon },
+  { name: 'Glo', icon: gloIcon },
+  { name: 'Airtel', icon: airtelIcon },
+  { name: '9mobile', icon: nineMobileIcon },
+  { name: 'DSTV', icon: dstvIcon },
+  { name: 'GOtv', icon: gotvIcon },
+  { name: 'Bet9ja', icon: bet9jaIcon },
+  { name: 'SportyBet', icon: sportybetIcon },
+];
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -120,8 +137,8 @@ export default function LandingPage() {
           <p className="text-center text-sm font-medium text-gray-400 dark:text-gray-500 mb-8 uppercase tracking-wider">Trusted partners</p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             {partners.map((p) => (
-              <div key={p} className="px-5 py-2 bg-gray-50 dark:bg-dark-800 text-gray-600 dark:text-gray-300 font-semibold text-sm rounded-xl border border-gray-100 dark:border-dark-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary dark:hover:text-primary hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 cursor-pointer">
-                {p}
+              <div key={p.name} className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-dark-800 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-dark-700 hover:shadow-lg hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 cursor-pointer p-3">
+                <img src={p.icon} alt={p.name} loading="lazy" className="w-full h-full object-contain" />
               </div>
             ))}
           </div>
