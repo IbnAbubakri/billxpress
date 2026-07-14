@@ -121,7 +121,7 @@ export async function handleVerifyFunding(req, res, next) {
       });
 
       const updatedUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
-      return res.json({ status: 'completed', message: 'Payment verified successfully', balance: Number(updatedUser.balance), amountFunded: amountInNaira });
+      return res.json({ status: 'completed', message: 'Payment verified successfully', balance: Number(updatedUser.balance), amountFunded: Number(amountInNaira) });
     }
 
     res.json({ status: verification.data.status, message: 'Payment not successful' });
