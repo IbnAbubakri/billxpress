@@ -2,14 +2,27 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Fingerprint } from "lucide-react";
 import { Logo } from "../ui/Logo";
-import { adminLogin } from "../../api/client";
+import { adminLogin, getMe } from "../../api/client";
 import { useNavigate } from "react-router-dom";
+
+const AUTH_STORAGE_KEY = 'billxpress_auth';
+
+function saveStoredAuth(user: Record<string, unknown>, isAdmin: boolean) {
+  try {
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+      userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user',
+      name: user.name || '', isAdmin, timestamp: Date.now(),
+    }));
+  } catch { /* noop */ }
+}
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,6 +38,11 @@ const AdminLogin: React.FC = () => {
 
     try {
       await adminLogin(formData.email, formData.password);
+      const { user } = await getMe();
+      if (user) {
+        saveStoredAuth(user, true);
+        queryClient.setQueryData(['auth', 'me'], { user, isAdmin: true, isAuthenticated: true });
+      }
       navigate('/admin');
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || "Invalid credentials");

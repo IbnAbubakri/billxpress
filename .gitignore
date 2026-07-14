@@ -3,6 +3,7 @@ dist/
 server/node_modules/
 server/data/
 *.log
+server/logs/
 .env
 .env.local
 server/.env

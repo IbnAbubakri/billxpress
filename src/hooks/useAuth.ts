@@ -7,40 +7,13 @@ import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe,
 import type { User, ProfileUpdateData } from '../types';
 
 const AUTH_STORAGE_KEY = 'billxpress_auth';
-const AUTH_TTL = 60 * 60 * 1000;
-
-interface StoredAuth {
-  userId: string;
-  email: string;
-  role: string;
-  name: string;
-  isAdmin: boolean;
-  timestamp: number;
-}
-
-function loadStoredAuth(): StoredAuth | null {
-  try {
-    const raw = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (Date.now() - parsed.timestamp > AUTH_TTL) {
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-      return null;
-    }
-    if (parsed.user) {
-      return { userId: parsed.user.id, email: parsed.user.email, role: parsed.user.role, name: parsed.user.name || '', isAdmin: parsed.isAdmin, timestamp: parsed.timestamp };
-    }
-    return parsed as StoredAuth;
-  } catch {
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    return null;
-  }
-}
 
 function saveStoredAuth(user: User, isAdmin: boolean) {
   try {
-    const data: StoredAuth = { userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user', name: user.name, isAdmin, timestamp: Date.now() };
-    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+      userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user',
+      name: user.name, isAdmin, timestamp: Date.now(),
+    }));
   } catch { /* sessionStorage unavailable */ }
 }
 
@@ -83,24 +56,12 @@ function toUser(data: Record<string, unknown>): User {
   };
 }
 
-function getInitialAuth() {
-  const stored = loadStoredAuth();
-  if (stored) {
-    return { user: { id: stored.userId, email: stored.email, role: stored.role, name: stored.name } as User, isAdmin: stored.isAdmin };
-  }
-  return null;
-}
-
 export function useAuth() {
   const queryClient = useQueryClient();
-  const initial = getInitialAuth();
 
   const { data: authData, isLoading } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
-      if (!initial) {
-        return { user: null, isAdmin: false, isAuthenticated: false };
-      }
       try {
         const data = await getMe();
         if (data?.user) {
@@ -110,7 +71,7 @@ export function useAuth() {
           return { user: u, isAdmin, isAuthenticated: true };
         }
       } catch {
-        /* 401 is expected when not logged in */
+        /* 401 or network error — not logged in */
       }
       clearStoredAuth();
       return { user: null, isAdmin: false, isAuthenticated: false };
