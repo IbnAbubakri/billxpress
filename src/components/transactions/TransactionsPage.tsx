@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import React, { useState } from "react";
 import { ArrowLeft, Search, Download, Phone, Wifi, Tv, Zap, GraduationCap, Target, RefreshCw, CreditCard, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";

@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Wallet, Plus, ArrowUpRight, Eye, EyeOff } from 'lucide-react';

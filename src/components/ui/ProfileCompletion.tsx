@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import React, { useState } from 'react';
 import { UserPlus, Mail, Info, Fingerprint, Banknote, Check, ChevronRight, X, Loader2 } from 'lucide-react';
 import type { User, ProfileStep, BasicInfo, BankDetails, ProfileUpdateData } from '../../types';

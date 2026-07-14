@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import React, { useRef, useState } from "react";
 import { ArrowLeft, User, Lock, Check, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";

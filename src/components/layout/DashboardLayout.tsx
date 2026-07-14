@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";

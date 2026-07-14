@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import app from '../server/src/app.js';
 import { initDatabase, closeDb } from '../server/src/utils/db.js';
 import { migrateFromJSON } from '../server/src/utils/migrate.js';

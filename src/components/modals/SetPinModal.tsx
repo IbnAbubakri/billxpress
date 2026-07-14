@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import React, { useState, useEffect } from "react";
 import { Lock, X } from "lucide-react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";

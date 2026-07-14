@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { useState, useEffect, useRef } from 'react';
 import { X, Banknote, Check } from 'lucide-react';
 import type { User } from '../../types';

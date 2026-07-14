@@ -168,3 +168,11 @@ The app deploys automatically to Vercel from the `main` branch. The `api/index.j
 - `tsconfig.json` — TypeScript strict mode
 - `vercel.json` — Build & rewrite rules for Vercel deployment
 - `.github/workflows/backup.yml` — Automated database backup via pg_dump
+
+---
+
+## License & Copyright
+
+© 2025 **Abubakri Faaruq Adebowale (IbnAbubakri)** — All rights reserved.
+
+For inquiries: **Faruqsuzay@gmail.com** | **+2349061345507**

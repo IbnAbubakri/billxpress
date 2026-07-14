@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, changePassword as apiChangePassword, setTransactionPin as apiSetTransactionPin, sendVerificationEmail as apiSendVerification, checkPhone as apiCheckPhone, checkEmail as apiCheckEmail, sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp, generateMfaSecret as apiGenerateMfaSecret, verifyMfaSetup as apiVerifyMfaSetup, disableMfa as apiDisableMfa, deleteAccount as apiDeleteAccount } from '../api/client';

@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Zap, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";

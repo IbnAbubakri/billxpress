@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { getDb } from '../utils/db.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';

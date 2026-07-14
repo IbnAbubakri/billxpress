@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Wallet, Mail, Lock, User, Phone, ArrowLeft, CheckCircle2, Smartphone, PartyPopper, Sparkles } from 'lucide-react';

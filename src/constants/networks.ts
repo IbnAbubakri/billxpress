@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import mtnIcon from "../assets/icons/mtn.svg";
 import gloIcon from "../assets/icons/glo.png";
 import airtelIcon from "../assets/icons/airtel-logo1.png";

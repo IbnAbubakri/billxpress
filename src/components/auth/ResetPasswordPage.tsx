@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Wallet, Mail, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';

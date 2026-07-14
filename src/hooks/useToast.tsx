@@ -1,3 +1,6 @@
+// © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
+// Faruqsuzay@gmail.com | +2349061345507
+
 import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from 'react';
 
 export interface Toast {
