@@ -18,10 +18,11 @@ const initializationLimiter = rateLimit({
   message: { error: 'Too many initialization attempts. Please wait.' },
 });
 
+router.get('/fund/verify', handleVerifyFunding);
+
 router.use(authenticate);
 
 router.post('/fund/initialize', initializationLimiter, validateCsrf, handleInitializeFunding);
-router.get('/fund/verify', handleVerifyFunding);
 router.post('/fund', walletLimiter, validateCsrf, handleFundWallet);
 router.post('/withdraw', walletLimiter, validateCsrf, handleWithdraw);
 
