@@ -57,7 +57,7 @@ export default function FundCallback() {
             <p className="text-gray-600 dark:text-gray-300 mb-2">Your wallet has been funded. Redirecting...</p>
             {amountFunded !== null && amountFunded > 0 && (
               <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                ₦{Number(amountFunded).toLocaleString()} has been verified
+                ₦{Number(amountFunded).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} has been verified
               </p>
             )}
             <p className="text-xs text-gray-400 mt-3">{serverMessage}</p>

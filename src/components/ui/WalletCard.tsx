@@ -49,7 +49,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
 
           <div className="mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 truncate">
-              {showBalance ? `₦${Number(user.balance).toLocaleString()}` : '₦***'}
+              {showBalance ? `₦${Number(user.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₦***'}
             </h2>
             <p className="text-white text-opacity-60 text-sm">
               Last updated: {new Date().toLocaleDateString()}

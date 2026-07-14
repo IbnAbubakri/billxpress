@@ -137,7 +137,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
             {/* Available Balance */}
             <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/30 rounded-2xl">
               <p className="text-sm text-green-700">Available Balance</p>
-              <p className="text-xl font-bold text-green-800">₦{Number(user.balance).toLocaleString()}</p>
+              <p className="text-xl font-bold text-green-800">₦{Number(user.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
 
             {/* Amount Input */}
