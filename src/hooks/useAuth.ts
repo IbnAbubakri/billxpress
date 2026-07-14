@@ -71,7 +71,7 @@ export function useAuth() {
           return { user: u, isAdmin, isAuthenticated: true };
         }
       } catch {
-        /* 401 or network error — not logged in */
+        /* 401 or network error, not logged in */
       }
       clearStoredAuth();
       return { user: null, isAdmin: false, isAuthenticated: false };

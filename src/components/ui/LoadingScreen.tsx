@@ -7,17 +7,12 @@ const LoadingScreen = () => {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center">
       <div className="text-center">
-        <div className="relative mb-6 sm:mb-8">
+        <div className="mb-6 sm:mb-8 flex justify-center">
           <Logo size="lg" iconOnly className="justify-center" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-14 h-14 sm:w-20 sm:h-20 border-2 border-gray-300 dark:border-dark-600 border-t-primary rounded-2xl animate-spin" />
-          </div>
         </div>
         <h2 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-2">BillXpress</h2>
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce [animation-delay:0ms]" />
-          <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce [animation-delay:150ms]" />
-          <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce [animation-delay:300ms]" />
+        <div className="w-32 h-1 mx-auto bg-gray-200 dark:bg-dark-700 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-primary to-blue-600 rounded-full animate-pulse" style={{ width: '60%' }} />
         </div>
       </div>
     </div>

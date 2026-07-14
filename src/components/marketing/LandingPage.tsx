@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useScroll } from 'framer-motion';
 import {
   Phone, Wifi, Tv, Zap, GraduationCap, Target, ArrowRightLeft,
   Wallet, Shield, Lock, CheckCircle, Smartphone, BarChart3,
@@ -51,6 +52,8 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
 
+  const { scrollY } = useScroll();
+
   const servicePaths: Record<string, string> = {
     Airtime: '/airtime',
     'Data Bundles': '/data',
@@ -62,10 +65,8 @@ export default function LandingPage() {
   };
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    return scrollY.on('change', (y) => setScrolled(y > 20));
+  }, [scrollY]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-900">
@@ -101,7 +102,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+      <section className="relative pt-24 pb-20 lg:pt-24 lg:pb-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-blue-50 dark:from-dark-900 dark:via-dark-900 dark:to-dark-800" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,7 +118,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="animate-fade-in text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-              BillXpress makes it effortless to pay for airtime, data, cable TV, electricity, education, and more — with instant confirmation and 24/7 support.
+              BillXpress makes it effortless to pay for airtime, data, cable TV, electricity, education, and more. With instant confirmation and 24/7 support.
             </p>
             <div className="animate-slide-up flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/register" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-blue-600 text-white text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
@@ -196,23 +197,30 @@ export default function LandingPage() {
             })}
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { icon: Lock, title: 'Bank-Grade Security', desc: '256-bit SSL encryption protects every transaction. Your data is safe with us.' },
-              { icon: Smartphone, title: 'Mobile-First Experience', desc: 'Optimized for Nigerian mobile networks. Works seamlessly on any device.' },
-              { icon: BarChart3, title: 'Real-Time Tracking', desc: 'Instant transaction confirmations and detailed spending analytics.' },
-            ].map((t) => {
-              const Icon = t.icon;
-              return (
-                <div key={t.title} className="text-center">
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white dark:bg-dark-800 shadow-lg flex items-center justify-center">
-                    <Icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{t.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{t.desc}</p>
-                </div>
-              );
-            })}
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="md:col-span-2 bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-dark-700 flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">Bank-Grade Security</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">256-bit SSL encryption protects every transaction. Your data is safe with us.</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-primary to-blue-700 rounded-2xl p-6 text-white flex flex-col items-start justify-center">
+              <Smartphone className="w-7 h-7 mb-3 opacity-90" />
+              <h3 className="text-base font-bold mb-1">Mobile-First</h3>
+              <p className="text-sm text-white/80 leading-relaxed">Optimized for Nigerian mobile networks. Works on any device.</p>
+            </div>
+            <div className="md:col-span-3 bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-dark-700 flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                <BarChart3 className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">Real-Time Tracking</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Instant transaction confirmations and detailed spending analytics.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

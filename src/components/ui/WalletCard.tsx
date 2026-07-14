@@ -23,13 +23,6 @@ const WalletCard: React.FC<WalletCardProps> = ({ user }) => {
   return (
     <>
       <div className="bg-gradient-to-r from-secondary to-gray-800 rounded-2xl p-4 text-white relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute -top-4 -right-4 w-32 h-32 bg-white dark:bg-dark-800 rounded-full"></div>
-          <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-white dark:bg-dark-800 rounded-full"></div>
-          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white dark:bg-dark-800 rounded-full transform -translate-y-1/2"></div>
-        </div>
-
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
