@@ -17,7 +17,7 @@ export function Logo({ className = '', iconOnly = false, size = 'md' }: LogoProp
   const s = sizeMap[size];
   return (
     <div className={`flex items-center ${className}`}>
-      <div className={`${s.container} bg-gradient-to-br from-primary via-primary-600 to-blue-600 rounded-xl flex items-center justify-center mr-3 flex-shrink-0 shadow-lg shadow-primary/25`}>
+      <div className={`${s.container} bg-primary rounded-xl flex items-center justify-center mr-3 flex-shrink-0`}>
         <span className={`${s.mark} font-bold text-white leading-none tracking-tight`}>BX</span>
       </div>
       {!iconOnly && (
