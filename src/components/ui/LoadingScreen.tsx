@@ -12,7 +12,7 @@ const LoadingScreen = () => {
         </div>
         <h2 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-2">BillXpress</h2>
         <div className="w-32 h-1 mx-auto bg-gray-200 dark:bg-dark-700 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-primary to-blue-600 rounded-full animate-pulse" style={{ width: '60%' }} />
+          <div className="h-full bg-slate-400 dark:bg-slate-500 rounded-full animate-pulse" style={{ width: '60%' }} />
         </div>
       </div>
     </div>

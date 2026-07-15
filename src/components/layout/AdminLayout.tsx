@@ -45,7 +45,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
 
   return (
     <div className="flex h-screen bg-neutral-50 dark:bg-dark-900">
-      <a href="#admin-content" className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-primary-700 focus-visible:rounded-2xl focus-visible:shadow-lg focus-visible:outline-none">
+      <a href="#admin-content" className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-slate-700 focus-visible:rounded-2xl focus-visible:shadow-lg focus-visible:outline-none">
         Skip to content
       </a>
       <AnimatePresence>
@@ -101,7 +101,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
 
           <div className="p-4 border-t border-neutral-200 dark:border-dark-700">
             <div className="flex items-center space-x-3 p-3 rounded-2xl bg-neutral-50 dark:bg-dark-900">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-white" aria-hidden="true" />
               </div>
               <div className="flex-1 min-w-0">
@@ -115,7 +115,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             </div>
             <button
               onClick={toggle}
-              className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-primary-50 dark:hover:bg-dark-700 hover:text-primary-700 dark:hover:text-primary-400 w-full"
+              className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-slate-100 dark:hover:bg-dark-700 hover:text-slate-700 dark:hover:text-slate-300 w-full"
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

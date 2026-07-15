@@ -49,14 +49,14 @@ function NavItem({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
       aria-current={isActive ? 'page' : undefined}
       className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full text-left cursor-pointer active:scale-[0.98] ${
         isActive
-          ? "bg-primary-50 text-primary-700 dark:bg-dark-700 dark:text-primary-300 shadow-sm"
+          ? "bg-slate-100 text-slate-700 dark:bg-dark-700 dark:text-slate-300 shadow-sm"
           : "text-black dark:text-white hover:bg-gray-50 dark:hover:bg-dark-800 hover:text-secondary"
       }`}
     >
       <Icon
         className={`mr-3 h-5 w-5 flex-shrink-0 ${
           isActive
-            ? "text-primary-700 dark:text-primary-300"
+            ? "text-slate-700 dark:text-slate-300"
             : "text-black dark:text-white group-hover:text-secondary"
         }`}
         aria-hidden="true"

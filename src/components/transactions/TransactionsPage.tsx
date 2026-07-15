@@ -196,7 +196,7 @@ const TransactionsPage: React.FC<PageProps> = ({
                   <div key={transaction.id} className="p-4 hover:bg-gray-50 dark:bg-dark-800 dark:hover:bg-dark-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gray-100 dark:bg-dark-700 rounded-xl flex items-center justify-center mr-4 text-primary">
+                        <div className="w-12 h-12 bg-gray-100 dark:bg-dark-700 rounded-xl flex items-center justify-center mr-4 text-slate-600 dark:text-slate-300">
                           {getTransactionIcon(transaction.type)}
                         </div>
                         <div>

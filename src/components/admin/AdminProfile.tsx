@@ -136,10 +136,10 @@ const AdminProfile: React.FC = () => {
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center space-x-2 px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors"
-                >
-                  <Edit3 className="w-4 h-4" aria-hidden="true" />
-                  <span>Edit</span>
+className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4" aria-hidden="true" />
+                    <span>Edit</span>
                 </button>
               ) : (
                 <div className="flex items-center space-x-2">
@@ -164,7 +164,7 @@ const AdminProfile: React.FC = () => {
             <div className="space-y-4">
               {/* Profile Picture */}
               <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center">
+                <div className="w-20 h-20 bg-slate-500 rounded-2xl flex items-center justify-center">
                   <User className="w-10 h-10 text-white" aria-hidden="true" />
                 </div>
                 <div>
@@ -192,7 +192,7 @@ const AdminProfile: React.FC = () => {
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center text-sm text-primary-600 hover:text-primary-700 mt-1"
+                    className="flex items-center text-sm text-slate-600 hover:text-slate-700 mt-1"
                   >
                     <Camera className="w-4 h-4 mr-1" aria-hidden="true" />
                     Change Photo
@@ -295,7 +295,7 @@ const AdminProfile: React.FC = () => {
                 </div>
                 <button
                   onClick={() => setShowPasswordModal(true)}
-                  className="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors"
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
                 >
                   Change Password
                 </button>
@@ -321,7 +321,7 @@ const AdminProfile: React.FC = () => {
                     }
                     setShowMFAModal(true);
                   }}
-                  className="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-colors"
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
                 >
                   {user?.mfaEnabled ? 'Manage 2FA' : 'Enable 2FA'}
                 </button>
@@ -358,7 +358,7 @@ const AdminProfile: React.FC = () => {
                       onChange={(e) => handleNotificationChange(item.key, e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-neutral-200 dark:bg-dark-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-dark-700 after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    <div className="w-11 h-6 bg-neutral-200 dark:bg-dark-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-dark-700 after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                   </label>
                 </div>
               ))}
@@ -477,7 +477,7 @@ const AdminProfile: React.FC = () => {
           >
             {user?.mfaEnabled && mfaStep === 'initial' ? (
               <div className="text-center">
-                <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
+                <Key className="w-12 h-12 text-slate-600 mx-auto mb-4" aria-hidden="true" />
                 <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Two-Factor Authentication</h2>
                 <p className="text-black dark:text-white mb-4">2FA is currently enabled on your account.</p>
                 <button onClick={async () => {
@@ -492,7 +492,7 @@ const AdminProfile: React.FC = () => {
               </div>
             ) : mfaStep === 'setup' || mfaStep === 'initial' ? (
               <div className="text-center">
-                <Key className="w-12 h-12 text-primary-600 mx-auto mb-4" aria-hidden="true" />
+                <Key className="w-12 h-12 text-slate-600 mx-auto mb-4" aria-hidden="true" />
                 <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Set Up Two-Factor Authentication</h2>
                 <p className="text-black dark:text-white mb-4">Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.).</p>
                 {mfaUri && (

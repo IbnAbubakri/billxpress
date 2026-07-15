@@ -51,7 +51,7 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
     <DashboardLayout user={user} onLogout={() => setShowLogout(true)}>
       <div className="p-4 pl-14 lg:p-6 lg:pl-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm">
+          <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm">
             {(user?.name || '?').charAt(0).toUpperCase()}
           </div>
           <div>

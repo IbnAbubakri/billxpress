@@ -309,7 +309,7 @@ const RegisterPage = () => {
               </div>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white py-4 px-4 rounded-2xl font-semibold hover:shadow-lg transition-all duration-200"
+                className="w-full bg-primary text-white py-4 px-4 rounded-2xl font-semibold hover:shadow-lg transition-all duration-200"
               >
                 <div className="flex items-center justify-center gap-2">
                   Go to Dashboard

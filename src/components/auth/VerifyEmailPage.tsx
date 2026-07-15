@@ -40,7 +40,7 @@ function VerifyEmailPage() {
 
         {status === 'loading' && (
           <div className="flex flex-col items-center">
-            <Loader2 className="w-12 h-12 text-primary-600 animate-spin mb-4" aria-hidden="true" />
+            <Loader2 className="w-12 h-12 text-slate-500 animate-spin mb-4" aria-hidden="true" />
             <p className="text-black dark:text-white">{message}</p>
           </div>
         )}

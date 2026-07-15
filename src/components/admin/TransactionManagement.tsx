@@ -66,8 +66,8 @@ const TransactionManagement: React.FC = () => {
   };
 
   const getServiceColor = (serviceType: string) => {
-    const m: Record<string, string> = { airtime: 'text-primary-500', data: 'text-accent-500', electricity: 'text-warning-500', cable: 'text-info-500' };
-    return m[serviceType] || 'text-primary-500';
+    const m: Record<string, string> = { airtime: 'text-slate-500', data: 'text-slate-500', electricity: 'text-slate-500', cable: 'text-slate-500' };
+    return m[serviceType] || 'text-slate-500';
   };
 
   const totalAmount = filteredTransactions.reduce((s, t) => s + Number(t.amount), 0);
@@ -102,7 +102,7 @@ const TransactionManagement: React.FC = () => {
                 <p className="text-xl font-bold text-black dark:text-white mt-1">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                stat.color === 'primary' ? 'bg-primary-500' : stat.color === 'success' ? 'bg-success-500' : stat.color === 'warning' ? 'bg-warning-500' : 'bg-error-500'
+                stat.color === 'primary' ? 'bg-slate-500' : stat.color === 'success' ? 'bg-success-500' : stat.color === 'warning' ? 'bg-warning-500' : 'bg-error-500'
               } text-white`}>
                 <stat.icon className="w-6 h-6" />
               </div>
@@ -115,10 +115,10 @@ const TransactionManagement: React.FC = () => {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black dark:text-white w-5 h-5" />
           <input type="text" placeholder="Search by user or service..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" />
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400" />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
           <option value="all">All Status</option>
           <option value="completed">Completed</option>
           <option value="pending">Pending</option>
@@ -170,7 +170,7 @@ const TransactionManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button onClick={() => { setSelectedTransaction(tx); setShowTransactionModal(true); }}
-                        className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
+                        className="p-2 text-slate-600 hover:bg-slate-50 dark:hover:bg-dark-700 rounded-lg transition-colors">
                         <Eye className="w-4 h-4" />
                       </button>
                     </td>

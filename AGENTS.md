@@ -92,6 +92,19 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 
 Skipped: C-1 (deployment concern, not code), H-1 (intentional tradeoff for mobile users), H-2 (user requested OTP left on UI), M-2 (React auto-escapes), M-4 (already has IP fallback), L-2 (server-enforced), L-4 (negligible bcrypt timing).
 
+## Session Summary (Jul 15 — Color consistency across admin pages)
+Replaced `primary-*` (purple) classes with `slate-*` on decorative/non-CTA elements across all admin pages, keeping purple only for interactive primary actions (CTAs). Landing page feature cards also unified to slate.
+
+| File | Changes |
+|---|---|
+| `LandingPage.tsx` | Feature card icons: `text-primary-500`/`text-accent-500` → `text-slate-500`; gradient bg → solid slate |
+| `AdminDashboard.tsx` | Stat icon container `bg-primary-500` → `bg-slate-500`; avatar gradient → solid; service icon `text-primary-500` → `text-slate-500` |
+| `Analytics.tsx` | Metric icon `bg-primary-500` → `bg-slate-500` |
+| `UserManagement.tsx` | Admin role badge, stat icon bg, avatar gradient, edit button, user modal avatar — all `primary` → `slate` |
+| `PricingControl.tsx` | Edit button `text-primary-600` → `text-slate-600`; icon container `bg-primary-500` → `bg-slate-500` |
+| `TransactionManagement.tsx` | Service type colors (airtime/data/etc.) → all `text-slate-500`; stat icon bg, edit button → slate |
+| `AdminProfile.tsx` | Edit button, avatar gradient, Change Photo link, Change Password/Enable 2FA buttons, MFA key icons — all `primary` → `slate` |
+
 ## API Endpoints (authenticated)
 | Endpoint | Purpose |
 |---|---|

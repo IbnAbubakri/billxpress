@@ -54,7 +54,7 @@ const Analytics: React.FC = () => {
           <p className="text-black dark:text-white mt-1">Comprehensive insights into your VTU platform</p>
         </div>
         <div className="flex items-center space-x-3">
-          <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="px-4 py-2 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+          <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="px-4 py-2 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
             <option value="90d">Last 3 months</option>
@@ -76,7 +76,7 @@ const Analytics: React.FC = () => {
                 <p className="text-xl font-bold text-black dark:text-white mt-1">{metric.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                metric.color === 'success' ? 'bg-success-500' : metric.color === 'primary' ? 'bg-primary-500' : metric.color === 'accent' ? 'bg-accent-500' : 'bg-info-500'
+                metric.color === 'success' ? 'bg-success-500' : metric.color === 'primary' ? 'bg-slate-500' : metric.color === 'accent' ? 'bg-accent-500' : 'bg-info-500'
               } text-white`}>
                 <metric.icon className="w-6 h-6" />
               </div>
@@ -88,7 +88,7 @@ const Analytics: React.FC = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.2 }} className="chart-container">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4">
           <h2 className="text-base font-ginto font-semibold text-black dark:text-white">Performance Overview</h2>
-          <select value={selectedMetric} onChange={e => setSelectedMetric(e.target.value)} className="px-3 py-2 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+          <select value={selectedMetric} onChange={e => setSelectedMetric(e.target.value)} className="px-3 py-2 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
             <option value="revenue">Revenue</option>
             <option value="transactions">Transactions</option>
           </select>

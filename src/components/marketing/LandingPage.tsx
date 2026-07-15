@@ -107,7 +107,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
             <div>
-              <div className="motion-safe:animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-6">
+              <div className="motion-safe:animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 bg-slate-100 dark:bg-dark-700 text-slate-700 dark:text-slate-300 rounded-full text-sm font-medium mb-6">
                 <Sparkles className="w-4 h-4" />
                 Trusted by 10,000+ users across Nigeria
               </div>

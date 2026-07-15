@@ -64,7 +64,7 @@ const AdminDashboard = () => {
   ];
 
   const getColorClasses = (color: string) => {
-    const m: Record<string, string> = { success: 'bg-success-500 text-white', primary: 'bg-primary-500 text-white', accent: 'bg-accent-500 text-white', info: 'bg-info-500 text-white' };
+    const m: Record<string, string> = { success: 'bg-success-500 text-white', primary: 'bg-slate-500 text-white', accent: 'bg-accent-500 text-white', info: 'bg-info-500 text-white' };
     return m[color] || m.primary;
   };
 
@@ -176,7 +176,7 @@ const AdminDashboard = () => {
                 <tr key={tx.id} className="hover:bg-neutral-50 dark:hover:bg-dark-700 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-slate-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">{tx.user_name?.charAt(0)}</span>
                       </div>
                       <div className="ml-3">
@@ -186,7 +186,7 @@ const AdminDashboard = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
-                      {(tx.service || '').toLowerCase().includes('airtime') && <Smartphone className="w-4 h-4 text-primary-500" />}
+                      {(tx.service || '').toLowerCase().includes('airtime') && <Smartphone className="w-4 h-4 text-slate-500" />}
                       {(tx.service || '').toLowerCase().includes('data') && <Wifi className="w-4 h-4 text-accent-500" />}
                       {(tx.service || '').toLowerCase().includes('electricity') && <Zap className="w-4 h-4 text-warning-500" />}
                       <span className="text-sm text-black dark:text-white">{tx.service}</span>

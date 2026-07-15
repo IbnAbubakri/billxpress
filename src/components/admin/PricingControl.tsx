@@ -190,13 +190,13 @@ const PricingControl: React.FC = () => {
             placeholder="Search services or providers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="w-full px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           />
         </div>
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="px-4 py-3 bg-white dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
         >
           <option value="all">All Services</option>
           <option value="airtime">Airtime</option>
@@ -249,7 +249,7 @@ const PricingControl: React.FC = () => {
                         type="number"
                         value={editForm.cost_price}
                         onChange={(e) => setEditForm(prev => ({ ...prev, cost_price: parseFloat(e.target.value) }))}
-                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                         step="0.01"
                       />
                     ) : (
@@ -262,7 +262,7 @@ const PricingControl: React.FC = () => {
                         type="number"
                         value={editForm.selling_price}
                         onChange={(e) => setEditForm(prev => ({ ...prev, selling_price: parseFloat(e.target.value) }))}
-                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        className="w-24 px-2 py-1 border border-neutral-300 dark:border-dark-600 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                         step="0.01"
                       />
                     ) : (
@@ -309,7 +309,7 @@ const PricingControl: React.FC = () => {
                           <button
                             onClick={() => handleEdit(item)}
                             aria-label="Edit"
-                            className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
+                            className="p-2 text-slate-600 hover:bg-slate-50 dark:hover:bg-dark-700 rounded-lg transition-colors"
                           >
                             <Edit3 className="w-4 h-4" aria-hidden="true" />
                         </button>
@@ -353,7 +353,7 @@ const PricingControl: React.FC = () => {
               <p className="text-sm font-medium text-black dark:text-white">Active Services</p>
               <p className="text-xl font-bold text-black dark:text-white mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
             </div>
-            <div className="w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-slate-500 rounded-2xl flex items-center justify-center">
               <Smartphone className="w-6 h-6 text-white" aria-hidden="true" />
             </div>
           </div>

@@ -76,7 +76,7 @@ const RecentTransactions = () => {
         <p className="text-gray-600 text-sm mb-6">Your payment history will appear here</p>
         <button
           onClick={() => navigate('/airtime')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           Make Your First Payment
           <ArrowRight className="w-4 h-4" />
