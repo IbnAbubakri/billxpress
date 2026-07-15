@@ -19,14 +19,24 @@ import gotvIcon from '../../assets/icons/gotv.png';
 import bet9jaIcon from '../../assets/icons/bet9ja.png';
 import sportybetIcon from '../../assets/icons/sportybet.png';
 
+const featureVariants = [
+  { iconShape: 'rounded-xl', hover: 'hover:shadow-xl hover:-translate-y-1', accent: '' },
+  { iconShape: 'rounded-full', hover: 'hover:shadow-lg hover:border-slate-200 dark:hover:border-dark-600', accent: '' },
+  { iconShape: 'rounded-lg', hover: 'hover:shadow-xl hover:-translate-y-1', accent: 'border-b-2 border-b-slate-200 dark:border-b-dark-600' },
+  { iconShape: 'rounded-2xl', hover: 'hover:shadow-lg', accent: '' },
+  { iconShape: 'rounded-xl', hover: 'hover:shadow-xl hover:-translate-y-1', accent: 'border-l-2 border-l-slate-200 dark:border-l-dark-600' },
+  { iconShape: 'rounded-full', hover: 'hover:shadow-lg hover:border-slate-200 dark:hover:border-dark-600', accent: '' },
+  { iconShape: 'rounded-lg', hover: 'hover:shadow-xl hover:-translate-y-1', accent: 'border-t-2 border-t-slate-200 dark:border-t-dark-600' },
+];
+
 const features = [
-  { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', bg: 'bg-slate-100 text-slate-600' },
-  { icon: Wifi, title: 'Data Bundles', desc: 'Affordable data plans for all networks', bg: 'bg-slate-100 text-slate-600' },
-  { icon: Tv, title: 'Cable TV', desc: 'DSTV, GOtv & Startimes subscriptions', bg: 'bg-slate-100 text-slate-600' },
-  { icon: Zap, title: 'Electricity', desc: 'Pay prepaid & postpaid bills instantly', bg: 'bg-slate-100 text-slate-600' },
-  { icon: GraduationCap, title: 'Education', desc: 'JAMB, WAEC, NECO & school fees', bg: 'bg-slate-100 text-slate-600' },
-  { icon: Target, title: 'Betting', desc: 'Fund Bet9ja, SportyBet & more', bg: 'bg-slate-100 text-slate-600' },
-  { icon: ArrowRightLeft, title: 'Airtime to Cash', desc: 'Convert airtime to spendable cash', bg: 'bg-slate-100 text-slate-600' },
+  { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile' },
+  { icon: Wifi, title: 'Data Bundles', desc: 'Affordable data plans for all networks' },
+  { icon: Tv, title: 'Cable TV', desc: 'DSTV, GOtv & Startimes subscriptions' },
+  { icon: Zap, title: 'Electricity', desc: 'Pay prepaid & postpaid bills instantly' },
+  { icon: GraduationCap, title: 'Education', desc: 'JAMB, WAEC, NECO & school fees' },
+  { icon: Target, title: 'Betting', desc: 'Fund Bet9ja, SportyBet & more' },
+  { icon: ArrowRightLeft, title: 'Airtime to Cash', desc: 'Convert airtime to spendable cash' },
 ];
 
 const stats = [
@@ -176,18 +186,22 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((f, i) => {
               const Icon = f.icon;
+              const variant = featureVariants[i];
               const span = i === 0 ? "sm:col-span-2 lg:col-span-2" : "";
               return (
                 <button
                   key={f.title}
                   onClick={() => navigate(servicePaths[f.title])}
-                  className={`group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] text-left ${span}`}
+                  className={`group relative p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 transition-all duration-300 active:scale-[0.98] text-left overflow-hidden ${variant.hover} ${span} ${variant.accent}`}
                 >
-                  <div className={`w-12 h-12 rounded-xl ${f.bg} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-12 h-12 ${variant.iconShape} bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-6 h-6" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1.5">{f.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+                  <span className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    Get started <ChevronRight className="w-3 h-3" />
+                  </span>
                 </button>
               );
             })}
@@ -202,13 +216,17 @@ export default function LandingPage() {
             {stats.map((s, i) => {
               const Icon = s.icon;
               const span = i === 0 ? "lg:col-span-2" : "";
+              const iconShape = i % 2 === 0 ? 'rounded-xl' : 'rounded-full';
+              const cardStyle = i === 1
+                ? 'bg-gradient-to-br from-slate-700 to-slate-900 text-white border-transparent'
+                : 'bg-white dark:bg-dark-800 border-gray-100 dark:border-dark-700';
               return (
-                <div key={s.label} className={`text-center p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 ${span}`}>
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-slate-100 dark:bg-dark-700 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+                <div key={s.label} className={`text-center p-6 ${cardStyle} rounded-2xl border ${span}`}>
+                  <div className={`w-12 h-12 mx-auto mb-3 ${iconShape} ${i === 1 ? 'bg-white/15' : 'bg-slate-100 dark:bg-dark-700'} flex items-center justify-center`}>
+                    <Icon className={`w-6 h-6 ${i === 1 ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`} />
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{s.value}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{s.label}</div>
+                  <div className={`text-2xl sm:text-3xl font-bold mb-1 ${i === 1 ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{s.value}</div>
+                  <div className={`text-sm ${i === 1 ? 'text-white/70' : 'text-gray-500 dark:text-gray-400'}`}>{s.label}</div>
                 </div>
               );
             })}

@@ -92,6 +92,16 @@ Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
 
 Skipped: C-1 (deployment concern, not code), H-1 (intentional tradeoff for mobile users), H-2 (user requested OTP left on UI), M-2 (React auto-escapes), M-4 (already has IP fallback), L-2 (server-enforced), L-4 (negligible bcrypt timing).
 
+## Session Summary (Jul 15 — Grid & Card anti-AI redesign)
+
+| File | Change |
+|---|---|
+| `ServiceGrid.tsx` | Broke uniform card pattern: varied icon container shapes (rounded-xl/full/lg/2xl per card), distinct hover effects per card, animated chevron indicator on hover, colored top/bottom borders on alternating cards, dark mode color variants |
+| `Dashboard.tsx` | Chart cards differentiated: Daily Transactions gets `border-l-4` accent, Bill Distribution gets `bg-slate-50` + border treatment instead of identical white cards |
+| `LandingPage.tsx` | Feature cards: removed single `bg` field, added `featureVariants` with per-card icon shapes, hover behaviors, and accent borders; added "Get started →" reveal on hover. Stats grid: second card uses `bg-gradient-to-br from-slate-700 to-slate-900` dark gradient for visual contrast, alternating icon shapes |
+
+Key principle from `frontend-design` skill: avoid uniform grid/card repetition, vary corner radii, hover effects, and decorative accents across otherwise similar components. ServiceGrid now has 7 visually distinct card styles instead of 7 clones with different colors.
+
 ## Session Summary (Jul 15 — Color consistency across admin pages)
 Replaced `primary-*` (purple) classes with `slate-*` on decorative/non-CTA elements across all admin pages, keeping purple only for interactive primary actions (CTAs). Landing page feature cards also unified to slate.
 

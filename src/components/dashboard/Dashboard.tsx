@@ -91,13 +91,13 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <PageErrorBoundary pageName="Chart">
-            <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 md:p-4">
+            <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 md:p-4 border-l-4 border-l-slate-400 dark:border-l-slate-500">
               <h3 className="text-base font-semibold text-secondary dark:text-white mb-4">Daily Transactions</h3>
               <TransactionChart />
             </div>
           </PageErrorBoundary>
           <PageErrorBoundary pageName="Chart">
-            <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm p-4 md:p-4">
+            <div className="bg-slate-50 dark:bg-dark-800/60 rounded-2xl shadow-sm p-4 md:p-4 border border-slate-100 dark:border-dark-700">
               <h3 className="text-base font-semibold text-secondary dark:text-white mb-4">Bill Distribution</h3>
               <SpendingChart />
             </div>
