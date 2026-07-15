@@ -79,12 +79,12 @@ export default function LandingPage() {
               <a href="#features" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Features</a>
               <a href="#trust" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Trust</a>
               <Link to="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Sign In</Link>
-              <Link to="/register" className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                Get Started
+              <Link to="/register" className="inline-flex items-center px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-2xl hover:bg-primary-600 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                Create Free Account
                 <ArrowRight className="ml-1.5 w-4 h-4" />
               </Link>
             </nav>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-600 dark:text-gray-300">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation menu" className="md:hidden p-3 text-gray-600 dark:text-gray-300">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -94,8 +94,8 @@ export default function LandingPage() {
               <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Features</a>
               <a href="#trust" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Trust</a>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300">Sign In</Link>
-              <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-3 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-2xl">
-                Get Started
+              <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-3 bg-primary text-white text-sm font-semibold rounded-2xl">
+                Create Free Account
               </Link>
             </div>
         </div>
@@ -106,28 +106,45 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-blue-50 dark:from-dark-900 dark:via-dark-900 dark:to-dark-800" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              Trusted by 10,000+ users across Nigeria
+          <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
+            <div>
+              <div className="motion-safe:animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-6">
+                <Sparkles className="w-4 h-4" />
+                Trusted by 10,000+ users across Nigeria
+              </div>
+              <h1 className="motion-safe:animate-slide-up text-4xl sm:text-5xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
+                Pay bills, buy airtime &amp; data
+                <span className="block text-primary mt-2">
+                  all in one place
+                </span>
+              </h1>
+              <p className="motion-safe:animate-fade-in text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-xl mb-10 leading-relaxed">
+                BillXpress makes it effortless to pay for airtime, data, cable TV, electricity, education, and more. With instant confirmation and 24/7 support.
+              </p>
+              <div className="motion-safe:animate-slide-up flex flex-col sm:flex-row items-start gap-4">
+                <Link to="/register" className="inline-flex items-center px-8 py-4 bg-primary text-white text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                  Create Free Account
+                  <ChevronRight className="ml-1.5 w-5 h-5" />
+                </Link>
+                <Link to="/login" className="inline-flex items-center px-8 py-4 bg-white dark:bg-dark-800 text-gray-700 dark:text-gray-200 text-base font-semibold rounded-2xl border border-gray-200 dark:border-dark-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                  Sign In
+                </Link>
+              </div>
             </div>
-            <h1 className="animate-slide-up text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
-              Pay bills, buy airtime &amp; data
-              <span className="block text-primary mt-2">
-                all in one place
-              </span>
-            </h1>
-            <p className="animate-fade-in text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-              BillXpress makes it effortless to pay for airtime, data, cable TV, electricity, education, and more. With instant confirmation and 24/7 support.
-            </p>
-            <div className="animate-slide-up flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/register" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-blue-600 text-white text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                Create Free Account
-                <ChevronRight className="ml-1.5 w-5 h-5" />
-              </Link>
-              <Link to="/login" className="inline-flex items-center px-8 py-4 bg-white dark:bg-dark-800 text-gray-700 dark:text-gray-200 text-base font-semibold rounded-2xl border border-gray-200 dark:border-dark-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
-                Sign In
-              </Link>
+            {/* Phone mockup visual */}
+            <div className="hidden lg:flex justify-center items-center motion-safe:animate-fade-in">
+              <div className="relative w-[280px] h-[560px] bg-gray-900 dark:bg-gray-950 rounded-[40px] border-4 border-gray-800 dark:border-gray-700 shadow-2xl overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-6 bg-gray-800 dark:bg-gray-700 rounded-b-xl z-10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-primary-600 via-primary-500 to-blue-600">
+                  <div className="absolute top-16 left-6 right-6 h-32 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
+                  <div className="absolute top-52 left-6 right-6 h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
+                  <div className="absolute top-80 left-6 right-6 h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
+                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-14 h-14 bg-white/15 rounded-full border border-white/20" />
+                  <div className="absolute top-20 left-10 w-3 h-3 bg-emerald-300 rounded-full opacity-80" />
+                  <div className="absolute top-28 right-10 w-2 h-2 bg-amber-300 rounded-full opacity-80" />
+                  <div className="absolute bottom-36 left-1/2 -translate-x-1/2 w-6 h-1 bg-white/20 rounded-full" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -136,7 +153,6 @@ export default function LandingPage() {
       {/* Partner logos */}
       <section className="py-12 border-y border-gray-100 dark:border-dark-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm font-medium text-gray-600 dark:text-gray-500 mb-8 uppercase tracking-wider">Trusted partners</p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             {partners.map((p) => (
               <div key={p.name} className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-dark-800 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-dark-700 hover:shadow-lg hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 p-3">
@@ -150,7 +166,7 @@ export default function LandingPage() {
       {/* Features */}
       <section id="features" className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-fade-in text-center max-w-2xl mx-auto mb-16">
+          <div className="motion-safe:animate-fade-in text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Everything you need, one platform
             </h2>
@@ -159,13 +175,14 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {features.map((f) => {
+            {features.map((f, i) => {
               const Icon = f.icon;
+              const span = i === 0 ? "sm:col-span-2 lg:col-span-2" : "";
               return (
                 <button
                   key={f.title}
                   onClick={() => navigate(servicePaths[f.title])}
-                  className="group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] text-left"
+                  className={`group p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 hover:shadow-xl hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] text-left ${span}`}
                 >
                   <div className={`w-12 h-12 rounded-xl ${f.bg} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-6 h-6" />
@@ -182,11 +199,12 @@ export default function LandingPage() {
       {/* Trust section */}
       <section id="trust" className="py-20 lg:py-28 bg-gray-50 dark:bg-dark-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
-            {stats.map((s) => {
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
+            {stats.map((s, i) => {
               const Icon = s.icon;
+              const span = i === 0 ? "lg:col-span-2" : "";
               return (
-                <div key={s.label} className="text-center p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700">
+                <div key={s.label} className={`text-center p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 ${span}`}>
                   <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
