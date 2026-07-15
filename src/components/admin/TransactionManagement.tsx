@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { walletApi } from '../../api/client';
 import {
   CreditCard, Search, Eye, CheckCircle, XCircle, Clock,
   Smartphone, Wifi, Zap, Tv, Download, X,
@@ -30,7 +30,7 @@ const TransactionManagement: React.FC = () => {
   const { data: txns } = useQuery({
     queryKey: ['admin', 'transactions'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/admin/transactions', { withCredentials: true });
+      const { data } = await walletApi.get('/admin/transactions');
       return data.transactions as Transaction[];
     },
     staleTime: 60 * 1000,

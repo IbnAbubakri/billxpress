@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { walletApi } from '../../api/client';
 import { colors } from '../../constants/theme';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import {
@@ -23,7 +23,7 @@ const AdminDashboard = () => {
   const { data: statsData } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/admin/stats', { withCredentials: true });
+      const { data } = await walletApi.get('/admin/stats');
       return data.stats;
     },
     staleTime: 2 * 60 * 1000,
@@ -32,7 +32,7 @@ const AdminDashboard = () => {
   const { data: revenueChart } = useQuery({
     queryKey: ['admin', 'revenue-chart'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/admin/revenue-chart', { withCredentials: true });
+      const { data } = await walletApi.get('/admin/revenue-chart');
       return data.data;
     },
     staleTime: 2 * 60 * 1000,
@@ -41,7 +41,7 @@ const AdminDashboard = () => {
   const { data: serviceDist } = useQuery({
     queryKey: ['admin', 'service-distribution'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/admin/service-distribution', { withCredentials: true });
+      const { data } = await walletApi.get('/admin/service-distribution');
       return data.data as Array<{ name: string; value: number }>;
     },
     staleTime: 2 * 60 * 1000,
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
   const { data: recentTxns } = useQuery({
     queryKey: ['admin', 'transactions'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/admin/transactions', { withCredentials: true });
+      const { data } = await walletApi.get('/admin/transactions');
       return data.transactions;
     },
     staleTime: 60 * 1000,

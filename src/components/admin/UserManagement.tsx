@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { walletApi } from '../../api/client';
 import { Users, Search, CheckCircle, XCircle } from 'lucide-react';
 
 interface AppUser {
@@ -26,7 +26,7 @@ const UserManagement: React.FC = () => {
   const { data: usersData } = useQuery({
     queryKey: ['admin', 'users'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/admin/users', { withCredentials: true });
+      const { data } = await walletApi.get('/admin/users');
       return data.users as AppUser[];
     },
     staleTime: 2 * 60 * 1000,

@@ -177,6 +177,10 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_wallet_funding_reference ON wallet_funding_transactions(paystack_reference);
     CREATE INDEX IF NOT EXISTS idx_wallet_funding_user_id ON wallet_funding_transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_wallet_funding_status ON wallet_funding_transactions(status);
+    CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+    CREATE INDEX IF NOT EXISTS idx_transactions_userId_date ON transactions(userId, date);
+    CREATE INDEX IF NOT EXISTS idx_transactions_status_amount ON transactions(status, amount);
+    CREATE INDEX IF NOT EXISTS idx_users_createdAt ON users(createdAt);
   `);
 
   await runMigrations(pool);

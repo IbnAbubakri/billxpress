@@ -5,8 +5,16 @@ import { getDb } from '../utils/db.js';
 
 export async function handleGetTransactions(req, res) {
   const userId = req.user.id;
-  const txns = await getDb().prepare(
-    'SELECT id, type, amount, status, description, recipient, date FROM transactions WHERE userId = ? ORDER BY date DESC LIMIT 50'
-  ).all(userId);
-  res.json({ transactions: txns });
+  const cursor = parseInt(req.query.cursor, 10) || null;
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+  const sql = cursor
+    ? `SELECT id, type, amount, status, description, recipient, date FROM transactions WHERE userId = ? AND id < ? ORDER BY id DESC LIMIT ?`
+    : `SELECT id, type, amount, status, description, recipient, date FROM transactions WHERE userId = ? ORDER BY id DESC LIMIT ?`;
+  const txns = cursor
+    ? await getDb().prepare(sql).all(userId, cursor, limit + 1)
+    : await getDb().prepare(sql).all(userId, limit + 1);
+  const hasMore = txns.length > limit;
+  if (hasMore) txns.pop();
+  const nextCursor = hasMore ? txns[txns.length - 1].id : null;
+  res.json({ transactions: txns, nextCursor, hasMore });
 }

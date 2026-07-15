@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { walletApi } from '../../api/client';
 import { colors } from '../../constants/theme';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import { TrendingUp, Users, DollarSign, Activity, Download } from 'lucide-react';
@@ -29,7 +29,7 @@ const Analytics: React.FC = () => {
   const { data } = useQuery<AnalyticsData>({
     queryKey: ['admin', 'analytics'],
     queryFn: async () => {
-      const res = await axios.get('/api/admin/analytics', { withCredentials: true });
+      const res = await walletApi.get('/admin/analytics');
       return res.data;
     },
     staleTime: 2 * 60 * 1000,

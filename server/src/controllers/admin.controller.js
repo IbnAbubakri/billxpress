@@ -4,29 +4,40 @@
 import { getDb } from '../utils/db.js';
 import logger from '../utils/logger.js';
 import { logAction } from '../services/audit.service.js';
+import { memoize } from '../utils/cache.js';
+
+const fetchStats = memoize(async () => {
+  const db = getDb();
+  return db.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM users) as totalUsers,
+      (SELECT COUNT(*) FROM transactions) as totalTransactions,
+      (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE amount > 0 AND status = 'completed') as totalRevenue,
+      (SELECT
+        CASE WHEN COUNT(*) > 0
+          THEN ROUND(100.0 * SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) / COUNT(*), 1)
+          ELSE 0
+        END
+      FROM transactions) as successRate
+  `).get();
+}, 30);
 
 export async function handleGetStats(req, res) {
-  const db = getDb();
-  const totalUsers = await db.prepare('SELECT COUNT(*) as count FROM users').get();
-  const totalTransactions = await db.prepare('SELECT COUNT(*) as count FROM transactions').get();
-  const revenue = await db.prepare("SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE amount > 0 AND status = 'completed'").get();
-  const successCount = await db.prepare("SELECT COUNT(*) as count FROM transactions WHERE status = 'completed'").get();
-  const totalCount = await db.prepare('SELECT COUNT(*) as count FROM transactions').get();
-  const successRate = totalCount.count > 0 ? ((successCount.count / totalCount.count) * 100).toFixed(1) : '0';
+  const row = await fetchStats();
   logAction({ userId: req.user.id, action: 'ADMIN_STATS_VIEWED', details: {}, ip: req.clientIp, userAgent: req.clientUA });
   res.json({
     stats: {
-      totalUsers: Number(totalUsers.count),
-      totalTransactions: Number(totalTransactions.count),
-      totalRevenue: Number(revenue.total),
-      successRate: parseFloat(successRate),
+      totalUsers: Number(row.totalusers),
+      totalTransactions: Number(row.totaltransactions),
+      totalRevenue: Number(row.totalrevenue),
+      successRate: parseFloat(row.successrate),
     },
   });
 }
 
-export async function handleGetRevenueChart(req, res) {
+const fetchRevenueChart = memoize(async () => {
   const db = getDb();
-  const rows = await db.prepare(`
+  return db.prepare(`
     SELECT substr(date, 1, 7) as month,
       COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) as revenue,
       COUNT(*) as transactions
@@ -34,12 +45,11 @@ export async function handleGetRevenueChart(req, res) {
     GROUP BY substr(date, 1, 7)
     ORDER BY month
   `).all();
-  res.json({ data: rows });
-}
+}, 60);
 
-export async function handleGetServiceDistribution(req, res) {
+const fetchServiceDistribution = memoize(async () => {
   const db = getDb();
-  const rows = await db.prepare(`
+  return db.prepare(`
     SELECT
       CASE
         WHEN type = 'airtime' THEN 'Airtime'
@@ -53,78 +63,117 @@ export async function handleGetServiceDistribution(req, res) {
     GROUP BY name
     ORDER BY value DESC
   `).all();
-  res.json({ data: rows });
+}, 60);
+
+export async function handleGetRevenueChart(req, res) {
+  const data = await fetchRevenueChart();
+  res.json({ data });
+}
+
+export async function handleGetServiceDistribution(req, res) {
+  const data = await fetchServiceDistribution();
+  res.json({ data });
 }
 
 export async function handleGetAdminTransactions(req, res) {
   const db = getDb();
-  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const cursor = parseInt(req.query.cursor, 10) || null;
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
-  const offset = (page - 1) * limit;
 
-  const countResult = await db.prepare('SELECT COUNT(*) as count FROM transactions').get();
-  const total = Number(countResult.count);
+  const sql = cursor
+    ? `SELECT t.id, u.name as user_name, u.email as user_email,
+         t.description as service, t.type as service_type, t.amount,
+         t.status, t.date as created_at
+       FROM transactions t
+       JOIN users u ON u.id = t.userId
+       WHERE t.id < ?
+       ORDER BY t.id DESC
+       LIMIT ?`
+    : `SELECT t.id, u.name as user_name, u.email as user_email,
+         t.description as service, t.type as service_type, t.amount,
+         t.status, t.date as created_at
+       FROM transactions t
+       JOIN users u ON u.id = t.userId
+       ORDER BY t.id DESC
+       LIMIT ?`;
 
-  const rows = await db.prepare(`
-    SELECT t.id, u.name as user_name, u.email as user_email,
-      t.description as service, t.type as service_type, t.amount,
-      t.status, t.date as created_at
-    FROM transactions t
-    JOIN users u ON u.id = t.userId
-    ORDER BY t.date DESC
-    LIMIT ? OFFSET ?
-  `).all(limit, offset);
+  const rows = cursor
+    ? await db.prepare(sql).all(cursor, limit + 1)
+    : await db.prepare(sql).all(limit + 1);
+  const hasMore = rows.length > limit;
+  if (hasMore) rows.pop();
+  const nextCursor = hasMore ? rows[rows.length - 1].id : null;
 
   res.json({
     transactions: rows,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    nextCursor,
+    hasMore,
+    pagination: { limit },
   });
 }
 
 export async function handleGetAdminUsers(req, res) {
   const db = getDb();
-  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const cursor = req.query.cursor || null;
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
-  const offset = (page - 1) * limit;
 
-  const countResult = await db.prepare('SELECT COUNT(*) as count FROM users').get();
-  const total = Number(countResult.count);
+  const sql = cursor
+    ? `SELECT id, name, email, phone, balance, role,
+         createdAt as joined_date, lastLogin as last_login
+       FROM users
+       WHERE createdAt < ?
+       ORDER BY createdAt DESC
+       LIMIT ?`
+    : `SELECT id, name, email, phone, balance, role,
+         createdAt as joined_date, lastLogin as last_login
+       FROM users
+       ORDER BY createdAt DESC
+       LIMIT ?`;
 
-  const users = await db.prepare(`
-    SELECT id, name, email, phone, balance, role,
-      createdAt as joined_date, lastLogin as last_login
-    FROM users ORDER BY createdAt DESC
-    LIMIT ? OFFSET ?
-  `).all(limit, offset);
+  const users = cursor
+    ? await db.prepare(sql).all(cursor, limit + 1)
+    : await db.prepare(sql).all(limit + 1);
+  const hasMore = users.length > limit;
+  if (hasMore) users.pop();
+  const nextCursor = hasMore ? users[users.length - 1].joined_date : null;
 
   res.json({
     users,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    nextCursor,
+    hasMore,
+    pagination: { limit },
   });
 }
 
-export async function handleGetAnalytics(req, res) {
+const fetchAnalytics = memoize(async () => {
   const db = getDb();
-  const daily = await db.prepare(`
-    SELECT substr(date, 1, 10) as day,
-      COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) as revenue,
-      COUNT(*) as transactions
-    FROM transactions
-    GROUP BY substr(date, 1, 10)
-    ORDER BY day
-  `).all();
-  const serviceStats = await db.prepare(`
-    SELECT type as service, COUNT(*) as transactions,
-      COALESCE(SUM(amount), 0) as revenue
-    FROM transactions
-    GROUP BY type
-    ORDER BY revenue DESC
-  `).all();
-  const userGrowth = await db.prepare(`
-    SELECT substr(createdAt, 1, 7) as month, COUNT(*) as new_users
-    FROM users
-    GROUP BY substr(createdAt, 1, 7)
-    ORDER BY month
-  `).all();
-  res.json({ daily, serviceStats, userGrowth });
+  const [daily, serviceStats, userGrowth] = await Promise.all([
+    db.prepare(`
+      SELECT substr(date, 1, 10) as day,
+        COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) as revenue,
+        COUNT(*) as transactions
+      FROM transactions
+      GROUP BY substr(date, 1, 10)
+      ORDER BY day
+    `).all(),
+    db.prepare(`
+      SELECT type as service, COUNT(*) as transactions,
+        COALESCE(SUM(amount), 0) as revenue
+      FROM transactions
+      GROUP BY type
+      ORDER BY revenue DESC
+    `).all(),
+    db.prepare(`
+      SELECT substr(createdAt, 1, 7) as month, COUNT(*) as new_users
+      FROM users
+      GROUP BY substr(createdAt, 1, 7)
+      ORDER BY month
+    `).all(),
+  ]);
+  return { daily, serviceStats, userGrowth };
+}, 60);
+
+export async function handleGetAnalytics(req, res) {
+  const data = await fetchAnalytics();
+  res.json(data);
 }
