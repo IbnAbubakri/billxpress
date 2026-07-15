@@ -132,17 +132,17 @@ export default function LandingPage() {
               </div>
             </div>
             {/* Phone mockup visual */}
-            <div className="hidden lg:flex justify-center items-center motion-safe:animate-fade-in">
-              <div className="relative w-[280px] h-[560px] bg-gray-900 dark:bg-gray-950 rounded-[40px] border-4 border-gray-800 dark:border-gray-700 shadow-2xl overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-6 bg-gray-800 dark:bg-gray-700 rounded-b-xl z-10" />
+            <div className="flex justify-center items-center mt-10 lg:mt-0 motion-safe:animate-fade-in">
+              <div className="relative w-[200px] h-[400px] lg:w-[280px] lg:h-[560px] bg-gray-900 dark:bg-gray-950 rounded-[32px] lg:rounded-[40px] border-4 border-gray-800 dark:border-gray-700 shadow-2xl overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100px] lg:w-[120px] h-5 lg:h-6 bg-gray-800 dark:bg-gray-700 rounded-b-xl z-10" />
                 <div className="absolute inset-0 bg-gradient-to-b from-primary-600 via-primary-500 to-blue-600">
-                  <div className="absolute top-16 left-6 right-6 h-32 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
-                  <div className="absolute top-52 left-6 right-6 h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
-                  <div className="absolute top-80 left-6 right-6 h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
-                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-14 h-14 bg-white/15 rounded-full border border-white/20" />
-                  <div className="absolute top-20 left-10 w-3 h-3 bg-emerald-300 rounded-full opacity-80" />
-                  <div className="absolute top-28 right-10 w-2 h-2 bg-amber-300 rounded-full opacity-80" />
-                  <div className="absolute bottom-36 left-1/2 -translate-x-1/2 w-6 h-1 bg-white/20 rounded-full" />
+                  <div className="absolute top-12 lg:top-16 left-4 lg:left-6 right-4 lg:right-6 h-24 lg:h-32 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
+                  <div className="absolute top-[148px] lg:top-52 left-4 lg:left-6 right-4 lg:right-6 h-14 lg:h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
+                  <div className="absolute top-[226px] lg:top-80 left-4 lg:left-6 right-4 lg:right-6 h-14 lg:h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
+                  <div className="absolute bottom-12 lg:bottom-16 left-1/2 -translate-x-1/2 w-10 lg:w-14 h-10 lg:h-14 bg-white/15 rounded-full border border-white/20" />
+                  <div className="absolute top-[68px] lg:top-20 left-7 lg:left-10 w-2 lg:w-3 h-2 lg:h-3 bg-emerald-300 rounded-full opacity-80" />
+                  <div className="absolute top-24 lg:top-28 right-7 lg:right-10 w-1.5 lg:w-2 h-1.5 lg:h-2 bg-amber-300 rounded-full opacity-80" />
+                  <div className="absolute bottom-[100px] lg:bottom-36 left-1/2 -translate-x-1/2 w-4 lg:w-6 h-0.5 lg:h-1 bg-white/20 rounded-full" />
                 </div>
               </div>
             </div>
