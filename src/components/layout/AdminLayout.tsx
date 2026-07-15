@@ -76,7 +76,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             <button
               onClick={() => setSidebarOpen(false)}
               aria-label="Close sidebar"
-                className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
+              className="lg:hidden p-3 rounded-2xl hover:bg-neutral-100 dark:hover:bg-dark-700 active:scale-95 transition-all duration-200 ease-out"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -139,7 +139,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
               <button
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open sidebar"
-              className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
+                className="lg:hidden p-3 rounded-2xl bg-neutral-100/80 dark:bg-dark-700/80 backdrop-blur-sm border border-neutral-200/50 dark:border-dark-600/50 text-black dark:text-white hover:bg-neutral-200 dark:hover:bg-dark-600 hover:shadow-md active:scale-95 transition-all duration-200 ease-out"
               >
                 <Menu className="w-5 h-5" aria-hidden="true" />
               </button>

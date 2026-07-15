@@ -67,13 +67,13 @@ const DashboardLayout = ({
       <div className="lg:pl-64 pl-[max(1rem,env(safe-area-inset-left))] flex flex-col flex-1 overflow-x-hidden">
         <main id="main-content" className="flex-1 pb-20 lg:pb-8 relative">
           {location.pathname === '/dashboard' && (
-            <div className="lg:hidden absolute top-4 left-4 z-30">
+            <div className="lg:hidden fixed top-4 left-4 z-30">
               <button
                 type="button"
                 aria-label="Open sidebar"
                 aria-expanded={sidebarOpen}
                 onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-full bg-white dark:bg-dark-800 shadow-md text-black dark:text-white hover:text-secondary cursor-pointer active:scale-[0.98]"
+                className="p-3 rounded-2xl bg-white/90 dark:bg-dark-800/90 backdrop-blur-sm border border-neutral-200/50 dark:border-dark-700/50 shadow-lg shadow-neutral-200/50 dark:shadow-black/20 text-black dark:text-white hover:bg-white dark:hover:bg-dark-700 hover:shadow-xl hover:border-neutral-300 dark:hover:border-dark-600 active:scale-95 transition-all duration-200 ease-out"
               >
                 <Menu className="h-5 w-5" aria-hidden="true" />
               </button>
