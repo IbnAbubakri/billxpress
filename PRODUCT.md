@@ -22,7 +22,7 @@ The fastest way to pay your bills — no banking app required.
 
 ## Brand Personality
 
-Trustworthy, fast, modern. Professional fintech: blue-anchored, clean, confident. Feels secure like a bank but moves like a modern app.
+Trustworthy, fast, modern. Professional fintech: purple-anchored, clean, confident. Feels secure like a bank but moves like a modern app.
 
 ## Anti-references
 

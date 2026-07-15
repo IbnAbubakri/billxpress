@@ -4,6 +4,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { ToastProvider } from '../hooks/useToast';
 import AirtimePage from '../components/services/AirtimePage';
 import DataPage from '../components/services/DataPage';
 import TVSubscriptionPage from '../components/services/TVSubscriptionPage';
@@ -56,7 +57,9 @@ const mockOnLogout = vi.fn();
 function renderService(Component: React.ComponentType<{ user: User | null; onLogout: () => void }>) {
   return render(
     <BrowserRouter>
-      <Component user={mockUser as User} onLogout={mockOnLogout} />
+      <ToastProvider>
+        <Component user={mockUser as User} onLogout={mockOnLogout} />
+      </ToastProvider>
     </BrowserRouter>
   );
 }

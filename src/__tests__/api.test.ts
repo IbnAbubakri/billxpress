@@ -55,7 +55,7 @@ describe('login', () => {
     const result = await login('test@example.com', 'password123');
 
     expect(mockAxios.get).toHaveBeenCalledWith('/csrf-token');
-    expect(mockAxios.post).toHaveBeenCalledWith('/login', { email: 'test@example.com', password: 'password123' }, expect.any(Object));
+    expect(mockAxios.post).toHaveBeenCalledWith('/login', { login: 'test@example.com', password: 'password123' }, expect.objectContaining({ headers: expect.objectContaining({ 'x-csrf-token': 'mock-csrf-token' }) }));
     expect(result).toEqual({ user: { id: '1', email: 'test@example.com' } });
   });
 

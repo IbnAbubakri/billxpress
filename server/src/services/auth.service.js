@@ -671,7 +671,7 @@ export async function sendOtp(phone) {
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
   logger.info({ phone: normalized }, 'OTP sent');
   const response = { message: 'OTP sent successfully', expiresIn: 600 };
-  if (!process.env.SMS_PROVIDER) {
+  if (!process.env.SMS_PROVIDER && process.env.NODE_ENV !== 'production') {
     response.code = code;
   }
   return response;

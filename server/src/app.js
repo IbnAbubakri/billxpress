@@ -27,6 +27,9 @@ const app = express();
 
 app.use(helmet({
   xContentTypeOptions: { nosniff: true },
+  xFrameOptions: { action: 'deny' },
+  xXssProtection: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
   contentSecurityPolicy: {
     directives: {
@@ -35,9 +38,11 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'"],
-      connectSrc: ["'self'", "https://billxpress1.vercel.app"],
+      connectSrc: ["'self'", "https://billxpress1.vercel.app", "https://*.sentry.io"],
       frameSrc: ["'none'"],
+      frameAncestors: ["'none'"],
       objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
     },
   },
 }));

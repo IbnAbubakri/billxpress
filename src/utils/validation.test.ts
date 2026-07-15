@@ -43,49 +43,49 @@ describe('validateAccountNumber', () => {
 
 describe('validatePassword', () => {
   it('returns empty string for valid password', () => {
-    expect(validatePassword('abc123')).toBe('');
-    expect(validatePassword('a'.repeat(6))).toBe('');
-    expect(validatePassword('a'.repeat(20))).toBe('');
+    expect(validatePassword('Str0ngP@ss12!')).toBe('');
+    expect(validatePassword('MyV3ryS3cur3P@ss')).toBe('');
+    expect(validatePassword('aA1!'.repeat(3))).toBe('');
   });
 
   it('returns error for empty password', () => {
     expect(validatePassword('')).toBe('Password is required');
   });
 
-  it('returns error for password shorter than 6 characters', () => {
-    expect(validatePassword('abc12')).toBe('Password must be at least 6 characters');
-    expect(validatePassword('a')).toBe('Password must be at least 6 characters');
+  it('returns error for password shorter than 12 characters', () => {
+    expect(validatePassword('Abc12@')).toBe('Password must be at least 12 characters');
+    expect(validatePassword('a')).toBe('Password must be at least 12 characters');
     expect(validatePassword('')).toBe('Password is required');
   });
 });
 
 describe('validateStrongPassword', () => {
   it('returns valid for strong password', () => {
-    const result = validateStrongPassword('StrongP@ss1');
+    const result = validateStrongPassword('StrongP@ss123');
     expect(result.isValid).toBe(true);
     expect(result.message).toBe('');
   });
 
-  it('rejects password shorter than 8 characters', () => {
-    const result = validateStrongPassword('Sh0@');
+  it('rejects password shorter than 12 characters', () => {
+    const result = validateStrongPassword('Sh0@1234');
     expect(result.isValid).toBe(false);
-    expect(result.message).toContain('8');
+    expect(result.message).toContain('12');
   });
 
   it('rejects password without uppercase letter', () => {
-    const result = validateStrongPassword('weakpass1@');
+    const result = validateStrongPassword('weakpass1@sdfgh');
     expect(result.isValid).toBe(false);
     expect(result.message).toContain('uppercase');
   });
 
   it('rejects password without lowercase letter', () => {
-    const result = validateStrongPassword('WEAKPASS1@');
+    const result = validateStrongPassword('WEAKPASS1@WOW');
     expect(result.isValid).toBe(false);
     expect(result.message).toContain('lowercase');
   });
 
   it('rejects password without number', () => {
-    const result = validateStrongPassword('StrongPass@');
+    const result = validateStrongPassword('StrongP@ssWord');
     expect(result.isValid).toBe(false);
     expect(result.message).toContain('number');
   });

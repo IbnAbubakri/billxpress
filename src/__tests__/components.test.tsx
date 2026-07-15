@@ -59,7 +59,7 @@ describe('LoginPage', () => {
 
   it('renders the login form', () => {
     renderLogin();
-    expect(screen.getByLabelText('Email Address')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email or Phone Number')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
@@ -70,21 +70,21 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/email or phone is required/i)).toBeInTheDocument();
       expect(screen.getByText(/password is required/i)).toBeInTheDocument();
     });
   });
 
   it('shows email validation error for invalid email', async () => {
     renderLogin();
-    const emailInput = screen.getByLabelText('Email Address');
+    const emailInput = screen.getByLabelText('Email or Phone Number');
     fireEvent.change(emailInput, { target: { value: 'not-an-email' } });
     fireEvent.blur(emailInput);
 
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/valid email/i)).toBeInTheDocument();
+      expect(screen.getByText(/valid email or phone number/i)).toBeInTheDocument();
     });
   });
 
@@ -92,7 +92,7 @@ describe('LoginPage', () => {
     mockOnLogin.mockResolvedValue(undefined);
     renderLogin();
 
-    fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('Email or Phone Number'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
@@ -105,7 +105,7 @@ describe('LoginPage', () => {
     mockOnLogin.mockRejectedValue({ response: { data: { error: 'Invalid credentials' } } });
     renderLogin();
 
-    fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('Email or Phone Number'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 

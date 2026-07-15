@@ -1,12 +1,16 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+export type TransactionType = 'airtime' | 'data' | 'electricity' | 'tv' | 'betting' | 'education' | 'funding' | 'withdrawal' | 'transfer';
+export type TransactionStatus = 'pending' | 'completed' | 'failed';
+export type UserRole = 'user' | 'admin' | 'super_admin';
+
 export interface User {
   id: string;
   name: string;
   email: string;
   phone?: string;
-  balance: number;
+  balance: string;
   hasTransactionPin: boolean;
   emailVerified?: boolean;
   bvn?: string;
@@ -36,9 +40,9 @@ export interface User {
 
 export interface Transaction {
   id: string;
-  type: string;
+  type: TransactionType;
   amount: number;
-  status: 'pending' | 'completed' | 'failed';
+  status: TransactionStatus;
   date: string;
   description: string;
 }
@@ -47,7 +51,7 @@ export interface AdminUser {
   id: number;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 export type ProfileUpdateData = Partial<Pick<User,

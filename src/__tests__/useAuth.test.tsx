@@ -85,7 +85,7 @@ describe('useAuth', () => {
       await result.current.handleLogin('test@example.com', 'password123');
     });
 
-    expect(api.login).toHaveBeenCalledWith('test@example.com', 'password123');
+    expect(api.login).toHaveBeenCalledWith('test@example.com', 'password123', undefined);
   });
 
   it('handleRegister calls register mutation', async () => {
@@ -97,10 +97,10 @@ describe('useAuth', () => {
     const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
 
     await act(async () => {
-      await result.current.handleRegister('new@example.com', 'password123');
+      await result.current.handleRegister({ email: 'new@example.com', password: 'password123' });
     });
 
-    expect(api.register).toHaveBeenCalledWith('new@example.com', 'password123');
+    expect(api.register).toHaveBeenCalledWith('new@example.com', 'password123', {});
   });
 
   it('handleLogout calls logout mutation and clears state', async () => {

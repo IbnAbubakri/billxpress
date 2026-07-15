@@ -13,7 +13,6 @@ export default defineConfig({
     ViteImageOptimizer({
       png: { quality: 75 },
       jpeg: { quality: 75 },
-      jpg: { quality: 75 },
       webp: { quality: 75 },
       avif: { quality: 60 },
     }),
@@ -49,18 +48,45 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,ico,svg,woff2}'],
-        skipWaiting: true,
-        clientsClaim: true,
+        skipWaiting: false,
+        clientsClaim: false,
         runtimeCaching: [
           {
-            urlPattern: /^https?:\/\/.*\/api\/.*/i,
+            urlPattern: /^https?:\/\/.*\/api\/admin\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https?:\/\/.*\/api\/wallet\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https?:\/\/.*\/api\/auth\/me$/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https?:\/\/.*\/api\/transactions.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'api-cache',
+              cacheName: 'api-transactions',
               networkTimeoutSeconds: 5,
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24,
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 5,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https?:\/\/.*\/api\/charts\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-charts',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 5,
               },
               cacheableResponse: {
                 statuses: [0, 200],

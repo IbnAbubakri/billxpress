@@ -2,12 +2,18 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 /**
+ * @typedef {'airtime' | 'data' | 'electricity' | 'tv' | 'betting' | 'education' | 'funding' | 'withdrawal' | 'transfer'} TransactionType
+ * @typedef {'pending' | 'completed' | 'failed'} TransactionStatus
+ * @typedef {'user' | 'admin' | 'super_admin'} UserRole
+ */
+
+/**
  * @typedef {Object} User
  * @property {string} id
  * @property {string} name
  * @property {string} email
  * @property {string} [phone]
- * @property {number} balance
+ * @property {string} balance
  * @property {boolean} hasTransactionPin
  * @property {boolean} [emailVerified]
  * @property {string} [bvn]
@@ -23,16 +29,38 @@
  * @property {string} [homeState]
  * @property {string} [homeZip]
  * @property {string} [avatar]
+ * @property {boolean} [mfaEnabled]
+ * @property {string} [dateOfBirth]
+ * @property {string} [gender]
+ * @property {string} [nin]
+ * @property {Object} [nextOfKin]
+ * @property {string} [employmentStatus]
+ * @property {string} [annualIncome]
+ * @property {string} [createdAt]
+ * @property {string} [lastLogin]
+ * @property {string} [passwordChangedAt]
  */
 
 /**
  * @typedef {Object} Transaction
  * @property {string} id
- * @property {string} type
+ * @property {TransactionType} type
  * @property {number} amount
- * @property {'pending' | 'completed' | 'failed'} status
+ * @property {TransactionStatus} status
  * @property {string} date
  * @property {string} description
+ */
+
+/**
+ * @typedef {Object} AdminUser
+ * @property {number} id
+ * @property {string} name
+ * @property {string} email
+ * @property {UserRole} role
+ */
+
+/**
+ * @typedef {Partial<Pick<User, 'name' | 'phone' | 'bvn' | 'accountNumber' | 'bankName' | 'accountName' | 'billingStreet' | 'billingCity' | 'billingState' | 'billingCountry' | 'homeStreet' | 'homeCity' | 'homeState' | 'homeZip' | 'avatar' | 'email' | 'dateOfBirth' | 'gender' | 'nin' | 'employmentStatus' | 'annualIncome' | 'nextOfKin'>>} ProfileUpdateData
  */
 
 export {};

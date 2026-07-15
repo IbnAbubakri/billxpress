@@ -13,7 +13,7 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     screenshot: 'only-on-failure',
     launchOptions: {
-      executablePath: '/home/faaruq/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome',
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined,
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
     },
   },

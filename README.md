@@ -173,6 +173,6 @@ The app deploys automatically to Vercel from the `main` branch. The `api/index.j
 
 ## License & Copyright
 
-© 2025 **Abubakri Faaruq Adebowale (IbnAbubakri)** — All rights reserved.
+© 2026 **Abubakri Faaruq Adebowale (IbnAbubakri)** — All rights reserved.
 
 For inquiries: **Faruqsuzay@gmail.com** | **+2349061345507**

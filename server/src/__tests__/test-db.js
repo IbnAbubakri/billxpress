@@ -160,6 +160,17 @@ export function createTestDb() {
       FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS wallet_funding_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId TEXT NOT NULL,
+      amount NUMERIC(12,2) NOT NULL,
+      method TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      reference TEXT,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS otps (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       phone TEXT NOT NULL,

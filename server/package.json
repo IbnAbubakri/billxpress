@@ -23,5 +23,7 @@
     "pino-roll": "^4.0.0",
     "uuid": "^11.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "better-sqlite3": "^11.10.0"
+  }
 }
