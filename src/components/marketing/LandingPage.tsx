@@ -20,13 +20,13 @@ import bet9jaIcon from '../../assets/icons/bet9ja.png';
 import sportybetIcon from '../../assets/icons/sportybet.png';
 
 const features = [
-  { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', bg: 'bg-blue-50 text-blue-600' },
-  { icon: Wifi, title: 'Data Bundles', desc: 'Affordable data plans for all networks', bg: 'bg-green-50 text-green-600' },
-  { icon: Tv, title: 'Cable TV', desc: 'DSTV, GOtv & Startimes subscriptions', bg: 'bg-purple-50 text-purple-600' },
-  { icon: Zap, title: 'Electricity', desc: 'Pay prepaid & postpaid bills instantly', bg: 'bg-yellow-50 text-yellow-600' },
-  { icon: GraduationCap, title: 'Education', desc: 'JAMB, WAEC, NECO & school fees', bg: 'bg-indigo-50 text-indigo-600' },
-  { icon: Target, title: 'Betting', desc: 'Fund Bet9ja, SportyBet & more', bg: 'bg-red-50 text-red-600' },
-  { icon: ArrowRightLeft, title: 'Airtime to Cash', desc: 'Convert airtime to spendable cash', bg: 'bg-orange-50 text-orange-600' },
+  { icon: Phone, title: 'Airtime', desc: 'Instant top-up for MTN, Glo, Airtel & 9mobile', bg: 'bg-slate-100 text-slate-600' },
+  { icon: Wifi, title: 'Data Bundles', desc: 'Affordable data plans for all networks', bg: 'bg-slate-100 text-slate-600' },
+  { icon: Tv, title: 'Cable TV', desc: 'DSTV, GOtv & Startimes subscriptions', bg: 'bg-slate-100 text-slate-600' },
+  { icon: Zap, title: 'Electricity', desc: 'Pay prepaid & postpaid bills instantly', bg: 'bg-slate-100 text-slate-600' },
+  { icon: GraduationCap, title: 'Education', desc: 'JAMB, WAEC, NECO & school fees', bg: 'bg-slate-100 text-slate-600' },
+  { icon: Target, title: 'Betting', desc: 'Fund Bet9ja, SportyBet & more', bg: 'bg-slate-100 text-slate-600' },
+  { icon: ArrowRightLeft, title: 'Airtime to Cash', desc: 'Convert airtime to spendable cash', bg: 'bg-slate-100 text-slate-600' },
 ];
 
 const stats = [
@@ -103,8 +103,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative pt-24 pb-20 lg:pt-24 lg:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-blue-50 dark:from-dark-900 dark:via-dark-900 dark:to-dark-800" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-white dark:bg-dark-900" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
             <div>
@@ -114,7 +113,7 @@ export default function LandingPage() {
               </div>
               <h1 className="motion-safe:animate-slide-up text-4xl sm:text-5xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
                 Pay bills, buy airtime &amp; data
-                <span className="block text-primary mt-2">
+                <span className="block text-gray-900 dark:text-white mt-2">
                   all in one place
                 </span>
               </h1>
@@ -135,7 +134,7 @@ export default function LandingPage() {
             <div className="flex justify-center items-center mt-10 lg:mt-0 motion-safe:animate-fade-in">
               <div className="relative w-[200px] h-[400px] lg:w-[280px] lg:h-[560px] bg-gray-900 dark:bg-gray-950 rounded-[32px] lg:rounded-[40px] border-4 border-gray-800 dark:border-gray-700 shadow-2xl overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100px] lg:w-[120px] h-5 lg:h-6 bg-gray-800 dark:bg-gray-700 rounded-b-xl z-10" />
-                <div className="absolute inset-0 bg-gradient-to-b from-primary-600 via-primary-500 to-blue-600">
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-700 to-slate-900">
                   <div className="absolute top-12 lg:top-16 left-4 lg:left-6 right-4 lg:right-6 h-24 lg:h-32 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
                   <div className="absolute top-[148px] lg:top-52 left-4 lg:left-6 right-4 lg:right-6 h-14 lg:h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
                   <div className="absolute top-[226px] lg:top-80 left-4 lg:left-6 right-4 lg:right-6 h-14 lg:h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20" />
@@ -155,7 +154,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             {partners.map((p) => (
-              <div key={p.name} className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-dark-800 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-dark-700 hover:shadow-lg hover:border-primary-100 dark:hover:border-primary-800 transition-all duration-200 p-3">
+              <div key={p.name} className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-dark-800 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-dark-700 hover:shadow-lg hover:border-slate-200 dark:hover:border-dark-600 transition-all duration-200 p-3">
                 <img src={p.icon} alt={p.name} loading="lazy" className="w-full h-full object-contain" />
               </div>
             ))}
@@ -205,8 +204,8 @@ export default function LandingPage() {
               const span = i === 0 ? "lg:col-span-2" : "";
               return (
                 <div key={s.label} className={`text-center p-6 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 ${span}`}>
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-slate-100 dark:bg-dark-700 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{s.value}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">{s.label}</div>
@@ -217,22 +216,22 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="md:col-span-2 bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-dark-700 flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                <Lock className="w-7 h-7 text-primary" />
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-7 h-7 text-slate-600 dark:text-slate-300" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">Bank-Grade Security</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">256-bit SSL encryption protects every transaction. Your data is safe with us.</p>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-primary to-blue-700 rounded-2xl p-6 text-white flex flex-col items-start justify-center">
+            <div className="bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl p-6 text-white flex flex-col items-start justify-center">
               <Smartphone className="w-7 h-7 mb-3 opacity-90" />
               <h3 className="text-base font-bold mb-1">Mobile-First</h3>
               <p className="text-sm text-white/80 leading-relaxed">Optimized for Nigerian mobile networks. Works on any device.</p>
             </div>
             <div className="md:col-span-3 bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-dark-700 flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                <BarChart3 className="w-7 h-7 text-primary" />
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-dark-700 flex items-center justify-center flex-shrink-0">
+                <BarChart3 className="w-7 h-7 text-slate-600 dark:text-slate-300" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">Real-Time Tracking</h3>
@@ -246,7 +245,7 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="py-20 lg:py-28">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="p-10 sm:p-14 bg-gradient-to-br from-primary to-blue-700 rounded-3xl shadow-2xl relative overflow-hidden">
+          <div className="p-10 sm:p-14 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 relative">
@@ -255,7 +254,7 @@ export default function LandingPage() {
             <p className="text-lg text-white/80 mb-8 max-w-lg mx-auto relative">
               Join thousands of Nigerians paying bills the easy way. Create your account in under a minute.
             </p>
-            <Link to="/register" className="inline-flex items-center px-8 py-4 bg-white text-primary-700 text-base font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 relative">
+            <Link to="/register" className="inline-flex items-center px-8 py-4 bg-white text-slate-800 text-base font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 relative">
               Create Free Account
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
