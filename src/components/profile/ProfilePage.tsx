@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import React, { useRef, useState } from "react";
 import { ArrowLeft, User, Lock, Check, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -359,6 +360,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
   return (
     <DashboardLayout user={user} onLogout={onLogout}>
+      <Seo title="Profile Settings" />
       <div className="p-4">
         <div className="flex items-center mb-4">
           <button

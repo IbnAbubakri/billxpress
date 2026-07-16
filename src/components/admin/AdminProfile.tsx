@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -114,7 +115,7 @@ const AdminProfile: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      <Seo title="Admin Profile" />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">Admin Profile</h1>

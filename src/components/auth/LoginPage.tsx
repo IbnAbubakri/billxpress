@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Phone, Lock, Send } from 'lucide-react';
@@ -88,6 +89,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
+      <Seo title="Sign In" description="Sign in to your BillXpress account to manage your wallet, buy airtime, data, and pay bills." />
       <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
           <div className="text-center mb-6">

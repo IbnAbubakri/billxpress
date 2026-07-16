@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { walletApi } from '../../api/client';
@@ -79,6 +80,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-8">
+      <Seo title="Admin Dashboard" />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">Dashboard Overview</h1>

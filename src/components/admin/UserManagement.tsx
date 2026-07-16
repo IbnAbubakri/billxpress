@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
@@ -52,6 +53,7 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <Seo title="User Management" />
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-ginto font-bold text-black dark:text-white">User Management</h1>

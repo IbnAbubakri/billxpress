@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -51,6 +52,7 @@ export default function FundCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-900 p-4">
+      <Seo title="Processing Payment" />
       <div className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
         {status === 'loading' && (
           <>

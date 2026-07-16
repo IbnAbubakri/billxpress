@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Smartphone, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -99,6 +100,7 @@ const AirtimePage: React.FC<PageProps> = ({ user, onLogout }) => {
 
   return (
     <DashboardLayout user={user} onLogout={onLogout}>
+      <Seo title="Buy Airtime" />
       <div className="p-4">
         <div className="flex items-center mb-4">
             <button

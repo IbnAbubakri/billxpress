@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Wallet, Mail, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
@@ -141,6 +142,7 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
+      <Seo title="Reset Password" />
       <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
           <div className="text-center mb-6">

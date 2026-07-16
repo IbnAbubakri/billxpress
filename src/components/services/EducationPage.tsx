@@ -1,6 +1,8 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
+
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft, GraduationCap, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -107,6 +109,7 @@ const EducationPage: React.FC<PageProps> = ({ user, onLogout }) => {
 
   return (
     <DashboardLayout user={user} onLogout={handleLogoutClick}>
+      <Seo title="Education Payment" />
       <div className="p-4">
         <div className="flex items-center mb-4">
           <button onClick={() => navigate("/dashboard")} aria-label="Go back" className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors cursor-pointer">

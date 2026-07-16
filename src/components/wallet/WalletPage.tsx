@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ const WalletPage = ({ user, onLogout }: PageProps) => {
 
   return (
     <DashboardLayout user={user} onLogout={handleLogoutClick}>
+      <Seo title="Wallet" />
       <div className="p-4">
         <div className="flex items-center mb-4">
           <button

@@ -1,6 +1,7 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
+import Seo from '../ui/Seo';
 import { useState } from 'react';
 import { Mail, X } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
@@ -49,6 +50,7 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
 
   return (
     <DashboardLayout user={user} onLogout={() => setShowLogout(true)}>
+      <Seo title="Dashboard" />
       <div className="p-4 pl-14 lg:p-6 lg:pl-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm">

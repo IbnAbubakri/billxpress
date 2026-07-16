@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useScroll } from 'framer-motion';
+import Seo from '../ui/Seo';
 import {
   Phone, Wifi, Tv, Zap, GraduationCap, Target, ArrowRightLeft,
   Wallet, Shield, Lock, CheckCircle, Smartphone, BarChart3,
@@ -80,6 +81,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-900">
+      <Seo title="BillXpress - Pay Bills, Buy Airtime & Data in Nigeria" description="BillXpress is the fastest VTU platform in Nigeria. Buy airtime, data, pay electricity bills, fund betting wallets and more at the best rates." />
       {/* Navbar */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 dark:bg-dark-900/90 backdrop-blur-xl shadow-sm' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
