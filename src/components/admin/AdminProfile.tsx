@@ -34,6 +34,7 @@ const AdminProfile: React.FC = () => {
   const [showMFAModal, setShowMFAModal] = useState(false);
   const [showAccountDeletionModal, setShowAccountDeletionModal] = useState(false);
   const [deletionConfirmText, setDeletionConfirmText] = useState('');
+  const [deletionPassword, setDeletionPassword] = useState('');
   const [mfaSecret, setMfaSecret] = useState('');
   const [mfaUri, setMfaUri] = useState('');
   const [mfaToken, setMfaToken] = useState('');
@@ -42,21 +43,9 @@ const AdminProfile: React.FC = () => {
   const [mfaStep, setMfaStep] = useState<'initial' | 'setup' | 'verify' | 'done'>('initial');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [adminData, setAdminData] = useState({
-    id: 1,
-    name: user?.name || 'Admin',
-    email: user?.email || 'admin@billxpress.com',
-    phone: user?.phone || '+234 800 000 0000',
-    role: 'Super Admin',
-    created_at: '2024-01-01',
-    last_login: new Date().toISOString(),
-    permissions: ['users', 'transactions', 'pricing', 'analytics', 'settings']
-  });
-
   const [editForm, setEditForm] = useState({
-    name: adminData.name,
-    email: adminData.email,
-    phone: adminData.phone
+    name: user?.name || '',
+    phone: user?.phone || ''
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -77,7 +66,6 @@ const AdminProfile: React.FC = () => {
     setSaving(true);
     try {
       await handleUpdateProfile({ name: editForm.name, phone: editForm.phone });
-      setAdminData(prev => ({ ...prev, ...editForm }));
       setIsEditing(false);
     } catch { /* error handled by mutation */ }
     setSaving(false);
@@ -85,9 +73,8 @@ const AdminProfile: React.FC = () => {
 
   const handleCancelEdit = () => {
     setEditForm({
-      name: adminData.name,
-      email: adminData.email,
-      phone: adminData.phone
+      name: user?.name || '',
+      phone: user?.phone || ''
     });
     setIsEditing(false);
   };
@@ -169,8 +156,8 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                   <User className="w-10 h-10 text-white" aria-hidden="true" />
                 </div>
                 <div>
-                  <h4 className="text-base font-semibold text-black dark:text-white">{adminData.name}</h4>
-                  <p className="text-black dark:text-white">{adminData.role}</p>
+                  <h4 className="text-base font-semibold text-black dark:text-white">{user?.name || 'Admin'}</h4>
+                  <p className="text-black dark:text-white">{user?.role === 'admin' ? 'Admin' : user?.role || 'User'}</p>
                   {user?.avatar && (
                     <img src={user.avatar} alt="Avatar" className="w-20 h-20 rounded-2xl object-cover mb-2" />
                   )}
@@ -218,7 +205,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                   ) : (
                     <div className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                       <User className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                      <span className="text-black dark:text-white">{adminData.name}</span>
+                      <span className="text-black dark:text-white">{user?.name || 'Admin'}</span>
                     </div>
                   )}
                 </div>
@@ -227,20 +214,10 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                   <label htmlFor="admin-email" className="block text-sm font-medium text-black dark:text-white mb-2">
                     Email Address
                   </label>
-                  {isEditing ? (
-                    <input
-                      id="admin-email"
-                      type="email"
-                      value={editForm.email}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="premium-input"
-                    />
-                  ) : (
-                    <div className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
-                      <Mail className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                      <span className="text-black dark:text-white">{adminData.email}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
+                    <Mail className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
+                    <span className="text-black dark:text-white">{user?.email || '—'}</span>
+                  </div>
                 </div>
 
                 <div>
@@ -258,7 +235,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                   ) : (
                     <div className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                       <Phone className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                      <span className="text-black dark:text-white">{adminData.phone}</span>
+                      <span className="text-black dark:text-white">{user?.phone || '—'}</span>
                     </div>
                   )}
                 </div>
@@ -269,7 +246,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                   </label>
                   <div id="admin-role" className="flex items-center space-x-2 p-3 bg-neutral-50 dark:bg-dark-800 rounded-xl">
                     <Shield className="w-5 h-5 text-black dark:text-white" aria-hidden="true" />
-                    <span className="text-black dark:text-white">{adminData.role}</span>
+                    <span className="text-black dark:text-white">{user?.role === 'admin' ? 'Admin' : user?.role || 'User'}</span>
                   </div>
                 </div>
               </div>
@@ -380,18 +357,18 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
                 <span className="text-black dark:text-white">Admin ID</span>
-                <span className="font-medium text-black dark:text-white">#{adminData.id}</span>
+                <span className="font-medium text-black dark:text-white">#{user?.id ? user.id.slice(0, 8) : '—'}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
                 <span className="text-black dark:text-white">Account Created</span>
                 <span className="font-medium text-black dark:text-white">
-                  {new Date(adminData.created_at).toLocaleDateString()}
+                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-dark-700">
                 <span className="text-black dark:text-white">Last Login</span>
                 <span className="font-medium text-black dark:text-white">
-                  {new Date(adminData.last_login).toLocaleString()}
+                  {user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : '—'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2">
@@ -413,10 +390,10 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
             <h2 className="text-base font-ginto font-semibold text-black dark:text-white mb-4">Permissions</h2>
             
             <div className="space-y-2">
-              {adminData.permissions.map((permission) => (
-                <div key={permission} className="flex items-center space-x-2 p-2 bg-neutral-50 dark:bg-dark-800 rounded-lg">
+              {['users', 'transactions', 'analytics', 'settings'].map((perm) => (
+                <div key={perm} className="flex items-center space-x-2 p-2 bg-neutral-50 dark:bg-dark-800 rounded-lg">
                   <Shield className="w-4 h-4 text-success-500" aria-hidden="true" />
-                  <span className="text-sm text-black dark:text-white capitalize">{permission.replace('_', ' ')}</span>
+                  <span className="text-sm text-black dark:text-white capitalize">{perm.replace('_', ' ')}</span>
                 </div>
               ))}
             </div>
@@ -444,24 +421,26 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
 
       {/* Account Deletion Modal */}
       {showAccountDeletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, ease: 'easeIn' }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-lg font-ginto font-semibold text-red-600 mb-2">Delete Account</h2>
+             <h2 id="delete-modal-title" className="text-lg font-ginto font-semibold text-red-600 mb-2">Delete Account</h2>
             <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
             <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
               className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-3" />
+            <input type="password" value={deletionPassword} onChange={(e) => setDeletionPassword(e.target.value)} placeholder="Enter your password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-3" />
             <div className="flex gap-3">
-              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); }}
+              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); setDeletionPassword(''); }}
                 className="w-1/2 bg-gray-200 text-black py-3 rounded-xl hover:bg-gray-300 transition-colors">Cancel</button>
               <button onClick={async () => {
-                if (deletionConfirmText !== 'DELETE') return;
+                if (deletionConfirmText !== 'DELETE' || !deletionPassword) return;
                 try {
-                  await handleDeleteAccount();
+                  await handleDeleteAccount(deletionPassword);
                   window.location.href = '/';
                 } catch { /* ignore */ }
               }} className="w-1/2 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
-                disabled={deletionConfirmText !== 'DELETE'}>Delete My Account</button>
+                disabled={deletionConfirmText !== 'DELETE' || !deletionPassword}>Delete My Account</button>
             </div>
           </motion.div>
         </div>
@@ -469,7 +448,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
 
       {/* MFA Modal */}
       {showMFAModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-labelledby="mfa-modal-title">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -480,7 +459,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
             {user?.mfaEnabled && mfaStep === 'initial' ? (
               <div className="text-center">
                 <Key className="w-12 h-12 text-slate-600 mx-auto mb-4" aria-hidden="true" />
-                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Two-Factor Authentication</h2>
+                <h2 id="mfa-modal-title" className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Two-Factor Authentication</h2>
                 <p className="text-black dark:text-white mb-4">2FA is currently enabled on your account.</p>
                 <button onClick={async () => {
                   try {
@@ -495,7 +474,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
             ) : mfaStep === 'setup' || mfaStep === 'initial' ? (
               <div className="text-center">
                 <Key className="w-12 h-12 text-slate-600 mx-auto mb-4" aria-hidden="true" />
-                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Set Up Two-Factor Authentication</h2>
+                <h2 id="mfa-modal-title" className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">Set Up Two-Factor Authentication</h2>
                 <p className="text-black dark:text-white mb-4">Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.).</p>
                 {mfaUri && (
                   <div className="bg-white p-4 rounded-xl inline-block mb-4">
@@ -527,7 +506,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
             ) : mfaStep === 'done' ? (
               <div className="text-center">
                 <Key className="w-12 h-12 text-green-600 mx-auto mb-4" aria-hidden="true" />
-                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">2FA Enabled Successfully</h2>
+                <h2 id="mfa-modal-title" className="text-lg font-ginto font-semibold text-black dark:text-white mb-2">2FA Enabled Successfully</h2>
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-4 mb-4">
                   <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">Save these backup codes:</p>
                   <div className="grid grid-cols-2 gap-2">

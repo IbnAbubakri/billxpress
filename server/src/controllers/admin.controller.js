@@ -22,17 +22,21 @@ const fetchStats = memoize(async () => {
   `).get();
 }, 30);
 
-export async function handleGetStats(req, res) {
-  const row = await fetchStats();
-  logAction({ userId: req.user.id, action: 'ADMIN_STATS_VIEWED', details: {}, ip: req.clientIp, userAgent: req.clientUA });
-  res.json({
-    stats: {
-      totalUsers: Number(row.totalusers),
-      totalTransactions: Number(row.totaltransactions),
-      totalRevenue: Number(row.totalrevenue),
-      successRate: parseFloat(row.successrate),
-    },
-  });
+export async function handleGetStats(req, res, next) {
+  try {
+    const row = await fetchStats();
+    await logAction({ userId: req.user.id, action: 'ADMIN_STATS_VIEWED', details: {}, ip: req.clientIp, userAgent: req.clientUA });
+    res.json({
+      stats: {
+        totalUsers: Number(row.totalusers),
+        totalTransactions: Number(row.totaltransactions),
+        totalRevenue: Number(row.totalrevenue),
+        successRate: parseFloat(row.successrate),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 const fetchRevenueChart = memoize(async () => {
@@ -65,91 +69,107 @@ const fetchServiceDistribution = memoize(async () => {
   `).all();
 }, 60);
 
-export async function handleGetRevenueChart(req, res) {
-  const data = await fetchRevenueChart();
-  res.json({ data });
-}
-
-export async function handleGetServiceDistribution(req, res) {
-  const data = await fetchServiceDistribution();
-  res.json({ data });
-}
-
-export async function handleGetAdminTransactions(req, res) {
-  const db = getDb();
-  const cursor = parseInt(req.query.cursor, 10) || null;
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
-
-  const sql = cursor
-    ? `SELECT t.id, u.name as user_name, u.email as user_email,
-         t.description as service, t.type as service_type, t.amount,
-         t.status, t.date as created_at
-       FROM transactions t
-       JOIN users u ON u.id = t.userId
-       WHERE t.id < ?
-       ORDER BY t.id DESC
-       LIMIT ?`
-    : `SELECT t.id, u.name as user_name, u.email as user_email,
-         t.description as service, t.type as service_type, t.amount,
-         t.status, t.date as created_at
-       FROM transactions t
-       JOIN users u ON u.id = t.userId
-       ORDER BY t.id DESC
-       LIMIT ?`;
-
-  const rows = cursor
-    ? await db.prepare(sql).all(cursor, limit + 1)
-    : await db.prepare(sql).all(limit + 1);
-  const hasMore = rows.length > limit;
-  if (hasMore) rows.pop();
-  const nextCursor = hasMore ? rows[rows.length - 1].id : null;
-
-  res.json({
-    transactions: rows,
-    nextCursor,
-    hasMore,
-    pagination: { limit },
-  });
-}
-
-export async function handleGetAdminUsers(req, res) {
-  const db = getDb();
-  const cursor = req.query.cursor || null;
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
-
-  let cursorCreatedAt, cursorId;
-  if (cursor) {
-    const parts = cursor.split('|');
-    cursorCreatedAt = parts[0];
-    cursorId = parts[1] || '';
+export async function handleGetRevenueChart(req, res, next) {
+  try {
+    const data = await fetchRevenueChart();
+    res.json({ data });
+  } catch (err) {
+    next(err);
   }
+}
 
-  const sql = cursorCreatedAt
-    ? `SELECT id, name, email, phone, balance, role,
-         createdAt as joined_date, lastLogin as last_login
-       FROM users
-       WHERE (createdAt < ?) OR (createdAt = ? AND id < ?)
-       ORDER BY createdAt DESC, id DESC
-       LIMIT ?`
-    : `SELECT id, name, email, phone, balance, role,
-         createdAt as joined_date, lastLogin as last_login
-       FROM users
-       ORDER BY createdAt DESC, id DESC
-       LIMIT ?`;
+export async function handleGetServiceDistribution(req, res, next) {
+  try {
+    const data = await fetchServiceDistribution();
+    res.json({ data });
+  } catch (err) {
+    next(err);
+  }
+}
 
-  const users = cursorCreatedAt
-    ? await db.prepare(sql).all(cursorCreatedAt, cursorCreatedAt, cursorId, limit + 1)
-    : await db.prepare(sql).all(limit + 1);
-  const hasMore = users.length > limit;
-  if (hasMore) users.pop();
-  const nextCursor = hasMore ? `${users[users.length - 1].joined_date}|${users[users.length - 1].id}` : null;
+export async function handleGetAdminTransactions(req, res, next) {
+  try {
+    const db = getDb();
+    const cursor = parseInt(req.query.cursor, 10) || null;
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
 
-  res.json({
-    users,
-    nextCursor,
-    hasMore,
-    pagination: { limit },
-  });
+    const sql = cursor
+      ? `SELECT t.id, u.name as user_name, u.email as user_email,
+           t.description as service, t.type as service_type, t.amount,
+           t.status, t.date as created_at
+         FROM transactions t
+         JOIN users u ON u.id = t.userId
+         WHERE t.id < ?
+         ORDER BY t.id DESC
+         LIMIT ?`
+      : `SELECT t.id, u.name as user_name, u.email as user_email,
+           t.description as service, t.type as service_type, t.amount,
+           t.status, t.date as created_at
+         FROM transactions t
+         JOIN users u ON u.id = t.userId
+         ORDER BY t.id DESC
+         LIMIT ?`;
+
+    const rows = cursor
+      ? await db.prepare(sql).all(cursor, limit + 1)
+      : await db.prepare(sql).all(limit + 1);
+    const hasMore = rows.length > limit;
+    if (hasMore) rows.pop();
+    const nextCursor = hasMore ? rows[rows.length - 1].id : null;
+
+    res.json({
+      transactions: rows,
+      nextCursor,
+      hasMore,
+      pagination: { limit },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function handleGetAdminUsers(req, res, next) {
+  try {
+    const db = getDb();
+    const cursor = req.query.cursor || null;
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+
+    let cursorCreatedAt, cursorId;
+    if (cursor) {
+      const parts = cursor.split('|');
+      cursorCreatedAt = parts[0];
+      cursorId = parts[1] || '';
+    }
+
+    const sql = cursorCreatedAt
+      ? `SELECT id, name, email, phone, balance, role,
+           createdAt as joined_date, lastLogin as last_login
+         FROM users
+         WHERE (createdAt < ?) OR (createdAt = ? AND id < ?)
+         ORDER BY createdAt DESC, id DESC
+         LIMIT ?`
+      : `SELECT id, name, email, phone, balance, role,
+           createdAt as joined_date, lastLogin as last_login
+         FROM users
+         ORDER BY createdAt DESC, id DESC
+         LIMIT ?`;
+
+    const users = cursorCreatedAt
+      ? await db.prepare(sql).all(cursorCreatedAt, cursorCreatedAt, cursorId, limit + 1)
+      : await db.prepare(sql).all(limit + 1);
+    const hasMore = users.length > limit;
+    if (hasMore) users.pop();
+    const nextCursor = hasMore ? `${users[users.length - 1].joined_date}|${users[users.length - 1].id}` : null;
+
+    res.json({
+      users,
+      nextCursor,
+      hasMore,
+      pagination: { limit },
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 const fetchAnalytics = memoize(async () => {
@@ -180,7 +200,11 @@ const fetchAnalytics = memoize(async () => {
   return { daily, serviceStats, userGrowth };
 }, 60);
 
-export async function handleGetAnalytics(req, res) {
-  const data = await fetchAnalytics();
-  res.json(data);
+export async function handleGetAnalytics(req, res, next) {
+  try {
+    const data = await fetchAnalytics();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
 }

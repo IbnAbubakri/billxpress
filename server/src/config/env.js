@@ -54,4 +54,11 @@ if (!env.JWT_SECRET || env.JWT_SECRET === DEFAULT_SECRET) {
   console.warn('WARNING: JWT_SECRET is weak or default. Auto-generated a random secret for this session.');
 }
 
+const REQUIRED_PROD_VARS = ['DATABASE_URL'];
+const missing = REQUIRED_PROD_VARS.filter(v => !env[v]);
+if (missing.length > 0 && env.isProd()) {
+  console.error(`FATAL: Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 export default env;

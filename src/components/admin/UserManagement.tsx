@@ -92,14 +92,15 @@ const UserManagement: React.FC = () => {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full" aria-label="Users table">
+            <caption className="sr-only">List of registered users and their details</caption>
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">User</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Contact</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Balance</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Role</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">User</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Contact</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Balance</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Role</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -143,12 +144,12 @@ const UserManagement: React.FC = () => {
       </motion.div>
 
       {showUserModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 dark:bg-dark-900/80" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2, ease: 'easeIn' }}
             className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 border-b border-neutral-200 dark:border-dark-700">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-ginto font-semibold text-black dark:text-white">User Details</h2>
+                <h2 id="user-modal-title" className="text-lg font-ginto font-semibold text-black dark:text-white">User Details</h2>
                 <button onClick={() => setShowUserModal(false)} aria-label="Close modal" className="p-2 text-black dark:text-white hover:text-black dark:hover:text-white rounded-lg transition-colors">
                   <XCircle className="w-5 h-5" />
                 </button>

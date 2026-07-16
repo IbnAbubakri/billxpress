@@ -49,7 +49,9 @@ async function rotateIfNeeded() {
   if (existsSync(archivePath)) {
     try {
       existingArchive = JSON.parse(readFileSync(archivePath, 'utf-8'));
-    } catch { }
+    } catch {
+      logger.warn({ archivePath }, 'Failed to read existing audit archive, starting fresh');
+    }
   }
 
   try {

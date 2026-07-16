@@ -41,10 +41,10 @@ const Analytics: React.FC = () => {
   const totalTxns = data?.daily?.reduce((s, d) => s + Number(d.transactions), 0) || 0;
 
   const metrics = [
-    { title: 'Total Revenue', value: `₦${totalRevenue.toLocaleString()}`, change: '', icon: DollarSign, color: 'success' },
-    { title: 'New Users', value: totalUsers.toLocaleString(), change: '', icon: Users, color: 'primary' },
-    { title: 'Transactions', value: totalTxns.toLocaleString(), change: '', icon: Activity, color: 'accent' },
-    { title: 'Success Rate', value: '—', change: '', icon: TrendingUp, color: 'info' },
+    { title: 'Total Revenue', value: `₦${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'success' },
+    { title: 'New Users', value: totalUsers.toLocaleString(), icon: Users, color: 'primary' },
+    { title: 'Transactions', value: totalTxns.toLocaleString(), icon: Activity, color: 'accent' },
+    { title: 'Success Rate', value: '—', icon: TrendingUp, color: 'info' },
   ];
 
   return (

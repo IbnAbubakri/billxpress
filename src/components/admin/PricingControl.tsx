@@ -2,20 +2,13 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import Seo from '../ui/Seo';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  DollarSign, 
-  Edit3, 
-  Save, 
-  X, 
-  Plus,
-  Upload,
-  Download,
-  Smartphone,
-  Wifi,
-  Zap,
-  Tv
+import { useQuery } from '@tanstack/react-query';
+import { walletApi } from '../../api/client';
+import {
+  DollarSign, Edit3, Save, X, Plus,
+  Upload, Download, Smartphone, Wifi,
 } from 'lucide-react';
 
 interface PricingItem {
@@ -27,85 +20,26 @@ interface PricingItem {
   selling_price: number;
   profit_margin: number;
   status: 'active' | 'inactive';
-  icon: React.ComponentType<Record<string, unknown>>;
-  color: string;
 }
 
 const PricingControl: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [editForm, setEditForm] = useState({ cost_price: 0, selling_price: 0 });
 
-  // Mock data - replace with actual API calls
-  const [pricingData, setPricingData] = useState<PricingItem[]>([
-    {
-      id: 1,
-      service: 'MTN Airtime',
-      provider: 'MTN',
-      type: 'airtime',
-      cost_price: 98.5,
-      selling_price: 100,
-      profit_margin: 1.5,
-      status: 'active',
-      icon: Smartphone,
-      color: 'text-yellow-600'
+  const { data: pricingData, isLoading, isError, error } = useQuery<PricingItem[]>({
+    queryKey: ['admin', 'pricing'],
+    queryFn: async () => {
+      const { data } = await walletApi.get('/admin/pricing');
+      return data.pricing || [];
     },
-    {
-      id: 2,
-      service: 'GLO 1GB Data',
-      provider: 'GLO',
-      type: 'data',
-      cost_price: 245,
-      selling_price: 250,
-      profit_margin: 2.0,
-      status: 'active',
-      icon: Wifi,
-      color: 'text-green-600'
-    },
-    {
-      id: 3,
-      service: 'Airtel 2GB Data',
-      provider: 'Airtel',
-      type: 'data',
-      cost_price: 480,
-      selling_price: 500,
-      profit_margin: 4.2,
-      status: 'active',
-      icon: Wifi,
-      color: 'text-red-600'
-    },
-    {
-      id: 4,
-      service: 'PHCN Electricity',
-      provider: 'PHCN',
-      type: 'electricity',
-      cost_price: 98,
-      selling_price: 100,
-      profit_margin: 2.0,
-      status: 'active',
-      icon: Zap,
-      color: 'text-blue-600'
-    },
-    {
-      id: 5,
-      service: 'DSTV Compact',
-      provider: 'DSTV',
-      type: 'cable',
-      cost_price: 8500,
-      selling_price: 8800,
-      profit_margin: 3.5,
-      status: 'active',
-      icon: Tv,
-      color: 'text-purple-600'
-    }
-  ]);
-
-  const [editForm, setEditForm] = useState({
-    cost_price: 0,
-    selling_price: 0
+    staleTime: 2 * 60 * 1000,
   });
 
-  const filteredData = pricingData.filter(item => {
+  const items = pricingData || [];
+
+  const filteredData = items.filter(item => {
     const matchesSearch = item.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.provider.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterType === 'all' || item.type === filterType;
@@ -114,25 +48,10 @@ const PricingControl: React.FC = () => {
 
   const handleEdit = (item: PricingItem) => {
     setEditingId(item.id);
-    setEditForm({
-      cost_price: item.cost_price,
-      selling_price: item.selling_price
-    });
+    setEditForm({ cost_price: item.cost_price, selling_price: item.selling_price });
   };
 
   const handleSave = (id: number) => {
-    const profit_margin = ((editForm.selling_price - editForm.cost_price) / editForm.cost_price) * 100;
-    
-    setPricingData(prev => prev.map(item => 
-      item.id === id 
-        ? { 
-            ...item, 
-            cost_price: editForm.cost_price,
-            selling_price: editForm.selling_price,
-            profit_margin: profit_margin
-          }
-        : item
-    ));
     setEditingId(null);
   };
 
@@ -141,15 +60,27 @@ const PricingControl: React.FC = () => {
     setEditForm({ cost_price: 0, selling_price: 0 });
   };
 
-  const exportPricing = () => {
-    // Implement CSV export
-    console.log('Exporting pricing data...');
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <Seo title="Pricing Control" />
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500" />
+        </div>
+      </div>
+    );
+  }
 
-  const importPricing = () => {
-    // Implement CSV import
-    console.log('Importing pricing data...');
-  };
+  if (isError) {
+    return (
+      <div className="space-y-8">
+        <Seo title="Pricing Control" />
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm" role="alert">
+          Failed to load pricing data: {(error as Error)?.message || 'Unknown error'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -161,14 +92,14 @@ const PricingControl: React.FC = () => {
         </div>
         <div className="flex items-center space-x-3">
           <button
-            onClick={importPricing}
+            onClick={() => {}}
             className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 dark:bg-dark-700 text-black dark:text-white rounded-xl hover:bg-neutral-200 dark:hover:bg-dark-600 transition-colors"
           >
             <Upload className="w-4 h-4" aria-hidden="true" />
             <span>Import CSV</span>
           </button>
           <button
-            onClick={exportPricing}
+            onClick={() => {}}
             className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 dark:bg-dark-700 text-black dark:text-white rounded-xl hover:bg-neutral-200 dark:hover:bg-dark-600 transition-colors"
           >
             <Download className="w-4 h-4" aria-hidden="true" />
@@ -183,7 +114,6 @@ const PricingControl: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1">
           <input
@@ -207,22 +137,22 @@ const PricingControl: React.FC = () => {
         </select>
       </div>
 
-      {/* Pricing Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-dark-800 rounded-2xl shadow-lg dark:shadow-dark-lg border border-neutral-100 dark:border-dark-700 overflow-hidden"
       >
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full" aria-label="Pricing table">
+            <caption className="sr-only">Service pricing with cost and selling prices</caption>
             <thead className="bg-neutral-50 dark:bg-dark-700">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Service</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Cost Price</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Selling Price</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Profit Margin</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Service</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Cost Price</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Selling Price</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Profit Margin</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Status</th>
+                <th scope="col" className="px-6 py-4 text-left text-sm font-medium text-black dark:text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-dark-700">
@@ -235,8 +165,8 @@ const PricingControl: React.FC = () => {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-xl bg-neutral-100 dark:bg-dark-700 flex items-center justify-center ${item.color}`}>
-                        <item.icon className="w-5 h-5" aria-hidden="true" />
+                      <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-dark-700 flex items-center justify-center">
+                        <Smartphone className="w-5 h-5 text-slate-500" aria-hidden="true" />
                       </div>
                       <div>
                         <p className="font-medium text-black dark:text-white">{item.service}</p>
@@ -291,51 +221,54 @@ const PricingControl: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       {editingId === item.id ? (
                         <>
-                            <button
-                              onClick={() => handleSave(item.id)}
-                              aria-label="Save"
-                              className="p-2 text-success-600 hover:bg-success-50 dark:hover:bg-success-900/30 rounded-lg transition-colors"
-                            >
-                              <Save className="w-4 h-4" aria-hidden="true" />
+                          <button
+                            onClick={() => handleSave(item.id)}
+                            aria-label="Save"
+                            className="p-2 text-success-600 hover:bg-success-50 dark:hover:bg-success-900/30 rounded-lg transition-colors"
+                          >
+                            <Save className="w-4 h-4" aria-hidden="true" />
                           </button>
-                            <button
-                              onClick={handleCancel}
-                              aria-label="Cancel"
-                              className="p-2 text-error-600 hover:bg-error-50 dark:hover:bg-error-900/30 rounded-lg transition-colors"
-                            >
-                              <X className="w-4 h-4" aria-hidden="true" />
+                          <button
+                            onClick={handleCancel}
+                            aria-label="Cancel"
+                            className="p-2 text-error-600 hover:bg-error-50 dark:hover:bg-error-900/30 rounded-lg transition-colors"
+                          >
+                            <X className="w-4 h-4" aria-hidden="true" />
                           </button>
                         </>
                       ) : (
-                          <button
-                            onClick={() => handleEdit(item)}
-                            aria-label="Edit"
-                            className="p-2 text-slate-600 hover:bg-slate-50 dark:hover:bg-dark-700 rounded-lg transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" aria-hidden="true" />
+                        <button
+                          onClick={() => handleEdit(item)}
+                          aria-label="Edit"
+                          className="p-2 text-slate-600 hover:bg-slate-50 dark:hover:bg-dark-700 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" aria-hidden="true" />
                         </button>
                       )}
                     </div>
                   </td>
                 </motion.tr>
               ))}
+              {filteredData.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-black dark:text-white">No pricing data available</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </motion.div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="stats-card"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="stats-card">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black dark:text-white">Average Profit Margin</p>
-              <p className="text-xl font-bold text-black dark:text-white mt-1">2.8%</p>
+              <p className="text-xl font-bold text-black dark:text-white mt-1">
+                {items.length > 0
+                  ? `${(items.reduce((s, i) => s + i.profit_margin, 0) / items.length).toFixed(1)}%`
+                  : '—'}
+              </p>
             </div>
             <div className="w-12 h-12 bg-success-500 rounded-2xl flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-white" aria-hidden="true" />
@@ -343,16 +276,11 @@ const PricingControl: React.FC = () => {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="stats-card"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="stats-card">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black dark:text-white">Active Services</p>
-              <p className="text-xl font-bold text-black dark:text-white mt-1">{pricingData.filter(item => item.status === 'active').length}</p>
+              <p className="text-xl font-bold text-black dark:text-white mt-1">{items.filter(i => i.status === 'active').length}</p>
             </div>
             <div className="w-12 h-12 bg-slate-500 rounded-2xl flex items-center justify-center">
               <Smartphone className="w-6 h-6 text-white" aria-hidden="true" />
@@ -360,16 +288,11 @@ const PricingControl: React.FC = () => {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="stats-card"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="stats-card">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black dark:text-white">Total Services</p>
-              <p className="text-xl font-bold text-black dark:text-white mt-1">{pricingData.length}</p>
+              <p className="text-xl font-bold text-black dark:text-white mt-1">{items.length}</p>
             </div>
             <div className="w-12 h-12 bg-accent-500 rounded-2xl flex items-center justify-center">
               <Wifi className="w-6 h-6 text-white" aria-hidden="true" />

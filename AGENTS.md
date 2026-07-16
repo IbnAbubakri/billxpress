@@ -7,7 +7,7 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run server/src/__tests__/` (63 tests across 4 files)
+Run tests: `npx vitest run server/src/__tests__/` (109 tests across 8 files)
 
 ## Database
 - Supabase PG in `eu-west-1`. Connection: `aws-0-{SUPABASE_REGION}.pooler.supabase.com:6543`

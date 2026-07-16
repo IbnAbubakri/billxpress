@@ -7,6 +7,7 @@ import { getDb } from '../utils/db.js';
 import env from '../config/env.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
+import { logAction } from '../services/audit.service.js';
 
 const SALT_ROUNDS = 12;
 const PASSWORD_MIN = 12;
@@ -71,6 +72,11 @@ export async function handleCreateAdmin(req, res, next) {
     `).run(id, email, hashedPassword, name, phone || null, now, now);
 
     logger.info({ adminId: id, email }, 'Admin account created');
+    await logAction({
+      userId: id, action: 'ADMIN_CREATED',
+      details: { email, createdBy: req.user?.id || 'master-key' },
+      ip: req.clientIp, userAgent: req.clientUA, severity: 'high',
+    });
 
     const { password: _, ...safeAdmin } = await db.prepare(
       'SELECT id, email, role, name, phone, emailVerified, createdAt FROM users WHERE id = ?'

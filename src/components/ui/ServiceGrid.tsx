@@ -82,7 +82,7 @@ const ServiceGrid = () => {
         return (
           <button
             key={service.id}
-            onClick={() => navigate(service.path)}
+            onClick={() => navigate(`/services/${service.id}`)}
             className={`group relative bg-white dark:bg-dark-800 rounded-2xl p-3 sm:p-4 shadow-sm border border-transparent ${variant.border} transition-all duration-300 ${variant.hover} active:scale-[0.98] text-left overflow-hidden`}
           >
             <div className="relative">
