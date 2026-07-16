@@ -253,6 +253,7 @@ const AdminLogin: React.FC = () => {
         >
           Protected by enterprise-grade security
         </motion.div>
+        </motion.div>
       </motion.div>
     </div>
   );
