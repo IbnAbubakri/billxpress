@@ -78,6 +78,10 @@ export async function handleLogin(req, res, next) {
     if (result.mfaRequired) {
       return res.json({ mfaRequired: true, email: result.tempEmail });
     }
+    if (result.role === 'admin') {
+      logger.warn({ email: result.email }, 'Admin user attempted regular login');
+      return res.status(403).json({ error: 'Access denied. Use the admin login page.' });
+    }
     await loginResponse(res, result, req);
     logger.info({ userId: result.id, role: result.role, ip: req.clientIp, ua: req.clientUA }, 'Login successful');
   } catch (err) { next(err); }

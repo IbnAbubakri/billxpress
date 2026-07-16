@@ -372,7 +372,7 @@ const RegisterPage = () => {
               )}
               <div>
                 <label htmlFor="regOtp" className="block text-sm font-medium text-black dark:text-white mb-3 text-center">Verification Code</label>
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-1 sm:gap-2">
                   {otpCode.map((digit, idx) => (
                     <input
                       key={idx}
@@ -385,7 +385,7 @@ const RegisterPage = () => {
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                       onPaste={idx === 0 ? handleOtpPaste : undefined}
-                      className={`w-12 h-14 text-center text-lg font-bold border rounded-xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all ${errors.otp ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-dark-700'} dark:bg-dark-800 dark:text-white`}
+                      className={`w-10 sm:w-12 h-12 sm:h-14 text-center text-base sm:text-lg font-bold border rounded-xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all ${errors.otp ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-dark-700'} dark:bg-dark-800 dark:text-white`}
                       aria-label={`Digit ${idx + 1}`}
                     />
                   ))}

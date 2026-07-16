@@ -53,6 +53,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
   const [showAccountDeletionModal, setShowAccountDeletionModal] = useState(false);
   const [deletionConfirmText, setDeletionConfirmText] = useState('');
+  const [deletionPassword, setDeletionPassword] = useState('');
 
   const [showBasicInfoModal, setShowBasicInfoModal] = useState(false);
   const [basicInfo, setBasicInfo] = useState({
@@ -82,6 +83,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
   const accountDeletionRef = useFocusTrap(showAccountDeletionModal, () => {
     setShowAccountDeletionModal(false);
     setDeletionConfirmText('');
+    setDeletionPassword('');
   });
 
   const [formData, setFormData] = useState({
@@ -809,6 +811,17 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                       </button>
                     </div>
                   </div>
+
+                  {/* Delete Account */}
+                  <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-700">
+                    <h3 className="text-base font-medium text-red-600 mb-2">Danger Zone</h3>
+                    <p className="text-sm text-black dark:text-white mb-4">Permanently delete your account and all associated data.</p>
+                    <button onClick={() => setShowAccountDeletionModal(true)}
+                      className="px-6 py-3 bg-red-600 text-white rounded-2xl font-medium hover:bg-red-700 transition-colors"
+                    >
+                      Delete Account
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -897,21 +910,24 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Delete account">
           <div ref={accountDeletionRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
             <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
-            <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Type <strong>DELETE</strong> to confirm.</p>
+            <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Enter your password and type <strong>DELETE</strong> to confirm.</p>
+            <input type="password" value={deletionPassword} onChange={(e) => setDeletionPassword(e.target.value)} placeholder="Enter your password"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
+            />
             <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
               className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
             />
             <div className="flex gap-3">
-              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); }}
+              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); setDeletionPassword(''); }}
                 className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
               <button onClick={async () => {
-                if (deletionConfirmText !== 'DELETE') return;
+                if (deletionConfirmText !== 'DELETE' || !deletionPassword) return;
                 try {
-                  await handleDeleteAccount();
+                  await handleDeleteAccount(deletionPassword);
                   onLogout();
                 } catch { /* ignore */ }
               }} className="w-1/2 bg-red-600 text-white py-3 rounded-2xl hover:bg-red-700 transition-colors disabled:opacity-50"
-                disabled={deletionConfirmText !== 'DELETE'}>Delete My Account</button>
+                disabled={deletionConfirmText !== 'DELETE' || !deletionPassword}>Delete My Account</button>
             </div>
           </div>
         </div>
