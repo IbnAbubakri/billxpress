@@ -118,7 +118,6 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   className="w-full px-4 py-4 border border-gray-300 dark:border-dark-700 rounded-2xl focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all text-black dark:text-white bg-white dark:bg-dark-800 text-center text-2xl tracking-widest"
                   placeholder="000000"
                   maxLength={6}
-                  autoFocus
                   aria-label="Enter your 6-digit authentication code"
                 />
               </div>

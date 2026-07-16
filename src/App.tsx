@@ -50,7 +50,6 @@ function AppContent() {
     isAdmin,
     isLoading,
     handleLogin,
-    handleRegister,
     handleLogout,
     handleUpdateProfile,
   } = useAuth();
@@ -85,20 +84,6 @@ function AppContent() {
       }
     },
     [handleLogin, navigate, addToast],
-  );
-
-  const onRegister = useCallback(
-    async (data: { email: string; password: string; phone?: string; name?: string }) => {
-      try {
-        await handleRegister(data);
-        addToast('Account created successfully!', 'success');
-        navigate('/dashboard');
-      } catch (err: unknown) {
-        addToast(getErrorMessage(err), 'error');
-        throw err;
-      }
-    },
-    [handleRegister, navigate, addToast],
   );
 
   if (isLoading) {

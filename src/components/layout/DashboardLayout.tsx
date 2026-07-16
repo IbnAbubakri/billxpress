@@ -47,10 +47,19 @@ const DashboardLayout = ({
         }`}
       >
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Close menu"
           className={`fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity ${
-            sidebarOpen ? "opacity-100" : "opacity-0"
+            sidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
           onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setSidebarOpen(false);
+            }
+          }}
         />
         <div
           className={`relative flex-1 flex flex-col max-w-xs w-full min-h-0 bg-white dark:bg-dark-800 shadow-xl transform transition-transform ${

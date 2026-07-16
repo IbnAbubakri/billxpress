@@ -355,6 +355,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
+                      aria-label={item.label}
                       checked={notifications[item.key as keyof typeof notifications]}
                       onChange={(e) => handleNotificationChange(item.key, e.target.checked)}
                       className="sr-only peer"

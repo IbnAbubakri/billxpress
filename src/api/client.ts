@@ -43,15 +43,26 @@ async function refreshSession() {
   await api.post('/refresh', {}, { headers: { 'x-csrf-token': csrf } });
 }
 
+interface RetryableRequest {
+  _retry?: boolean;
+  url?: string;
+  headers: Record<string, string>;
+}
+
 function createRetryInterceptor(instance: typeof api) {
-  return async (error: any) => {
-    const originalRequest = error.config;
-    const status = error.response?.status;
+  return async (error: unknown) => {
+    const err = error as {
+      config?: RetryableRequest;
+      response?: { status?: number };
+    };
+    const originalRequest = err.config;
+    const status = err.response?.status;
     if (status === 401 || status === 403) {
       csrfTokenPromise = null;
     }
     if (
       status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/refresh') &&
       !originalRequest.url?.includes('/csrf-token') &&
@@ -62,7 +73,7 @@ function createRetryInterceptor(instance: typeof api) {
         await refreshSession();
         const token = await getCSRFToken();
         originalRequest.headers['x-csrf-token'] = token;
-        return instance(originalRequest);
+        return instance(originalRequest as unknown as Parameters<typeof instance>[0]);
       } catch {
         return Promise.reject(error);
       }

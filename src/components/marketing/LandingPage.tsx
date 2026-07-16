@@ -7,7 +7,7 @@ import { useScroll } from 'framer-motion';
 import Seo from '../ui/Seo';
 import {
   Phone, Wifi, Tv, Zap, GraduationCap, Target, ArrowRightLeft,
-  Wallet, Shield, Lock, CheckCircle, Smartphone, BarChart3,
+  Shield, Lock, CheckCircle, Smartphone, BarChart3,
   Users, Star, ChevronRight, Menu, X, ArrowRight, Sparkles,
 } from 'lucide-react';
 import { Logo } from '../ui/Logo';

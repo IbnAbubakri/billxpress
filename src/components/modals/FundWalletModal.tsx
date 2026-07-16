@@ -78,6 +78,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
     setStep(3);
     try {
       const result = await initializeWalletFunding(Number(amount), selectedMethod);
+      onSuccess?.();
       window.location.href = result.authorization_url;
     } catch (err) {
       console.error('Payment initialization failed:', err);

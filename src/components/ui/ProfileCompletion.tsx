@@ -2,7 +2,7 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import React, { useState } from 'react';
-import { UserPlus, Mail, Info, Fingerprint, Banknote, Check, ChevronRight, X, Loader2 } from 'lucide-react';
+import { UserPlus, Mail, Info, Fingerprint, Banknote, Check, ChevronRight, X } from 'lucide-react';
 import type { User, ProfileStep, BasicInfo, BankDetails, ProfileUpdateData } from '../../types';
 import { validateBVN, validateAccountNumber } from '../../utils/validation';
 import { trackEvent } from '../../utils/analytics';
