@@ -46,9 +46,9 @@ function MobileNavItem({ item }: { item: MobileNavItem }) {
   );
 }
 
-export function MobileNav() {
+export function MobileNav({ hidden }: { hidden?: boolean }) {
   return (
-    <nav aria-label="Mobile navigation" className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-800 border-t dark:border-dark-700 shadow-lg z-40 pb-[max(1rem,env(safe-area-inset-bottom))]">
+    <nav aria-label="Mobile navigation" className={`lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-800 border-t dark:border-dark-700 shadow-lg z-40 pb-[max(1rem,env(safe-area-inset-bottom))] transition-transform duration-300 ${hidden ? 'translate-y-full' : 'translate-y-0'}`}>
       <div className="flex">
         {mobileNavItems.map((item) => (
           <MobileNavItem key={item.path} item={item} />

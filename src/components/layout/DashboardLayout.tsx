@@ -90,7 +90,7 @@ const DashboardLayout = ({
           {children}
         </main>
 
-        <MobileNav />
+        <MobileNav hidden={sidebarOpen} />
       </div>
     </div>
   );
