@@ -342,7 +342,7 @@ const RegisterPage = () => {
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white" aria-hidden="true" />
                       <span className="absolute left-11 top-1/2 -translate-y-1/2 text-black dark:text-white text-sm font-medium pointer-events-none select-none">+234</span>
-                      <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={`${inputClass('phone')} pl-[7.5rem]`} placeholder="8012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
+                      <input id="regPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value.replace(/^0+/, ''))} className={`${inputClass('phone')} pl-[7.5rem]`} placeholder="8012345678" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-error' : undefined} />
                     </div>
                     {errors.phone && <p id="phone-error" role="alert" className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                   </div>
