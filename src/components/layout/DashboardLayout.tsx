@@ -53,13 +53,15 @@ const DashboardLayout = ({
           onClick={() => setSidebarOpen(false)}
         />
         <div
-          className={`relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-dark-800 shadow-xl transform transition-transform ${
+          className={`relative flex-1 flex flex-col max-w-xs w-full min-h-0 bg-white dark:bg-dark-800 shadow-xl transform transition-transform ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <Sidebar onNavigate={() => setSidebarOpen(false)} />
-          <ThemeToggle />
-          <LogoutButton onLogout={onLogout} />
+          <div className="flex-shrink-0 border-t dark:border-dark-700">
+            <ThemeToggle />
+            <LogoutButton onLogout={onLogout} />
+          </div>
         </div>
       </div>
 
