@@ -72,7 +72,7 @@ export async function logAction({ userId, action, details, ip, userAgent, severi
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(timestamp, userId, action, JSON.stringify(details || {}), ip, userAgent, severity);
 
-  await rotateIfNeeded();
+  rotateIfNeeded().catch(err => logger.error({ err: err.message }, 'Audit rotation failed'));
 
   const level = severity === 'high' ? 'warn' : 'info';
   logger[level]({ userId, action, details, ip }, `[AUDIT] ${action}`);

@@ -67,7 +67,7 @@ export function validatePasswordComplexity(password) {
   return errors;
 }
 
-const HIBP_TIMEOUT_MS = 5000;
+const HIBP_TIMEOUT_MS = 2000;
 
 async function checkHIBP(password) {
   const hash = crypto.createHash('sha1').update(password).digest('hex').toUpperCase();

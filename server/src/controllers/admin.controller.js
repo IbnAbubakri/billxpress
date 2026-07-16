@@ -117,25 +117,32 @@ export async function handleGetAdminUsers(req, res) {
   const cursor = req.query.cursor || null;
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
 
-  const sql = cursor
+  let cursorCreatedAt, cursorId;
+  if (cursor) {
+    const parts = cursor.split('|');
+    cursorCreatedAt = parts[0];
+    cursorId = parts[1] || '';
+  }
+
+  const sql = cursorCreatedAt
     ? `SELECT id, name, email, phone, balance, role,
          createdAt as joined_date, lastLogin as last_login
        FROM users
-       WHERE createdAt < ?
-       ORDER BY createdAt DESC
+       WHERE (createdAt < ?) OR (createdAt = ? AND id < ?)
+       ORDER BY createdAt DESC, id DESC
        LIMIT ?`
     : `SELECT id, name, email, phone, balance, role,
          createdAt as joined_date, lastLogin as last_login
        FROM users
-       ORDER BY createdAt DESC
+       ORDER BY createdAt DESC, id DESC
        LIMIT ?`;
 
-  const users = cursor
-    ? await db.prepare(sql).all(cursor, limit + 1)
+  const users = cursorCreatedAt
+    ? await db.prepare(sql).all(cursorCreatedAt, cursorCreatedAt, cursorId, limit + 1)
     : await db.prepare(sql).all(limit + 1);
   const hasMore = users.length > limit;
   if (hasMore) users.pop();
-  const nextCursor = hasMore ? users[users.length - 1].joined_date : null;
+  const nextCursor = hasMore ? `${users[users.length - 1].joined_date}|${users[users.length - 1].id}` : null;
 
   res.json({
     users,
