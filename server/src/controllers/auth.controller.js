@@ -6,7 +6,7 @@ import {
   updateUserProfile, lookupUserForVerification, generateVerificationToken, verifyEmailToken,
   checkPhone, checkEmail, sendOtp, verifyOtp, changePassword, setTransactionPin,
   generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount, normalizePhone,
-  getPasswordPolicy, getUserByEmail,
+  getPasswordPolicy,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
@@ -90,14 +90,13 @@ export async function handleLogin(req, res, next) {
 export async function handleAdminLogin(req, res, next) {
   try {
     const { login, email, password, totpCode } = req.body;
-    const preCheckUser = await getUserByEmail(login || email);
-    if (preCheckUser && preCheckUser.role !== 'admin') {
-      logger.warn({ email: preCheckUser.email }, 'Non-admin user attempted admin login');
-      return res.status(403).json({ error: 'Access denied. Admin credentials required.' });
-    }
     const result = await authenticate(login || email, password, totpCode, req.clientIp, req.clientUA);
     if (result.mfaRequired) {
       return res.json({ mfaRequired: true, email: result.tempEmail });
+    }
+    if (result.role !== 'admin') {
+      logger.warn({ email: result.email }, 'Non-admin user attempted admin login');
+      return res.status(403).json({ error: 'Access denied. Admin credentials required.' });
     }
     await loginResponse(res, result, req);
     logger.info({ userId: result.id }, 'Admin login successful');

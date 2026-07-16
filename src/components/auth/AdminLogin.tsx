@@ -31,6 +31,8 @@ const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mfaChallenge, setMfaChallenge] = useState<{ email: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +40,12 @@ const AdminLogin: React.FC = () => {
     setError("");
 
     try {
-      await adminLogin(formData.email, formData.password);
+      const result = await adminLogin(formData.email, formData.password);
+      if (result.mfaRequired) {
+        setMfaChallenge({ email: result.tempEmail });
+        setIsLoading(false);
+        return;
+      }
       const { user } = await getMe();
       if (user) {
         saveStoredAuth(user, true);
@@ -48,6 +55,25 @@ const AdminLogin: React.FC = () => {
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || "Invalid credentials");
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaCode) return;
+    setIsLoading(true);
+    setError("");
+    try {
+      await adminLogin(formData.email, formData.password, mfaCode);
+      const { user } = await getMe();
+      if (user) {
+        saveStoredAuth(user, true);
+        queryClient.setQueryData(['auth', 'me'], { user, isAdmin: true, isAuthenticated: true });
+      }
+      navigate('/admin');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (err as { message?: string })?.message || "Invalid verification code");
       setIsLoading(false);
     }
   };
@@ -93,6 +119,48 @@ const AdminLogin: React.FC = () => {
           transition={{ delay: 0.2 }}
           className="glass-card rounded-3xl p-6"
         >
+          {mfaChallenge ? (
+            <form onSubmit={handleMfaSubmit} className="space-y-4">
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-error-50 dark:bg-error-900/30 border border-error-200 dark:border-error-900/50 text-error-700 dark:text-error-300 px-4 py-3 rounded-2xl text-sm"
+                >
+                  {error}
+                </motion.div>
+              )}
+              <div className="text-center mb-4">
+                <p className="text-sm text-black dark:text-white">Enter the 6-digit code from your authenticator app</p>
+              </div>
+              <div>
+                <label htmlFor="mfaCode" className="block text-sm font-medium text-black dark:text-white mb-2">Authentication Code</label>
+                <input
+                  id="mfaCode"
+                  type="text"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="w-full premium-input text-center text-2xl tracking-widest"
+                  placeholder="000000"
+                  maxLength={6}
+                  aria-label="Enter your 6-digit authentication code"
+                />
+              </div>
+              <motion.button
+                type="submit"
+                disabled={isLoading || mfaCode.length < 6}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full premium-button flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>Verify Code</span>
+                )}
+              </motion.button>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <motion.div
@@ -175,7 +243,7 @@ const AdminLogin: React.FC = () => {
               )}
             </motion.button>
           </form>
-        </motion.div>
+          )}
 
         <motion.div
           initial={{ opacity: 0 }}
