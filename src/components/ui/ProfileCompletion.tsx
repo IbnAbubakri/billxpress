@@ -80,7 +80,7 @@ function ProfileCompletion({ user, onUpdateProfile }: ProfileCompletionProps) {
 
   const handleDismiss = () => {
     setDismissed(true);
-    try { localStorage.setItem('profileCompletionDismissed', String(Date.now())); } catch { /* noop */ }
+    try { localStorage.setItem('profileCompletionDismissed', String(Date.now())); } catch { console.warn('[ProfileCompletion] localStorage unavailable'); }
   };
 
   if (!user) return <ProfileCompletionSkeleton />;

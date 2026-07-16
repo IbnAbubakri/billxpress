@@ -3,7 +3,7 @@
 
 import { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wifi, Phone, Zap, Tv, GraduationCap, Target, RefreshCw, CreditCard, MoreHorizontal, Loader2, ArrowRight } from 'lucide-react';
+import { Wifi, Phone, Zap, Tv, GraduationCap, Target, RefreshCw, CreditCard, MoreHorizontal, ArrowRight } from 'lucide-react';
 import VirtualTransactionList from './VirtualTransactionList';
 import { useTransactions } from '../../hooks/useTransactions';
 
@@ -60,8 +60,17 @@ const RecentTransactions = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+      <div className="space-y-3 py-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 p-4 animate-pulse">
+            <div className="w-10 h-10 rounded-2xl bg-slate-200 dark:bg-dark-700" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-32 bg-slate-200 dark:bg-dark-700 rounded" />
+              <div className="h-3 w-20 bg-slate-100 dark:bg-dark-700 rounded" />
+            </div>
+            <div className="h-4 w-16 bg-slate-200 dark:bg-dark-700 rounded" />
+          </div>
+        ))}
       </div>
     );
   }

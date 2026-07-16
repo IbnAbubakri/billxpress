@@ -83,7 +83,8 @@ const ServiceGrid = () => {
           <button
             key={service.id}
             onClick={() => navigate(`/services/${service.id}`)}
-            className={`group relative bg-white dark:bg-dark-800 rounded-2xl p-3 sm:p-4 shadow-sm border border-transparent ${variant.border} transition-all duration-300 ${variant.hover} active:scale-[0.98] text-left overflow-hidden`}
+            aria-label={`Navigate to ${service.title}: ${service.description}`}
+            className={`group relative bg-white dark:bg-dark-800 rounded-2xl p-3 sm:p-4 shadow-sm border border-transparent ${variant.border} transition-all duration-300 ${variant.hover} active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-purple-500 focus-visible:outline-offset-2 text-left overflow-hidden`}
           >
             <div className="relative">
               <div

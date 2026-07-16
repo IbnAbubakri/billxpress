@@ -18,7 +18,7 @@ function saveStoredAuth(user: Record<string, unknown>, isAdmin: boolean) {
       userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user',
       name: user.name || '', isAdmin, timestamp: Date.now(),
     }));
-  } catch { /* noop */ }
+  } catch { console.warn('[AdminLogin] sessionStorage unavailable'); }
 }
 
 const AdminLogin: React.FC = () => {

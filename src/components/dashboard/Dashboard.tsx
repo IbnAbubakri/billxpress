@@ -36,7 +36,7 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
 
   const handleDismissEmailBanner = () => {
     setDismissEmailBanner(true);
-    try { localStorage.setItem('dismissEmailBanner', String(Date.now())); } catch { /* noop */ }
+    try { localStorage.setItem('dismissEmailBanner', String(Date.now())); } catch { console.warn('[Dashboard] localStorage unavailable'); }
   };
 
   const profileComplete = !!(

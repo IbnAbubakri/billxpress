@@ -6,7 +6,7 @@ import {
   updateUserProfile, lookupUserForVerification, generateVerificationToken, verifyEmailToken,
   checkPhone, checkEmail, sendOtp, verifyOtp, changePassword, setTransactionPin,
   generateMfaSecret, verifyMfaSetup, disableMfa, deleteAccount, normalizePhone,
-  getPasswordPolicy,
+  getPasswordPolicy, sanitizeUser,
 } from '../services/auth.service.js';
 import {
   generateAccessToken, generateRefreshToken,
@@ -41,17 +41,6 @@ function clearAuthCookies(res) {
   res.clearCookie('accessToken', { path: '/' });
   res.clearCookie('refreshToken', { path: '/api/auth' });
   res.clearCookie('sessionId', { path: '/' });
-}
-
-function sanitizeUser(full) {
-  if (!full) return null;
-  return {
-    id: full.id, email: full.email, role: full.role, name: full.name, phone: full.phone,
-    avatar: full.avatar, balance: full.balance, hasTransactionPin: full.hasTransactionPin,
-    emailVerified: full.emailVerified, mfaEnabled: full.mfaEnabled,
-    createdAt: full.createdAt, lastLogin: full.lastLogin,
-    accountNumber: full.accountNumber, bankName: full.bankName, accountName: full.accountName,
-  };
 }
 
 async function loginResponse(res, user, req) {

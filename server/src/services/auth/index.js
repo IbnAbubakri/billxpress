@@ -1,29 +1,29 @@
 export {
   normalizePhone, sanitizeValue, sanitizeUser,
   SALT_ROUNDS, MAX_ATTEMPTS, LOCKOUT_MINUTES,
-} from './auth/index.js';
+} from './helpers.js';
 
 export {
   getPasswordPolicy, validatePasswordComplexity, checkHIBP, validateNewPassword,
-} from './auth/index.js';
+} from './password.js';
 
 export {
   register, sendOtp, verifyOtp, checkEmail, checkPhone,
-} from './auth/index.js';
+} from './registration.js';
 
 export {
   authenticate, forgotPassword, resetPassword, changePassword,
-} from './auth/index.js';
+} from './authentication.js';
 
 export {
   getUserById, getUserByEmail, updateUserProfile,
   lookupUserForVerification, generateVerificationToken, verifyEmailToken,
-} from './auth/index.js';
+} from './profile.js';
 
 export {
   generateMfaSecret, verifyMfaSetup, disableMfa,
-} from './auth/index.js';
+} from './mfa.js';
 
 export {
   setTransactionPin, deleteAccount,
-} from './auth/index.js';
+} from './account.js';

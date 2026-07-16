@@ -3,7 +3,7 @@
 
 import Seo from '../ui/Seo';
 import React, { useState } from "react";
-import { ArrowLeft, Search, Download, Phone, Wifi, Tv, Zap, GraduationCap, Target, RefreshCw, CreditCard, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Download, Phone, Wifi, Tv, Zap, GraduationCap, Target, RefreshCw, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import ConfirmModal from "../ui/ConfirmModal";
@@ -175,8 +175,17 @@ const TransactionsPage: React.FC<PageProps> = ({
             <h2 className="text-base font-semibold text-black dark:text-white">Transaction History ({filteredTransactions.length})</h2>
           </div>
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <div className="space-y-1 p-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 animate-pulse">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-200 dark:bg-dark-700" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-40 bg-slate-200 dark:bg-dark-700 rounded" />
+                    <div className="h-3 w-24 bg-slate-100 dark:bg-dark-700 rounded" />
+                  </div>
+                  <div className="h-4 w-20 bg-slate-200 dark:bg-dark-700 rounded" />
+                </div>
+              ))}
             </div>
           ) : filteredTransactions.length > 0 ? (
             filteredTransactions.length > 10 ? (

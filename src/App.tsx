@@ -43,6 +43,17 @@ const AdminProfile = lazy(() => import('./components/admin/AdminProfile'));
 
 import { useAuth } from './hooks/useAuth';
 
+function SkipLink() {
+  return (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-purple-700 focus:text-white focus:rounded-xl focus:shadow-lg"
+    >
+      Skip to main content
+    </a>
+  );
+}
+
 function AppContent() {
   const {
     user,
@@ -92,6 +103,11 @@ function AppContent() {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
+      <SkipLink />
+      <div id="main-content" role="main">
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {toasts.map(t => t.message).join('. ')}
+      </div>
       <AnimatePresence mode="wait">
         <Routes>
           <Route path="/login" element={
@@ -185,6 +201,7 @@ function AppContent() {
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <PWAPrompt />
+      </div>
     </Suspense>
   );
 }

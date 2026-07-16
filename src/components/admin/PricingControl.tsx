@@ -51,7 +51,7 @@ const PricingControl: React.FC = () => {
     setEditForm({ cost_price: item.cost_price, selling_price: item.selling_price });
   };
 
-  const handleSave = (id: number) => {
+  const handleSave = () => {
     setEditingId(null);
   };
 
@@ -64,8 +64,16 @@ const PricingControl: React.FC = () => {
     return (
       <div className="space-y-8">
         <Seo title="Pricing Control" />
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500" />
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-dark-800 rounded-2xl p-5 animate-pulse">
+              <div className="h-5 w-36 bg-slate-200 dark:bg-dark-700 rounded mb-4" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-4 w-24 bg-slate-200 dark:bg-dark-700 rounded" />
+                <div className="h-4 w-24 bg-slate-200 dark:bg-dark-700 rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -222,7 +230,7 @@ const PricingControl: React.FC = () => {
                       {editingId === item.id ? (
                         <>
                           <button
-                            onClick={() => handleSave(item.id)}
+                            onClick={handleSave}
                             aria-label="Save"
                             className="p-2 text-success-600 hover:bg-success-50 dark:hover:bg-success-900/30 rounded-lg transition-colors"
                           >

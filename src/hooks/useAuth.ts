@@ -14,11 +14,11 @@ function saveStoredAuth(user: User, isAdmin: boolean) {
       userId: user.id, email: user.email, role: isAdmin ? 'admin' : 'user',
       name: user.name, isAdmin, timestamp: Date.now(),
     }));
-  } catch { /* sessionStorage unavailable */ }
+  } catch { console.warn('[useAuth] sessionStorage unavailable'); }
 }
 
 function clearStoredAuth() {
-  try { sessionStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* sessionStorage unavailable */ }
+  try { sessionStorage.removeItem(AUTH_STORAGE_KEY); } catch { console.warn('[useAuth] sessionStorage unavailable'); }
 }
 
 function toUser(data: Record<string, unknown>): User {

@@ -17,5 +17,5 @@ export function trackEvent(name: EventName, data?: Record<string, unknown>) {
   try {
     // Swap with real analytics provider here
     // e.g. window.gtag?.('event', name, data);
-  } catch { /* noop */ }
+  } catch { console.debug('[analytics] trackEvent failed', name); }
 }

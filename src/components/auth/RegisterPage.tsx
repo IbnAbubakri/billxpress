@@ -15,18 +15,18 @@ type Step = 'phone' | 'otp' | 'kyc' | 'password';
 const STORAGE_KEY = 'billxpress_reg_progress';
 
 function persistProgress(step: Step) {
-  try { sessionStorage.setItem(STORAGE_KEY, step); } catch { /* noop */ }
+  try { sessionStorage.setItem(STORAGE_KEY, step); } catch { console.warn('[RegisterPage] sessionStorage unavailable'); }
 }
 
 function loadProgress(): Step | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     return (raw && ['phone', 'otp', 'kyc', 'password'].includes(raw)) ? raw as Step : null;
-  } catch { return null; }
+  } catch { console.warn('[RegisterPage] sessionStorage unavailable'); return null; }
 }
 
 function clearProgress() {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+  try { sessionStorage.removeItem(STORAGE_KEY); } catch { console.warn('[RegisterPage] sessionStorage unavailable'); }
 }
 
 function getPasswordStrength(password: string): { label: string; color: string; width: string } {
