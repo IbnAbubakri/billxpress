@@ -92,10 +92,28 @@ const sendVerificationLimiter = rateLimit({
   message: { error: 'Too many verification requests. Please wait before trying again.' },
 });
 
+const verifyEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many verification attempts. Please wait before trying again.' },
+});
+
+const profileLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many profile update requests. Please wait before trying again.' },
+});
+
+const passwordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many password change attempts. Please wait before trying again.' },
+});
+
 router.post('/send-verification', authenticate, sendVerificationLimiter, validateCsrf, handleSendVerification);
-router.post('/verify-email', authenticate, validateCsrf, handleVerifyEmail);
-router.put('/profile', authenticate, validateCsrf, handleUpdateProfile);
-router.put('/password', authenticate, validateCsrf, handleChangePassword);
+router.post('/verify-email', authenticate, verifyEmailLimiter, validateCsrf, handleVerifyEmail);
+router.put('/profile', authenticate, profileLimiter, validateCsrf, handleUpdateProfile);
+router.put('/password', authenticate, passwordLimiter, validateCsrf, handleChangePassword);
 const pinLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 5,
   standardHeaders: true, legacyHeaders: false,
@@ -109,7 +127,13 @@ router.post('/logout-all', authenticate, validateCsrf, handleLogoutAll);
 router.post('/mfa/generate', mfaManageLimiter, authenticate, validateCsrf, handleGenerateMfaSecret);
 router.post('/mfa/verify', mfaVerifyLimiter, authenticate, validateCsrf, handleVerifyMfaSetup);
 router.post('/mfa/disable', mfaManageLimiter, authenticate, validateCsrf, handleDisableMfa);
-router.delete('/account', authenticate, validateCsrf, handleDeleteAccount);
+const deleteAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 2,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many account deletion attempts. Please wait before trying again.' },
+});
+
+router.delete('/account', authenticate, deleteAccountLimiter, validateCsrf, handleDeleteAccount);
 
 const otpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 3,

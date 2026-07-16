@@ -3,12 +3,20 @@
 
 import { Router } from 'express';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { handlePaystackWebhook } from '../webhooks/paystack.webhook.js';
 
 const router = Router();
 
+const webhookLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 60,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many webhook requests. Please wait before trying again.' },
+});
+
 router.post(
   '/paystack',
+  webhookLimiter,
   express.raw({ type: 'application/json' }),
   (req, res, next) => {
     try {
