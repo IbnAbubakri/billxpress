@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://billxpress1.vercel.app/sitemap.xml
