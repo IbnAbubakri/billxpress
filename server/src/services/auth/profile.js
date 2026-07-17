@@ -10,40 +10,11 @@ export { sanitizeUser };
 
 export async function getUserById(id) {
   const db = getDb();
-  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
-  if (!user) return null;
-  return {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    emailVerified: Boolean(user.emailverified ?? user.emailVerified),
-    mfaEnabled: Boolean(user.mfaenabled ?? user.mfaEnabled),
-    createdAt: user.createdat ?? user.createdAt,
-    lastLogin: user.lastlogin ?? user.lastLogin,
-    name: user.name || '',
-    phone: user.phone || '',
-    balance: user.balance ?? 0,
-    hasTransactionPin: Boolean(user.hastransactionpin ?? user.hasTransactionPin),
-    bvn: user.bvn || '',
-    accountNumber: user.accountnumber || user.accountNumber || '',
-    bankName: user.bankname || user.bankName || '',
-    accountName: user.accountname || user.accountName || '',
-    billingStreet: user.billingstreet || user.billingStreet || '',
-    billingCity: user.billingcity || user.billingCity || '',
-    billingState: user.billingstate || user.billingState || '',
-    billingCountry: user.billingcountry || user.billingCountry || '',
-    homeStreet: user.homestreet || user.homeStreet || '',
-    homeCity: user.homecity || user.homeCity || '',
-    homeState: user.homestate || user.homeState || '',
-    homeZip: user.homezip || user.homeZip || '',
-    avatar: user.avatar || '',
-    dateOfBirth: user.dateofbirth || user.dateOfBirth || '',
-    gender: user.gender || '',
-    nin: user.nin || '',
-    nextOfKin: (() => { try { return JSON.parse(user.nextofkin || user.nextOfKin || '{}'); } catch { logger.warn('Failed to parse nextOfKin'); return {}; } })(),
-    employmentStatus: user.employmentstatus || user.employmentStatus || '',
-    annualIncome: user.annualincome || user.annualIncome || '',
-  };
+  const row = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  if (!row) return null;
+  const user = rowToUser(row);
+  const { password, emailVerificationToken, emailVerificationExpires, mfaSecret, mfaBackupCodes, resetToken, resetTokenExpires, passwordHistory, passwordChangedAt, failedLoginAttempts, lockedUntil, ...safe } = user;
+  return safe;
 }
 
 export async function getUserByEmail(email) {

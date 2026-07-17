@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   const chartGridStroke = isDark ? '#334155' : '#f1f5f9';
   const chartTooltipStyle = { backgroundColor: isDark ? '#1e293b' : 'white', border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`, borderRadius: '12px', color: isDark ? '#e2e8f0' : '#1e293b' };
   const chartAxisStroke = isDark ? '#94a3b8' : '#64748b';
-  const { data: statsData } = useQuery({
+  const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: async () => {
       const { data } = await walletApi.get('/admin/stats');
@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     staleTime: 2 * 60 * 1000,
   });
 
-  const { data: revenueChart } = useQuery({
+  const { data: revenueChart, isLoading: chartLoading } = useQuery({
     queryKey: ['admin', 'revenue-chart'],
     queryFn: async () => {
       const { data } = await walletApi.get('/admin/revenue-chart');
@@ -39,7 +39,7 @@ const AdminDashboard = () => {
     staleTime: 2 * 60 * 1000,
   });
 
-  const { data: serviceDist } = useQuery({
+  const { data: serviceDist, isLoading: distLoading } = useQuery({
     queryKey: ['admin', 'service-distribution'],
     queryFn: async () => {
       const { data } = await walletApi.get('/admin/service-distribution');
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
     staleTime: 2 * 60 * 1000,
   });
 
-  const { data: recentTxns } = useQuery({
+  const { data: recentTxns, isLoading: txnsLoading } = useQuery({
     queryKey: ['admin', 'transactions'],
     queryFn: async () => {
       const { data } = await walletApi.get('/admin/transactions');
@@ -56,6 +56,8 @@ const AdminDashboard = () => {
     },
     staleTime: 60 * 1000,
   });
+
+  const isLoading = statsLoading || chartLoading || distLoading || txnsLoading;
 
   const stats = [
     { title: 'Total Revenue', value: statsData ? `₦${Number(statsData.totalRevenue).toLocaleString()}` : '—', change: '', trend: 'up', icon: DollarSign, color: 'success' },
@@ -77,6 +79,22 @@ const AdminDashboard = () => {
   const serviceColors = [colors.primary, '#d946ef', '#22c55e', '#f59e0b', '#ef4444'];
 
   const transactions = Array.isArray(recentTxns) ? recentTxns : [];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-8 w-64 bg-neutral-200 dark:bg-dark-700 rounded-xl" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 h-80 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />
+          <div className="h-80 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />
+        </div>
+        <div className="h-64 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

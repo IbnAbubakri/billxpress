@@ -16,6 +16,24 @@ vi.mock('../utils/db.js', () => ({
   default: dbRef,
 }));
 
+vi.mock('../config/env.js', () => ({
+  default: {
+    DEMO_MODE: false,
+    isDev: () => false,
+    isProd: () => false,
+    JWT_SECRET: 'test-secret-that-is-long-enough-for-testing',
+    JWT_ACCESS_EXPIRES_IN: '15m',
+    JWT_REFRESH_EXPIRES_IN: '7d',
+    CORS_ORIGIN: 'http://localhost:5173',
+    APP_URL: 'http://localhost:5173',
+    MASTER_SECRET: 'test-master-secret-long-enough-for-testing',
+    NODE_ENV: 'test',
+    PAYSTACK_SECRET_KEY: 'sk_test_xxxx',
+    PAYSTACK_PUBLIC_KEY: 'pk_test_xxxx',
+    PAYSTACK_WEBHOOK_SECRET: 'whsec_test',
+  },
+}));
+
 vi.mock('../utils/logger.js', () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
   info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(),

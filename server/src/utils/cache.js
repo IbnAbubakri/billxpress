@@ -1,5 +1,18 @@
 const store = new Map();
 const timers = new Map();
+const MAX_SIZE = 500;
+
+function evictIfNeeded() {
+  if (store.size <= MAX_SIZE) return;
+  const oldest = store.keys().next().value;
+  if (oldest !== undefined) {
+    store.delete(oldest);
+    if (timers.has(oldest)) {
+      clearTimeout(timers.get(oldest));
+      timers.delete(oldest);
+    }
+  }
+}
 
 export function memoize(fn, ttlSeconds) {
   return async (...args) => {
@@ -10,6 +23,7 @@ export function memoize(fn, ttlSeconds) {
     }
     const value = await fn(...args);
     store.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
+    evictIfNeeded();
     if (timers.has(key)) clearTimeout(timers.get(key));
     timers.set(key, setTimeout(() => {
       store.delete(key);

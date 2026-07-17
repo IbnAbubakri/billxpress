@@ -8,13 +8,16 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import LogoutModal from "../ui/LogoutModal";
 import { useAuth } from "../../hooks/useAuth";
-import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 import type { PageProps } from '../../types/page';
 import EmailVerificationModal from "./EmailVerificationModal";
 import BVNModal from "./BVNModal";
 import BankDetailsModal from "./BankDetailsModal";
 import BasicInfoModal from "./BasicInfoModal";
+import SecurityTab from "./SecurityTab";
+import EmailChangeModal from "./EmailChangeModal";
+import PhoneOtpModal from "./PhoneOtpModal";
+import AccountDeletionModal from "./AccountDeletionModal";
 
 const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) => {
   const { handleChangePassword, handleSetTransactionPin, handleDeleteAccount } = useAuth();
@@ -43,18 +46,11 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
   const [bankErrors, setBankErrors] = useState<Record<string, string | null>>({});
 
   const [showEmailChangeModal, setShowEmailChangeModal] = useState(false);
-  const [newEmail, setNewEmail] = useState('');
-  const [emailChangeError, setEmailChangeError] = useState('');
-  const [emailChangeSent, setEmailChangeSent] = useState(false);
 
   const [showPhoneOtpModal, setShowPhoneOtpModal] = useState(false);
   const [pendingPhone, setPendingPhone] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [phoneOtpError, setPhoneOtpError] = useState('');
 
   const [showAccountDeletionModal, setShowAccountDeletionModal] = useState(false);
-  const [deletionConfirmText, setDeletionConfirmText] = useState('');
-  const [deletionPassword, setDeletionPassword] = useState('');
 
   const [showBasicInfoModal, setShowBasicInfoModal] = useState(false);
   const [basicInfo, setBasicInfo] = useState({
@@ -70,22 +66,6 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     avatarPreview: "",
   });
   const [basicInfoErrors, setBasicInfoErrors] = useState<Record<string, string | null>>({});
-
-  const emailChangeRef = useFocusTrap(showEmailChangeModal, () => {
-    setShowEmailChangeModal(false);
-    setNewEmail('');
-    setEmailChangeError('');
-  });
-  const phoneOtpRef = useFocusTrap(showPhoneOtpModal, () => {
-    setShowPhoneOtpModal(false);
-    setOtpCode('');
-    setPhoneOtpError('');
-  });
-  const accountDeletionRef = useFocusTrap(showAccountDeletionModal, () => {
-    setShowAccountDeletionModal(false);
-    setDeletionConfirmText('');
-    setDeletionPassword('');
-  });
 
   const [formData, setFormData] = useState({
     firstName: defaultFirstName,
@@ -513,7 +493,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                           reader.onloadend = async () => {
                             try {
                               await onUpdateProfile({ avatar: reader.result as string });
-                            } catch { /* error handled upstream */ }
+                            } catch { console.warn('[ProfilePage] Avatar update failed'); }
                           };
                           reader.readAsDataURL(file);
                         }}
@@ -687,253 +667,43 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
               )}
 
               {activeTab === "security" && (
-                <div>
-                  <h2 className="text-lg font-semibold text-black dark:text-white mb-4">
-                    Security Settings
-                  </h2>
-
-                  {/* Change Password */}
-                  <div className="mb-6">
-                    <h3 className="text-base font-medium text-black dark:text-white mb-4">
-                      Change Password
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label htmlFor="currentPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
-                          Current Password
-                        </label>
-                        <input
-                          id="currentPassword"
-                          type="password"
-                          value={formData.currentPassword}
-                          onChange={(e) => handleInputChange("currentPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
-                            errors.currentPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
-                          }`}
-                          aria-invalid={!!errors.currentPassword}
-                          aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
-                        />
-                        {errors.currentPassword && (
-                          <p id="currentPassword-error" role="alert" className="text-red-500 text-sm mt-1">
-                            {errors.currentPassword}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label htmlFor="newPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
-                          New Password
-                        </label>
-                        <input
-                          id="newPassword"
-                          type="password"
-                          value={formData.newPassword}
-                          onChange={(e) => handleInputChange("newPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
-                            errors.newPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
-                          }`}
-                          aria-invalid={!!errors.newPassword}
-                          aria-describedby={errors.newPassword ? 'newPassword-error' : undefined}
-                        />
-                        {errors.newPassword && (
-                          <p id="newPassword-error" role="alert" className="text-red-500 text-sm mt-1">
-                            {errors.newPassword}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label htmlFor="profileConfirmPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
-                          Confirm New Password
-                        </label>
-                        <input
-                          id="profileConfirmPassword"
-                          type="password"
-                          value={formData.confirmPassword}
-                          onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
-                            errors.confirmPassword ? "border-red-500" : "border-gray-300 dark:border-dark-700"
-                          }`}
-                          aria-invalid={!!errors.confirmPassword}
-                          aria-describedby={errors.confirmPassword ? 'profileConfirmPassword-error' : undefined}
-                        />
-                        {errors.confirmPassword && (
-                          <p id="profileConfirmPassword-error" role="alert" className="text-red-500 text-sm mt-1">
-                            {errors.confirmPassword}
-                          </p>
-                        )}
-                      </div>
-
-                      <button
-                        onClick={handlePasswordChange}
-                        className="px-6 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-                      >
-                        Update Password
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Change Transaction PIN */}
-                  <div>
-                    <h3 className="text-base font-medium text-black dark:text-white mb-4">
-                      Change Transaction PIN
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label htmlFor="transactionPin" className="block text-sm font-medium text-black dark:text-white mb-2">
-                          New Transaction PIN
-                        </label>
-                        <input
-                          id="transactionPin"
-                          type="password"
-                          maxLength={4}
-                          value={formData.transactionPin}
-                          onChange={(e) =>
-                            handleInputChange("transactionPin", e.target.value.replace(/\D/g, "").substring(0, 4))
-                          }
-                          placeholder="Enter 4-digit PIN"
-                          className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-black dark:text-white bg-white dark:bg-dark-800 ${
-                            errors.transactionPin ? "border-red-500" : "border-gray-300 dark:border-dark-700"
-                          }`}
-                          aria-invalid={!!errors.transactionPin}
-                          aria-describedby={errors.transactionPin ? 'transactionPin-error' : undefined}
-                        />
-                        {errors.transactionPin && (
-                          <p id="transactionPin-error" role="alert" className="text-red-500 text-sm mt-1">
-                            {errors.transactionPin}
-                          </p>
-                        )}
-                      </div>
-
-                      <button
-                        onClick={handlePinChange}
-                        className="px-6 py-3 bg-secondary text-white rounded-2xl font-medium hover:bg-opacity-90 transition-colors"
-                      >
-                        Update PIN
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Delete Account */}
-                  <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-700">
-                    <h3 className="text-base font-medium text-red-600 mb-2">Danger Zone</h3>
-                    <p className="text-sm text-black dark:text-white mb-4">Permanently delete your account and all associated data.</p>
-                    <button onClick={() => setShowAccountDeletionModal(true)}
-                      className="px-6 py-3 bg-red-600 text-white rounded-2xl font-medium hover:bg-red-700 transition-colors"
-                    >
-                      Delete Account
-                    </button>
-                  </div>
-                </div>
+                <SecurityTab
+                  formData={formData}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handlePasswordChange={handlePasswordChange}
+                  handlePinChange={handlePinChange}
+                  setShowAccountDeletionModal={setShowAccountDeletionModal}
+                />
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Email Change Modal */}
-      {showEmailChangeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Change email address">
-          <div ref={emailChangeRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h2 className="text-lg font-bold text-black dark:text-white mb-4">Change Email Address</h2>
-            {!emailChangeSent ? (
-              <>
-                <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="New email address"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
-                />
-                {emailChangeError && <p role="alert" className="text-red-500 text-sm mb-3">{emailChangeError}</p>}
-                <div className="flex gap-3">
-                  <button onClick={() => { setShowEmailChangeModal(false); setNewEmail(''); setEmailChangeError(''); }}
-                    className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
-                  <button onClick={async () => {
-                    if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-                      setEmailChangeError('Enter a valid email address.'); return;
-                    }
-                    setEmailChangeError('');
-                    try {
-                      await onUpdateProfile?.({ email: newEmail });
-                      setEmailChangeSent(true);
-                      setFormData(p => ({ ...p, email: newEmail }));
-                    } catch (err: unknown) {
-                      setEmailChangeError(err instanceof Error ? err.message : 'Failed to update email.');
-                    }
-                  }} className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl hover:bg-blue-700 transition-colors">Save</button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center">
-                <p className="text-green-600 mb-4">Email updated. Verification email sent to your new address.</p>
-                <button onClick={() => { setShowEmailChangeModal(false); setEmailChangeSent(false); setNewEmail(''); }}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-colors">Done</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <EmailChangeModal
+        open={showEmailChangeModal}
+        onClose={() => setShowEmailChangeModal(false)}
+        onUpdateProfile={onUpdateProfile}
+        setFormDataEmail={(email: string) => setFormData(p => ({ ...p, email }))}
+      />
 
-      {/* Phone OTP Verification Modal */}
-      {showPhoneOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Verify phone number">
-          <div ref={phoneOtpRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h2 className="text-lg font-bold text-black dark:text-white mb-2">Verify Phone Number</h2>
-            <p className="text-sm text-black dark:text-white mb-4">Enter the OTP sent to {pendingPhone}</p>
-            <input type="text" value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="6-digit OTP"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-center text-lg tracking-widest text-black dark:text-white bg-white dark:bg-dark-800"
-            />
-            {phoneOtpError && <p role="alert" className="text-red-500 text-sm mb-3">{phoneOtpError}</p>}
-            <div className="flex gap-3">
-              <button onClick={() => { setShowPhoneOtpModal(false); setOtpCode(''); setPhoneOtpError(''); }}
-                className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
-              <button onClick={async () => {
-                if (!otpCode || otpCode.length < 6) { setPhoneOtpError('Enter the 6-digit code.'); return; }
-                setPhoneOtpError('');
-                try {
-                  const { verifyOtp } = await import('../../api/client');
-                  await verifyOtp(pendingPhone, otpCode);
-                  const name = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
-                  if (onUpdateProfile) {
-                    await onUpdateProfile({ name, phone: pendingPhone });
-                  }
-                  setShowPhoneOtpModal(false);
-                  setOtpCode('');
-                  setShowSuccess(true);
-                  setTimeout(() => setShowSuccess(false), 3000);
-                } catch {
-                  setPhoneOtpError('Invalid or expired OTP.');
-                }
-              }} className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl hover:bg-blue-700 transition-colors">Verify</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <PhoneOtpModal
+        open={showPhoneOtpModal}
+        pendingPhone={pendingPhone}
+        firstName={formData.firstName}
+        lastName={formData.lastName}
+        onClose={() => setShowPhoneOtpModal(false)}
+        onUpdateProfile={onUpdateProfile}
+        onSuccess={() => { setShowSuccess(true); setTimeout(() => setShowSuccess(false), 3000); }}
+      />
 
-      {/* Account Deletion Modal */}
-      {showAccountDeletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-label="Delete account">
-          <div ref={accountDeletionRef} className="bg-white dark:bg-dark-800 rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
-            <p className="text-sm text-black dark:text-white mb-4">This action is permanent. All your data will be deleted. Enter your password and type <strong>DELETE</strong> to confirm.</p>
-            <input type="password" value={deletionPassword} onChange={(e) => setDeletionPassword(e.target.value)} placeholder="Enter your password"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
-            />
-            <input type="text" value={deletionConfirmText} onChange={(e) => setDeletionConfirmText(e.target.value)} placeholder="Type DELETE"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-700 rounded-2xl mb-3 text-black dark:text-white bg-white dark:bg-dark-800"
-            />
-            <div className="flex gap-3">
-              <button onClick={() => { setShowAccountDeletionModal(false); setDeletionConfirmText(''); setDeletionPassword(''); }}
-                className="w-1/2 bg-gray-200 text-black py-3 rounded-2xl hover:bg-gray-300 transition-colors">Cancel</button>
-              <button onClick={async () => {
-                if (deletionConfirmText !== 'DELETE' || !deletionPassword) return;
-                try {
-                  await handleDeleteAccount(deletionPassword);
-                  onLogout();
-                } catch { /* ignore */ }
-              }} className="w-1/2 bg-red-600 text-white py-3 rounded-2xl hover:bg-red-700 transition-colors disabled:opacity-50"
-                disabled={deletionConfirmText !== 'DELETE' || !deletionPassword}>Delete My Account</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AccountDeletionModal
+        open={showAccountDeletionModal}
+        onClose={() => setShowAccountDeletionModal(false)}
+        handleDeleteAccount={handleDeleteAccount}
+        onLogout={onLogout}
+      />
 
       <EmailVerificationModal
         open={showEmailModal}

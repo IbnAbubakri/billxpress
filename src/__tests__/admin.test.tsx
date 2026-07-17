@@ -60,9 +60,9 @@ describe('AdminDashboard', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders dashboard header with correct title', () => {
+  it('renders dashboard header with correct title', async () => {
     render(<AdminDashboard />, { wrapper: Wrapper });
-    expect(screen.getByRole('heading', { name: /dashboard overview/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /dashboard overview/i })).toBeInTheDocument();
   });
 });
 
@@ -88,14 +88,14 @@ describe('UserManagement', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders user list heading', () => {
+  it('renders user list heading', async () => {
     render(<UserManagement />, { wrapper: Wrapper });
-    expect(screen.getByRole('heading', { name: /user management/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /user management/i })).toBeInTheDocument();
   });
 
-  it('renders stat cards', () => {
+  it('renders stat cards', async () => {
     render(<UserManagement />, { wrapper: Wrapper });
-    expect(screen.getByText('Total Users')).toBeInTheDocument();
-    expect(screen.getByText('Active Users')).toBeInTheDocument();
+    expect(await screen.findByText('Total Users')).toBeInTheDocument();
+    expect(await screen.findByText('Active Users')).toBeInTheDocument();
   });
 });

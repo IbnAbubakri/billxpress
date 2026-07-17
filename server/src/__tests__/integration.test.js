@@ -26,10 +26,13 @@ describe('API Integration Tests', () => {
     const res = await fetch(`http://localhost:${server.address().port}/api/health`);
     const data = await res.json();
     expect(res.status).toBe(200);
-    expect(data).toHaveProperty('status', 'ok');
+    expect(['ok', 'degraded']).toContain(data.status);
+    expect(data).toHaveProperty('checks');
+    expect(data.checks).toHaveProperty('database');
+    expect(data.checks).toHaveProperty('paystack');
   });
 
-  it('openapi spec is served', async () => {
+  it('openapi spec is accessible without MASTER_SECRET set', async () => {
     const res = await fetch(`http://localhost:${server.address().port}/api/openapi.json`);
     const data = await res.json();
     expect(res.status).toBe(200);

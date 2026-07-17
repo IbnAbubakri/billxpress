@@ -13,6 +13,7 @@ import PageErrorBoundary from './components/PageErrorBoundary';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { ToastProvider, useToast } from './hooks/useToast';
 import { ToastContainer } from './components/ui/ToastContainer';
+import { getErrorMessage } from './utils/errors';
 
 const LoginPage = lazy(() => import('./components/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./components/auth/RegisterPage'));
@@ -66,19 +67,6 @@ function AppContent() {
   } = useAuth();
   const navigate = useNavigate();
   const { toasts, removeToast, addToast } = useToast();
-
-  function getErrorMessage(err: unknown): string {
-    if (err && typeof err === 'object') {
-      const axiosErr = err as Record<string, unknown>;
-      const response = axiosErr.response as Record<string, unknown> | undefined;
-      if (response?.data && typeof response.data === 'object') {
-        const data = response.data as Record<string, unknown>;
-        if (typeof data.error === 'string') return data.error;
-      }
-      if (typeof axiosErr.message === 'string') return axiosErr.message;
-    }
-    return 'An unexpected error occurred';
-  }
 
   const onLogin = useCallback(
     async (login: string, password: string, totpCode?: string): Promise<{ mfaRequired?: boolean; tempEmail?: string } | void> => {

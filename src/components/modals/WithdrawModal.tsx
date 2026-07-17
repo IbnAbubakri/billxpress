@@ -6,6 +6,7 @@ import { X, Banknote, Check } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { withdrawFunds } from '../../api/client';
+import { useToast } from '../../hooks/useToast';
 
 interface Errors {
   amount?: string | null;
@@ -22,6 +23,7 @@ interface WithdrawModalProps {
 
 const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const containerRef = useFocusTrap(true, onClose);
+  const { addToast } = useToast();
   const [amount, setAmount] = useState('');
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
@@ -70,13 +72,6 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const handleAccountNumberChange = (value: string) => {
     const cleaned = value.replace(/\D/g, '').substring(0, 10);
     setAccountNumber(cleaned);
-    
-    if (cleaned.length === 10) {
-      setAccountName(user?.name || 'Account Holder');
-    } else {
-      setAccountName('');
-    }
-    
     const error = validateAccountNumber(cleaned);
     setErrors(prev => ({ ...prev, accountNumber: error }));
   };
@@ -103,8 +98,8 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     try {
       await withdrawFunds(Number(amount), bankName, accountNumber, accountName);
       onSuccess?.();
-    } catch (err) {
-      console.error('Withdrawal failed:', err);
+    } catch {
+      addToast('Withdrawal failed. Please try again.', 'error');
       setErrors({ amount: 'Withdrawal failed. Please try again.' });
       setStep(1);
     }
@@ -206,11 +201,30 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 aria-invalid={!!errors.accountNumber}
                 aria-describedby={errors.accountNumber ? 'withdrawAccountNumber-error' : undefined}
               />
-              {accountName && (
-                <p className="text-green-600 text-sm mt-1">Account Name: {accountName}</p>
-              )}
               {errors.accountNumber && (
                 <p id="withdrawAccountNumber-error" role="alert" className="text-red-500 text-sm mt-1">{errors.accountNumber}</p>
+              )}
+            </div>
+
+            {/* Account Name */}
+            <div className="mb-4">
+              <label htmlFor="withdrawAccountName" className="block text-sm font-medium text-black dark:text-white mb-2">
+                Account Name
+              </label>
+              <input
+                id="withdrawAccountName"
+                type="text"
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
+                placeholder="Enter the account holder's name"
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
+                   errors.accountName ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
+                 }`}
+                aria-invalid={!!errors.accountName}
+                aria-describedby={errors.accountName ? 'withdrawAccountName-error' : undefined}
+              />
+              {errors.accountName && (
+                <p id="withdrawAccountName-error" role="alert" className="text-red-500 text-sm mt-1">{errors.accountName}</p>
               )}
             </div>
 

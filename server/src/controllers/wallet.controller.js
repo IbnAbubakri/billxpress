@@ -7,6 +7,7 @@ import logger from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { initializeTransaction, verifyTransaction, generateReference } from '../services/paystack.service.js';
+import { creditWallet } from '../services/wallet.service.js';
 
 const MAX_AMOUNT = 500_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
@@ -46,8 +47,7 @@ export async function handleInitializeFunding(req, res, next) {
     }
 
     const reference = generateReference(userId);
-    const origin = req.headers.origin || req.headers.host || env.APP_URL;
-    const callbackUrl = `${origin.startsWith('http') ? origin : `https://${origin}`}/wallet/fund/verify`;
+    const callbackUrl = `${env.APP_URL.replace(/\/+$/, '')}/wallet/fund/verify`;
     const channels = METHOD_CHANNEL_MAP[method] || undefined;
 
     const result = await initializeTransaction({
@@ -86,68 +86,13 @@ export async function handleVerifyFunding(req, res, next) {
     const verification = await verifyTransaction(reference);
 
     if (verification.data.status === 'success') {
-      const { amount, paid_at, channel, id: paystackTransactionId } = verification.data;
-      const userId = verification.data.metadata?.user_id;
-      if (!userId) return res.status(400).json({ error: 'Missing user_id in metadata' });
-
-      const amountInNaira = amount / 100;
-      const paidAtDate = paid_at || new Date().toISOString();
-
-      const db = getDb();
-      let result;
-      await db.transaction(async (tx) => {
-        const existing = await tx.get(
-          'SELECT id, status, amount FROM wallet_funding_transactions WHERE paystack_reference = ? FOR UPDATE',
-          reference
-        );
-
-        if (existing && existing.status === 'completed') {
-          result = { credited: false, existing: true };
-          return;
-        }
-
-        if (existing && Number(existing.amount) !== amountInNaira) {
-          logger.error({ reference, expected: existing.amount, received: amountInNaira }, 'Amount mismatch in verify callback');
-          result = { credited: false, existing: true };
-          return;
-        }
-
-        if (existing) {
-          await tx.run(
-            `UPDATE wallet_funding_transactions SET status = ?, payment_method = ?, gateway_response = ?, paid_at = ?, paystack_transaction_id = ? WHERE id = ?`,
-            'completed', channel, 'Successful', paidAtDate, paystackTransactionId, existing.id
-          );
-        } else {
-          await tx.run(
-            `INSERT INTO wallet_funding_transactions
-             (user_id, paystack_reference, amount, currency, status, payment_method, gateway_response, paid_at, paystack_transaction_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            userId, reference, amountInNaira, 'NGN', 'completed', channel, 'Successful', paidAtDate, paystackTransactionId
-          );
-        }
-
-        await tx.run(
-          'UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?',
-          amountInNaira, new Date().toISOString(), userId
-        );
-
-        await tx.run(
-          `INSERT INTO transactions (userId, type, amount, status, description, recipient, date)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          userId, 'wallet_funding', amountInNaira, 'completed',
-          `Wallet Funding via ${channel}`, 'Self', paidAtDate
-        );
-
-        result = { credited: true, existing: false };
-      });
+      const result = await creditWallet(reference, verification.data);
 
       if (result.existing) {
-        const currentUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
-        return res.json({ status: 'completed', message: 'Payment already processed', balance: Number(currentUser.balance), amountFunded: 0 });
+        return res.json({ status: 'completed', message: 'Payment already processed' });
       }
 
-      const updatedUser = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
-      return res.json({ status: 'completed', message: 'Payment verified successfully', balance: Number(updatedUser.balance), amountFunded: Number(amountInNaira) });
+      return res.json({ status: 'completed', message: 'Payment verified successfully' });
     }
 
     res.json({ status: verification.data.status, message: 'Payment not successful' });
@@ -168,22 +113,22 @@ export async function handleFundWallet(req, res, next) {
     if (inputError) return res.status(400).json({ error: inputError });
 
     const db = getDb();
-    const userId = req.user.id;
+    const targetUserId = req.body.targetUserId || req.user.id;
     const now = new Date().toISOString();
 
     await db.transaction(async (tx) => {
-      const user = await tx.get('SELECT balance FROM users WHERE id = ? FOR UPDATE', userId);
-      if (!user) throw new AppError('User not found.', 404);
+      const target = await tx.get('SELECT balance FROM users WHERE id = ? FOR UPDATE', targetUserId);
+      if (!target) throw new AppError('Target user not found.', 404);
 
-      await tx.run('UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?', amount, now, userId);
+      await tx.run('UPDATE users SET balance = balance + ?, updatedAt = ? WHERE id = ?', amount, now, targetUserId);
       await tx.run(
         'INSERT INTO transactions (userId, type, amount, status, description, recipient, date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        userId, 'wallet_funding', amount, 'completed', `Wallet Funding via ${method}`, 'Self', now
+        targetUserId, 'wallet_funding', amount, 'completed', `Wallet Funding via ${method}`, 'Self', now
       );
     });
 
-    const updated = await db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
-    logger.info({ userId, amount }, 'Wallet funded by admin');
+    const updated = await db.prepare('SELECT balance FROM users WHERE id = ?').get(targetUserId);
+    logger.info({ adminId: req.user.id, targetUserId, amount }, 'Wallet funded by admin');
     res.json({ balance: Number(updated.balance), message: 'Wallet funded successfully.' });
   } catch (err) {
     next(err);

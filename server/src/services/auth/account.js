@@ -6,7 +6,7 @@ import { getDb } from '../../utils/db.js';
 import { SALT_ROUNDS } from './helpers.js';
 
 export async function setTransactionPin(id, pin, ip, userAgent, currentPin) {
-  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) throw new AppError('PIN must be exactly 4 digits.', 400);
+  if (!pin || pin.length !== 6 || !/^\d{6}$/.test(pin)) throw new AppError('PIN must be exactly 6 digits.', 400);
 
   const db = getDb();
   const user = await db.prepare('SELECT transactionPin, hasTransactionPin FROM users WHERE id = ?').get(id);

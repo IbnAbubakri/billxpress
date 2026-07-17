@@ -7,7 +7,24 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run server/src/__tests__/` (109 tests across 8 files)
+Run tests: `npx vitest run` (187 tests across 14 files)
+
+## Production Environment Variables (Vercel)
+Set these in Vercel Dashboard → Settings → Environment Variables (Production):
+
+| Variable | Value / Source |
+|---|---|
+| `JWT_SECRET` | Generate: `openssl rand -hex 32` |
+| `MASTER_SECRET` | Generate: `openssl rand -hex 32` |
+| `DATABASE_URL` | Supabase connection string |
+| `PAYSTACK_SECRET_KEY` | Paystack dashboard |
+| `PAYSTACK_PUBLIC_KEY` | Paystack dashboard |
+| `APP_URL` | `https://billxpress1.vercel.app` |
+| `CORS_ORIGIN` | `https://billxpress1.vercel.app` |
+| `NODE_ENV` | `production` |
+| `SUPABASE_REGION` | `eu-west-1` |
+
+The local `server/.env` is gitignored and only used for development. Never commit real secrets.
 
 ## Database
 - Supabase PG in `eu-west-1`. Connection: `aws-0-{SUPABASE_REGION}.pooler.supabase.com:6543`
@@ -101,6 +118,20 @@ Skipped: C-1 (deployment concern, not code), H-1 (intentional tradeoff for mobil
 | `LandingPage.tsx` | Feature cards: removed single `bg` field, added `featureVariants` with per-card icon shapes, hover behaviors, and accent borders; added "Get started →" reveal on hover. Stats grid: second card uses `bg-gradient-to-br from-slate-700 to-slate-900` dark gradient for visual contrast, alternating icon shapes |
 
 Key principle from `frontend-design` skill: avoid uniform grid/card repetition, vary corner radii, hover effects, and decorative accents across otherwise similar components. ServiceGrid now has 7 visually distinct card styles instead of 7 clones with different colors.
+
+## Session Summary (Jul 17 — Second Penetration Test — Batch 6)
+
+| ID | Finding | Severity | Details |
+|---|---|---|---|
+| P-1 | **`env.isProd()` returns FALSE on Vercel — all production guards bypassed** | CRITICAL | `env.isProd()` checks `process.env.NODE_ENV === 'production'`, Vercel doesn't set `NODE_ENV`. All guards depending on it (C-3 DEMO_MODE, H-5 OpenAPI gate, JWT_SECRET fatal, MASTER_SECRET length check) are silent no-ops on production. Fix: use `process.env.VERCEL_ENV === 'production'` or `process.env.NODE_ENV !== 'development'` |
+| P-2 | **Production runs in DEMO_MODE — OTP codes leak, no email verification** | CRITICAL | Confirmed via 3 tests: (1) `send-otp` returns `"code":"260839"` in response; (2) registration returns `emailVerified: true` without any verification; (3) leaked OTP verified successfully via `verify-otp`. Root cause: `env.DEMO_MODE = NODE_ENV !== 'production' && !SMS_PROVIDER`. Fix: add `NODE_ENV=production` to Vercel env vars, or remove `!env.isProd()` condition from `send-otp` code leak check |
+| P-3 | **OpenAPI spec publicly accessible (H-5 fix broken)** | HIGH | `GET /api/openapi.json` returns full 11KB OpenAPI spec with all endpoints, schemas, and dev server URL — no auth required. The `if (env.isProd())` guard on `openapi.routes.js:11` is always FALSE on Vercel. Fix: remove the `env.isProd()` guard entirely, always require MASTER_SECRET |
+| P-4 | **Account enumeration via `/check-email`** | HIGH | `POST /api/auth/check-email` returns `{"exists": true}` for known emails and `{"exists": false}` for unknowns. Publicly accessible (10/15min rate limit). Fix: return uniform response regardless of existence |
+| P-5 | **Unauthenticated wallet fund verification** | MEDIUM | `GET /api/wallet/fund/verify` at `wallet.routes.js:30` has no `authenticate` middleware — only `verifyLimiter` (10/min). Exploitation limited by need for valid Paystack reference + `creditWallet` idempotency checks. Fix: add `authenticate` middleware |
+| P-6 | **IP mismatch only logged, not rejected** | MEDIUM | `auth.middleware.js:23-25` — JWT contains `ip` claim but mismatch is only logged as warning. Stolen tokens usable from any IP. Fix: add configurable option to reject IP mismatches |
+| P-7 | **Silent session eviction** | LOW | `token.service.js:62-64` — exceeding MAX_SESSIONS_PER_USER (10) silently deletes oldest session |
+| P-8 | **CSRF token cookie `httpOnly: false`** | LOW | By design (JS must read it), but any XSS leads to immediate CSRF bypass + full account takeover |
+| P-9 | **JWT_SECRET/MASTER_SECRET guards bypassed on Vercel** | INFO | `env.js:49-55` — fatal error for missing/weak JWT_SECRET only triggers when `env.isProd()` is TRUE (never on Vercel). App silently auto-generates per-instance secrets if not configured |
 
 ## Session Summary (Jul 15 — Color consistency across admin pages)
 Replaced `primary-*` (purple) classes with `slate-*` on decorative/non-CTA elements across all admin pages, keeping purple only for interactive primary actions (CTAs). Landing page feature cards also unified to slate.

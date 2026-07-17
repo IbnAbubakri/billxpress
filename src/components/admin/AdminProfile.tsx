@@ -67,7 +67,7 @@ const AdminProfile: React.FC = () => {
     try {
       await handleUpdateProfile({ name: editForm.name, phone: editForm.phone });
       setIsEditing(false);
-    } catch { /* error handled by mutation */ }
+    } catch { console.warn('[AdminProfile] Profile save failed'); }
     setSaving(false);
   };
 
@@ -173,7 +173,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                       reader.onloadend = async () => {
                         try {
                           await handleUpdateProfile({ avatar: reader.result as string });
-                        } catch { /* error handled by mutation */ }
+                        } catch { console.warn('[AdminProfile] Avatar upload failed'); }
                       };
                       reader.readAsDataURL(file);
                     }}
@@ -438,7 +438,7 @@ className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:bg-slate-1
                 try {
                   await handleDeleteAccount(deletionPassword);
                   window.location.href = '/';
-                } catch { /* ignore */ }
+                } catch { console.warn('[AdminProfile] Account deletion failed'); }
               }} className="w-1/2 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
                 disabled={deletionConfirmText !== 'DELETE' || !deletionPassword}>Delete My Account</button>
             </div>

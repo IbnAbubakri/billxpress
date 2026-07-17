@@ -18,7 +18,7 @@ export function normalizePhone(phone) {
 
 export function sanitizeValue(val) {
   if (typeof val !== 'string') return val;
-  return val.trim().replace(/<[^>]*>/g, '').replace(/javascript\s*:|on\w+\s*=|data\s*:/gi, '').replace(/[<>]/g, '');
+  return val.trim();
 }
 
 export function sanitizeUser(full) {

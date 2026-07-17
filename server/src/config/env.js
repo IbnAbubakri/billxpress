@@ -24,9 +24,12 @@ function parseMs(s) {
   }
 }
 
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+
 const env = {
   PORT: parseInt(process.env.PORT, 10) || 4000,
   NODE_ENV: process.env.NODE_ENV || 'development',
+  VERCEL_ENV: process.env.VERCEL_ENV,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
@@ -34,14 +37,15 @@ const env = {
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   DATABASE_URL: process.env.DATABASE_URL,
   SUPABASE_REGION: process.env.SUPABASE_REGION || 'eu-west-1',
-  DEMO_MODE: process.env.DEMO_MODE === 'true' || !process.env.SMS_PROVIDER,
+  DEMO_MODE: process.env.DEMO_MODE === 'true' || (!isProduction && !process.env.SMS_PROVIDER),
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
   PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
   PAYSTACK_WEBHOOK_SECRET: process.env.PAYSTACK_WEBHOOK_SECRET,
   APP_URL: process.env.APP_URL || 'http://localhost:5173',
   MASTER_SECRET: process.env.MASTER_SECRET,
-  isDev: () => env.NODE_ENV === 'development',
-  isProd: () => env.NODE_ENV === 'production',
+  ENFORCE_IP: process.env.ENFORCE_IP === 'true',
+  isDev: () => env.NODE_ENV === 'development' && !isProduction,
+  isProd: () => isProduction,
 };
 
 const DEFAULT_SECRET = 'change-this-to-a-long-random-string-in-production';
@@ -55,6 +59,13 @@ if (!env.JWT_SECRET || env.JWT_SECRET === DEFAULT_SECRET) {
 }
 
 const REQUIRED_PROD_VARS = ['DATABASE_URL'];
+if (env.MASTER_SECRET && env.MASTER_SECRET.length < 32) {
+  if (env.isProd()) {
+    console.error('FATAL: MASTER_SECRET must be at least 32 characters in production.');
+    process.exit(1);
+  }
+  console.warn('WARNING: MASTER_SECRET is too short (min 32 chars). Generate a stronger secret.');
+}
 const missing = REQUIRED_PROD_VARS.filter(v => !env[v]);
 if (missing.length > 0 && env.isProd()) {
   console.error(`FATAL: Missing required environment variables: ${missing.join(', ')}`);

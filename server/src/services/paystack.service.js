@@ -60,8 +60,9 @@ export async function verifyTransaction(reference) {
 
 export function verifyWebhookSignature(payload, signature) {
   if (!signature || !payload) return false;
+  if (!env.PAYSTACK_WEBHOOK_SECRET) return false;
   const hash = crypto
-    .createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET || '')
+    .createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET)
     .update(payload)
     .digest();
   const sigBuf = Buffer.from(signature, 'hex');
@@ -71,6 +72,6 @@ export function verifyWebhookSignature(payload, signature) {
 
 export function generateReference(userId) {
   const timestamp = Date.now();
-  const random = crypto.randomBytes(8).toString('hex');
-  return `WLF_${userId.slice(0, 8)}_${timestamp}_${random}`;
+  const random = crypto.randomBytes(12).toString('hex');
+  return `WLF_${timestamp}_${random}`;
 }

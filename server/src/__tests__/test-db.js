@@ -162,13 +162,18 @@ export function createTestDb() {
 
     CREATE TABLE IF NOT EXISTS wallet_funding_transactions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userId TEXT NOT NULL,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      paystack_reference TEXT UNIQUE NOT NULL,
+      paystack_access_code TEXT,
+      paystack_transaction_id INTEGER,
       amount NUMERIC(12,2) NOT NULL,
-      method TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending',
-      reference TEXT,
-      createdAt TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      currency VARCHAR(3) DEFAULT 'NGN',
+      status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      payment_method VARCHAR(50),
+      gateway_response TEXT,
+      paid_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
     );
 
     CREATE TABLE IF NOT EXISTS otps (

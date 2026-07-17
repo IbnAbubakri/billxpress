@@ -24,7 +24,7 @@ const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
   const [showUserModal, setShowUserModal] = useState(false);
 
-  const { data: usersData } = useQuery({
+  const { data: usersData, isLoading } = useQuery({
     queryKey: ['admin', 'users'],
     queryFn: async () => {
       const { data } = await walletApi.get('/admin/users');
@@ -50,6 +50,19 @@ const UserManagement: React.FC = () => {
     role === 'admin' ? 'bg-slate-100 dark:bg-dark-700 text-slate-700' : 'bg-success-100 dark:bg-success-900/30 text-success-700';
 
   const activeUsers = users.filter(u => u.role !== 'suspended').length;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-8 w-64 bg-neutral-200 dark:bg-dark-700 rounded-xl" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1,2].map(i => <div key={i} className="h-28 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />)}
+        </div>
+        <div className="h-10 bg-neutral-200 dark:bg-dark-700 rounded-xl w-full max-w-md" />
+        <div className="h-96 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

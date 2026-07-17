@@ -235,8 +235,7 @@ export async function handlePasswordPolicy(req, res, next) {
 
 export async function handleSendVerification(req, res, next) {
   try {
-    const identifier = req.body?.email || req.body?.login;
-    const user = await lookupUserForVerification(identifier, req.user?.id);
+    const user = await lookupUserForVerification(null, req.user?.id);
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.emailverified ?? user.emailVerified) return res.json({ message: 'Email already verified.' });
     await generateVerificationToken(user);

@@ -58,10 +58,14 @@ vi.mock('../services/audit.service.js', () => ({
 }));
 
 import {
-  handleLogin, handleRegister, handleLogout, handleRefresh,
+  handleLogin, handleAdminLogin, handleRegister, handleLogout, handleRefresh,
   handleMe, handleForgotPassword, handleResetPassword,
   handleSessions, handleDeleteSession, handleLogoutAll,
   handleSendVerification, handleVerifyEmail,
+  handleCheckPhone, handleCheckEmail, handleSendOtp, handleVerifyOtp,
+  handleUpdateProfile, handleChangePassword, handleSetTransactionPin,
+  handleGenerateMfaSecret, handleVerifyMfaSetup, handleDisableMfa,
+  handleDeleteAccount, handlePasswordPolicy,
 } from '../controllers/auth.controller.js';
 
 function mockReq(overrides = {}) {
@@ -76,7 +80,7 @@ function mockReq(overrides = {}) {
 }
 
 function mockRes() {
-  const res = {};
+  const res = { locals: {} };
   res.status = vi.fn().mockReturnValue(res);
   res.json = vi.fn().mockReturnValue(res);
   res.cookie = vi.fn().mockReturnValue(res);
@@ -370,5 +374,245 @@ describe('handleVerifyEmail', () => {
       message: 'Email verified successfully.',
       user: { id: 'user-1', email: 'test@example.com' },
     });
+  });
+});
+
+describe('handleAdminLogin', () => {
+  it('logs in admin user', async () => {
+    mockAuthService.authenticate.mockResolvedValue({ id: 'admin-1', email: 'admin@example.com', role: 'admin' });
+    const req = mockReq({ body: { email: 'admin@example.com', password: 'ValidP@ss1' } });
+    const res = mockRes();
+
+    await handleAdminLogin(req, res, mockNext);
+
+    expect(mockAuthService.authenticate).toHaveBeenCalledWith('admin@example.com', 'ValidP@ss1', undefined, '127.0.0.1', 'test-agent');
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ user: expect.anything() }));
+  });
+
+  it('blocks non-admin user', async () => {
+    mockAuthService.authenticate.mockResolvedValue({ id: 'user-1', email: 'user@example.com', role: 'user' });
+    const req = mockReq({ body: { email: 'user@example.com', password: 'ValidP@ss1' } });
+    const res = mockRes();
+
+    await handleAdminLogin(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Access denied. Admin credentials required.' });
+  });
+
+  it('calls next on error', async () => {
+    mockAuthService.authenticate.mockRejectedValue(new Error('Invalid'));
+    const req = mockReq({ body: { email: 'admin@example.com', password: 'wrong' } });
+    const res = mockRes();
+
+    await handleAdminLogin(req, res, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+});
+
+describe('handleCheckPhone', () => {
+  it('returns check result', async () => {
+    mockAuthService.checkPhone.mockResolvedValue({ ok: true });
+    const req = mockReq({ body: { phone: '+2348012345678' } });
+    const res = mockRes();
+
+    await handleCheckPhone(req, res, mockNext);
+
+    expect(mockAuthService.checkPhone).toHaveBeenCalledWith('+2348012345678');
+    expect(res.json).toHaveBeenCalledWith({ ok: true });
+  });
+});
+
+describe('handleCheckEmail', () => {
+  it('returns check result', async () => {
+    mockAuthService.checkEmail.mockResolvedValue({ ok: true });
+    const req = mockReq({ body: { email: 'test@example.com' } });
+    const res = mockRes();
+
+    await handleCheckEmail(req, res, mockNext);
+
+    expect(mockAuthService.checkEmail).toHaveBeenCalledWith('test@example.com');
+    expect(res.json).toHaveBeenCalledWith({ ok: true });
+  });
+});
+
+describe('handleSendOtp', () => {
+  it('sends OTP and returns result', async () => {
+    mockAuthService.sendOtp.mockResolvedValue({ message: 'OTP sent successfully', expiresIn: 600 });
+    const req = mockReq({ body: { phone: '+2348012345678' } });
+    const res = mockRes();
+
+    await handleSendOtp(req, res, mockNext);
+
+    expect(mockAuthService.sendOtp).toHaveBeenCalledWith('+2348012345678');
+    expect(res.json).toHaveBeenCalledWith({ message: 'OTP sent successfully', expiresIn: 600 });
+  });
+
+  it('calls next on error', async () => {
+    mockAuthService.sendOtp.mockRejectedValue(new Error('Too many requests'));
+    const req = mockReq({ body: { phone: '+2348012345678' } });
+    const res = mockRes();
+
+    await handleSendOtp(req, res, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+});
+
+describe('handleVerifyOtp', () => {
+  it('verifies OTP code', async () => {
+    mockAuthService.verifyOtp.mockResolvedValue({ verified: true });
+    const req = mockReq({ body: { phone: '+2348012345678', code: '123456' } });
+    const res = mockRes();
+
+    await handleVerifyOtp(req, res, mockNext);
+
+    expect(mockAuthService.verifyOtp).toHaveBeenCalledWith('+2348012345678', '123456');
+    expect(res.json).toHaveBeenCalledWith({ verified: true });
+  });
+});
+
+describe('handleUpdateProfile', () => {
+  it('updates user profile', async () => {
+    mockAuthService.updateUserProfile.mockResolvedValue({ id: 'user-1', name: 'Updated' });
+    const req = mockReq({ user: { id: 'user-1' }, body: { name: 'Updated' } });
+    const res = mockRes();
+
+    await handleUpdateProfile(req, res, mockNext);
+
+    expect(mockAuthService.updateUserProfile).toHaveBeenCalledWith('user-1', { name: 'Updated' }, '127.0.0.1', 'test-agent');
+    expect(res.json).toHaveBeenCalledWith({ user: { id: 'user-1', name: 'Updated' } });
+  });
+});
+
+describe('handleChangePassword', () => {
+  it('changes password and revokes sessions', async () => {
+    mockAuthService.changePassword.mockResolvedValue({ message: 'Password changed.' });
+    const req = mockReq({ user: { id: 'user-1' }, body: { currentPassword: 'old', newPassword: 'NewStrongP@ss1' } });
+    const res = mockRes();
+
+    await handleChangePassword(req, res, mockNext);
+
+    expect(mockAuthService.changePassword).toHaveBeenCalledWith('user-1', 'old', 'NewStrongP@ss1', '127.0.0.1', 'test-agent');
+    expect(mockTokenService.revokeAllUserRefreshTokens).toHaveBeenCalledWith('user-1');
+    expect(mockTokenService.deleteAllUserSessions).toHaveBeenCalledWith('user-1');
+    expect(res.json).toHaveBeenCalledWith({ message: 'Password changed successfully.' });
+  });
+
+  it('returns 400 when passwords missing', async () => {
+    const req = mockReq({ user: { id: 'user-1' }, body: {} });
+    const res = mockRes();
+
+    await handleChangePassword(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Both current and new password are required.' });
+  });
+});
+
+describe('handleSetTransactionPin', () => {
+  it('sets transaction PIN', async () => {
+    mockAuthService.setTransactionPin.mockResolvedValue({ message: 'PIN set.' });
+    const req = mockReq({ user: { id: 'user-1' }, body: { pin: '1234' } });
+    const res = mockRes();
+
+    await handleSetTransactionPin(req, res, mockNext);
+
+    expect(mockAuthService.setTransactionPin).toHaveBeenCalledWith('user-1', '1234', '127.0.0.1', 'test-agent', undefined);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Transaction PIN set successfully.' });
+  });
+});
+
+describe('handleGenerateMfaSecret', () => {
+  it('generates MFA secret', async () => {
+    mockAuthService.generateMfaSecret.mockResolvedValue({ secret: 'JBSWY3DPEHPK3PXP', qrCode: 'data:image/png;base64,...' });
+    const req = mockReq({ user: { id: 'user-1' } });
+    const res = mockRes();
+
+    await handleGenerateMfaSecret(req, res, mockNext);
+
+    expect(mockAuthService.generateMfaSecret).toHaveBeenCalledWith('user-1');
+    expect(res.json).toHaveBeenCalledWith({ secret: 'JBSWY3DPEHPK3PXP', qrCode: 'data:image/png;base64,...' });
+  });
+});
+
+describe('handleVerifyMfaSetup', () => {
+  it('verifies MFA setup', async () => {
+    mockAuthService.verifyMfaSetup.mockResolvedValue({ message: 'MFA enabled.' });
+    const req = mockReq({ user: { id: 'user-1' }, body: { token: '123456' } });
+    const res = mockRes();
+
+    await handleVerifyMfaSetup(req, res, mockNext);
+
+    expect(mockAuthService.verifyMfaSetup).toHaveBeenCalledWith('user-1', '123456');
+    expect(res.json).toHaveBeenCalledWith({ message: 'MFA enabled.' });
+  });
+
+  it('returns 400 when token missing', async () => {
+    const req = mockReq({ user: { id: 'user-1' }, body: {} });
+    const res = mockRes();
+
+    await handleVerifyMfaSetup(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Verification code required.' });
+  });
+});
+
+describe('handleDisableMfa', () => {
+  it('disables MFA', async () => {
+    mockAuthService.disableMfa.mockResolvedValue({ message: 'MFA disabled.' });
+    const req = mockReq({ user: { id: 'user-1' }, body: { password: 'ValidP@ss1' } });
+    const res = mockRes();
+
+    await handleDisableMfa(req, res, mockNext);
+
+    expect(mockAuthService.disableMfa).toHaveBeenCalledWith('user-1', 'ValidP@ss1', undefined);
+    expect(res.json).toHaveBeenCalledWith({ message: 'MFA disabled.' });
+  });
+
+  it('returns 400 when password missing', async () => {
+    const req = mockReq({ user: { id: 'user-1' }, body: {} });
+    const res = mockRes();
+
+    await handleDisableMfa(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Password is required to disable MFA.' });
+  });
+});
+
+describe('handleDeleteAccount', () => {
+  it('deletes account', async () => {
+    mockAuthService.deleteAccount.mockResolvedValue({ message: 'Account deleted.' });
+    const req = mockReq({ user: { id: 'user-1' }, body: { password: 'ValidP@ss1' } });
+    const res = mockRes();
+
+    await handleDeleteAccount(req, res, mockNext);
+
+    expect(mockAuthService.deleteAccount).toHaveBeenCalledWith('user-1', 'ValidP@ss1', '127.0.0.1', 'test-agent');
+    expect(res.json).toHaveBeenCalledWith({ message: 'Account deleted.' });
+  });
+
+  it('returns 400 when password missing', async () => {
+    const req = mockReq({ user: { id: 'user-1' }, body: {} });
+    const res = mockRes();
+
+    await handleDeleteAccount(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Password is required to delete your account.' });
+  });
+});
+
+describe('handlePasswordPolicy', () => {
+  it('returns password policy', async () => {
+    const req = mockReq();
+    const res = mockRes();
+
+    await handlePasswordPolicy(req, res, mockNext);
+
+    expect(res.json).toHaveBeenCalledWith({ minLength: 12 });
   });
 });

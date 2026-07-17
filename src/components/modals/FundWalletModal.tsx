@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { X, CreditCard, Banknote, Smartphone } from 'lucide-react';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { initializeWalletFunding } from '../../api/client';
+import { useToast } from '../../hooks/useToast';
 
 interface FundWalletModalProps {
   onClose: () => void;
@@ -13,6 +14,7 @@ interface FundWalletModalProps {
 
 const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess }) => {
   const containerRef = useFocusTrap(true, onClose);
+  const { addToast } = useToast();
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [step, setStep] = useState(1);
@@ -80,8 +82,8 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ onClose, onSuccess })
       const result = await initializeWalletFunding(Number(amount), selectedMethod);
       onSuccess?.();
       window.location.href = result.authorization_url;
-    } catch (err) {
-      console.error('Payment initialization failed:', err);
+    } catch {
+      addToast('Failed to initialize payment. Please try again.', 'error');
       setErrors({ payment: 'Failed to initialize payment. Please try again.' });
       setStep(1);
     }

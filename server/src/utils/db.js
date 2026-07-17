@@ -28,7 +28,7 @@ function createPool() {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
     statement_timeout: 10000,
-    ssl: { rejectUnauthorized: false }, // Supabase uses self-signed certs; set to true for custom PG deployments
+    ssl: { rejectUnauthorized: false }, // Supabase uses self-signed certs + pooler proxying; enable verification for direct custom PG connections
   });
 }
 
@@ -181,7 +181,10 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
     CREATE INDEX IF NOT EXISTS idx_transactions_userId_date ON transactions(userId, date);
     CREATE INDEX IF NOT EXISTS idx_transactions_status_amount ON transactions(status, amount);
+    CREATE INDEX IF NOT EXISTS idx_transactions_status_userId ON transactions(status, userId);
     CREATE INDEX IF NOT EXISTS idx_users_createdAt ON users(createdAt);
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_userId ON audit_logs(userId);
+    CREATE INDEX IF NOT EXISTS idx_otps_code ON otps(code);
   `);
 
   await runMigrations(pool);

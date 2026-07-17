@@ -4,11 +4,12 @@
 import { resolve, dirname } from 'path';
 import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
+import env from '../config/env.js';
 import logger from '../utils/logger.js';
 import { getDb } from '../utils/db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = resolve(__dirname, '../../data');
+const DATA_DIR = env.isProd() ? '/tmp/billxpress/data' : resolve(__dirname, '../../data');
 const ARCHIVE_DIR = resolve(DATA_DIR, 'audit-archive');
 
 function ensureArchiveDir() {

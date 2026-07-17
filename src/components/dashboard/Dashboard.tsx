@@ -5,6 +5,7 @@ import Seo from '../ui/Seo';
 import { useState } from 'react';
 import { Mail, X } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
+import { useToast } from '../../hooks/useToast';
 import DashboardLayout from '../layout/DashboardLayout';
 import WalletCard from '../ui/WalletCard';
 import ServiceGrid from '../ui/ServiceGrid';
@@ -33,6 +34,7 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
     catch { return false; }
   });
   const { handleSendVerification } = useAuth();
+  const { addToast } = useToast();
 
   const handleDismissEmailBanner = () => {
     setDismissEmailBanner(true);
@@ -70,7 +72,7 @@ const Dashboard = ({ user, onLogout, onUpdateProfile }: DashboardProps) => {
               <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Verify your email address</p>
               <p className="text-xs text-amber-600 dark:text-amber-300 mt-0.5">
                 Please check your inbox for the verification email or{' '}
-                <button onClick={async () => { try { await handleSendVerification(); trackEvent('resend_verification'); alert('Verification email sent!'); } catch { alert('Failed to send. Try again.'); } }} className="underline font-medium hover:text-amber-700">
+                <button onClick={async () => { try { await handleSendVerification(); trackEvent('resend_verification'); addToast('Verification email sent!', 'success'); } catch { addToast('Failed to send. Try again.', 'error'); } }} className="underline font-medium hover:text-amber-700">
                   click here to resend
                 </button>
               </p>

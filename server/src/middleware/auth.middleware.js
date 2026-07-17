@@ -4,6 +4,7 @@
 import { verifyAccessToken } from '../services/token.service.js';
 import { getUserById } from '../services/auth.service.js';
 import { checkSessionActivity, updateSessionActivity } from '../services/token.service.js';
+import env from '../config/env.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 
@@ -21,6 +22,9 @@ export async function authenticate(req, res, next) {
 
     const normalizeIp = (ip) => (typeof ip === 'string' ? ip.replace(/^::ffff:/, '') : '');
     if (decoded.ip && normalizeIp(decoded.ip) !== normalizeIp(req.clientIp)) {
+      if (env.ENFORCE_IP) {
+        return next(new AppError('IP address changed. Please sign in again.', 401));
+      }
       logger.warn({ userId: decoded.sub, tokenIp: decoded.ip, reqIp: req.clientIp }, 'IP address mismatch in JWT');
     }
 

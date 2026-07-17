@@ -31,6 +31,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [generalError, setGeneralError] = useState('');
   const [resendingVerification, setResendingVerification] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [resendError, setResendError] = useState('');
   const [mfaChallenge, setMfaChallenge] = useState<{ email: string } | null>(null);
   const [mfaCode, setMfaCode] = useState('');
   const isPhone = isValidPhone(formData.login);
@@ -146,7 +147,10 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   try {
                     await sendVerificationEmail(formData.login);
                     setVerificationSent(true);
-                  } catch { /* ignore */ }
+                    setResendError('');
+                  } catch {
+                    setResendError('Failed to send verification email. Please try again.');
+                  }
                   setResendingVerification(false);
                 }}
                 disabled={resendingVerification}
@@ -155,6 +159,9 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                 <Send className="w-4 h-4 mr-1" aria-hidden="true" />
                 {resendingVerification ? 'Sending...' : 'Resend verification email'}
               </button>
+            )}
+            {resendError && (
+              <p role="alert" className="text-sm text-red-600 text-center mt-2">{resendError}</p>
             )}
             {verificationSent && (
               <p role="status" className="text-sm text-green-600 text-center mt-2">Verification email sent. Check your inbox.</p>

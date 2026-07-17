@@ -19,6 +19,7 @@ import webhookRoutes from './routes/webhook.routes.js';
 import errorHandler from './middleware/error.middleware.js';
 import requestContext from './middleware/requestContext.middleware.js';
 import { cache } from './middleware/cache.middleware.js';
+import { getDb } from './utils/db.js';
 import logger from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -48,7 +49,7 @@ app.use(helmet({
 }));
 
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 200,
+  windowMs: 15 * 60 * 1000, max: 100,
   standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many requests. Please wait before trying again.' },
 });
@@ -61,18 +62,22 @@ app.use((req, res, next) => {
   next();
 });
 
-if (env.isProd()) {
+const CORS_ORIGIN = (() => {
+  if (!env.isProd()) return env.CORS_ORIGIN;
   const localhostPattern = /^https?:\/\/localhost(:\d+)?$/;
   if (localhostPattern.test(env.CORS_ORIGIN)) {
-    logger.warn('CORS_ORIGIN is set to a localhost URL in production. Set CORS_ORIGIN to the actual production domain.');
+    logger.warn('CORS_ORIGIN is set to a localhost URL. Falling back to APP_URL in production.');
+    return env.APP_URL;
   }
-}
+  return env.CORS_ORIGIN;
+})();
 
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: CORS_ORIGIN,
   credentials: true,
 }));
 
+app.use('/api/webhook', express.json({ limit: '10kb' }));
 app.use('/api/webhook', webhookRoutes);
 
 app.use(express.json({ limit: '10kb' }));
@@ -93,8 +98,15 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/charts', chartRoutes);
 app.use('/api', openapiRoutes);
 
-app.get('/api/health', cache(30), (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', cache(30), async (req, res) => {
+  const checks = { database: false, paystack: !!env.PAYSTACK_SECRET_KEY };
+  try {
+    const db = getDb();
+    await db.prepare('SELECT 1').get();
+    checks.database = true;
+  } catch {}
+  const status = checks.database && checks.paystack ? 'ok' : 'degraded';
+  res.json({ status, checks, timestamp: new Date().toISOString() });
 });
 
 if (env.isProd()) {

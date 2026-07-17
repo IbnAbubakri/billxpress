@@ -27,12 +27,10 @@ const verifyLimiter = rateLimit({
   message: { error: 'Too many verification attempts. Please wait.' },
 });
 
-router.get('/fund/verify', verifyLimiter, handleVerifyFunding);
+router.get('/fund/verify', authenticate, verifyLimiter, handleVerifyFunding);
 
-router.use(authenticate);
-
-router.post('/fund/initialize', initializationLimiter, validateCsrf, handleInitializeFunding);
-router.post('/fund', walletLimiter, validateCsrf, handleFundWallet);
-router.post('/withdraw', walletLimiter, validateCsrf, handleWithdraw);
+router.post('/fund/initialize', authenticate, initializationLimiter, validateCsrf, handleInitializeFunding);
+router.post('/fund', authenticate, walletLimiter, validateCsrf, handleFundWallet);
+router.post('/withdraw', authenticate, walletLimiter, validateCsrf, handleWithdraw);
 
 export default router;

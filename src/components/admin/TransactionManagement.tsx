@@ -28,7 +28,7 @@ const TransactionManagement: React.FC = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
 
-  const { data: txns } = useQuery({
+  const { data: txns, isLoading } = useQuery({
     queryKey: ['admin', 'transactions'],
     queryFn: async () => {
       const { data } = await walletApi.get('/admin/transactions');
@@ -75,6 +75,19 @@ const TransactionManagement: React.FC = () => {
   const completedCount = filteredTransactions.filter(t => t.status === 'completed').length;
   const pendingCount = filteredTransactions.filter(t => t.status === 'pending').length;
   const failedCount = filteredTransactions.filter(t => t.status === 'failed').length;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-8 w-64 bg-neutral-200 dark:bg-dark-700 rounded-xl" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />)}
+        </div>
+        <div className="h-10 bg-neutral-200 dark:bg-dark-700 rounded-xl w-full max-w-md" />
+        <div className="h-96 bg-neutral-200 dark:bg-dark-700 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

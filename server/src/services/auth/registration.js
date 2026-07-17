@@ -6,6 +6,7 @@ import logger from '../../utils/logger.js';
 import { logAction } from '../audit.service.js';
 import { getDb } from '../../utils/db.js';
 import randomToken from '../../utils/randomToken.js';
+import env from '../../config/env.js';
 import { normalizePhone, SALT_ROUNDS } from './helpers.js';
 import { validatePasswordComplexity, checkHIBP } from './password.js';
 
@@ -43,7 +44,7 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
     logAction({ userId: null, action: 'REGISTER_BREACHED_PASSWORD', details: { email: email.toLowerCase() }, ip, userAgent, severity: 'high' });
     throw new AppError('Password has been exposed in a data breach. Choose a different one.', 400);
   }
-  const isDemo = !process.env.SMS_PROVIDER;
+  const isDemo = env.DEMO_MODE;
   if (pwned === null) {
     logger.warn({ email: email.toLowerCase() }, 'HIBP check failed, allowing registration');
   }
@@ -63,18 +64,13 @@ export async function register({ email, password, phone, name, ip, userAgent }) 
 }
 
 export async function checkEmail(email) {
-  const db = getDb();
   await new Promise(r => setTimeout(r, 200));
-  const existing = await db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
-  return { exists: Boolean(existing) };
+  return { ok: true };
 }
 
 export async function checkPhone(phone) {
-  const db = getDb();
-  const normalized = normalizePhone(phone);
   await new Promise(r => setTimeout(r, 200));
-  const user = await db.prepare('SELECT id FROM users WHERE phone = ?').get(normalized);
-  return { exists: Boolean(user), hasEmail: false };
+  return { ok: true };
 }
 
 export async function sendOtp(phone) {
@@ -93,7 +89,7 @@ export async function sendOtp(phone) {
   stubSms(normalized, `Your BillXpress verification code is: ${code}. It expires in 10 minutes.`);
   logger.info({ phone: normalized }, 'OTP sent');
   const response = { message: 'OTP sent successfully', expiresIn: 600 };
-  if (!process.env.SMS_PROVIDER) {
+  if (env.DEMO_MODE && env.isDev()) {
     response.code = code;
   }
   return response;

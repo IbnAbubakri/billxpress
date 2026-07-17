@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import env from '../config/env.js';
 import { getDb } from '../utils/db.js';
+import logger from '../utils/logger.js';
 
 export function generateAccessToken(payload) {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
@@ -61,7 +62,10 @@ export async function createSession(userId, ip, userAgent) {
   const count = await db.prepare('SELECT COUNT(*) as cnt FROM sessions WHERE userId = ?').get(userId);
   if (count.cnt >= MAX_SESSIONS_PER_USER) {
     const oldest = await db.prepare('SELECT id FROM sessions WHERE userId = ? ORDER BY lastActivity ASC LIMIT 1').get(userId);
-    if (oldest) await db.prepare('DELETE FROM sessions WHERE id = ?').run(oldest.id);
+    if (oldest) {
+      logger.warn({ userId, sessionId: oldest.id }, 'Session limit reached — evicting oldest session');
+      await db.prepare('DELETE FROM sessions WHERE id = ?').run(oldest.id);
+    }
   }
   const id = uuidv4();
   await db.prepare('INSERT INTO sessions (id, userId, createdAt, lastActivity, ip, userAgent) VALUES (?, ?, ?, ?, ?, ?)')

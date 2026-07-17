@@ -23,7 +23,7 @@ const DEMO_TRANSACTIONS = [
 ];
 
 export default async function seed() {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
     logger.info('Skipping seed in production');
     return;
   }
@@ -33,7 +33,8 @@ export default async function seed() {
   const existingUser = await db.prepare('SELECT id FROM users WHERE email = ?').get(DEMO_EMAIL);
   if (!existingUser) {
     const now = new Date().toISOString();
-    const hashedPassword = await bcrypt.hash('DemoXy7!kqmn92', SALT_ROUNDS);
+    const DEMO_PASSWORD = process.env.SEED_DEMO_PASSWORD || 'DemoXy7!kqmn92';
+    const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, SALT_ROUNDS);
 
     const id = uuidv4();
     await db.prepare(`
@@ -57,7 +58,8 @@ export default async function seed() {
       now, now, now,
     );
 
-    const adminPassword = await bcrypt.hash('Admin@123Xpress', SALT_ROUNDS);
+    const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'Admin@123Xpress';
+    const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS);
     await db.prepare(`
       INSERT INTO users (id, email, password, role, name, phone, emailVerified, createdAt, passwordChangedAt, passwordHistory)
       VALUES (?, ?, ?, 'admin', ?, ?, 1, ?, ?, '[]')

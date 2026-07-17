@@ -4,6 +4,7 @@ import logger from '../../utils/logger.js';
 import { logAction } from '../audit.service.js';
 import { getDb } from '../../utils/db.js';
 import randomToken from '../../utils/randomToken.js';
+import env from '../../config/env.js';
 import {
   normalizePhone, getUserByEmailRaw, rowToUser,
   isAccountLocked, recordFailedAttempt, clearFailedAttempts,
@@ -34,7 +35,7 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
     logAction({ userId: user.id, action: 'LOGIN_LOCKED', details: { email: identifier }, ip, userAgent, severity: 'high' });
     throw new AppError('Invalid credentials.', 401);
   }
-  const isDemo = !process.env.SMS_PROVIDER;
+  const isDemo = env.DEMO_MODE;
   if (!user.emailVerified && !isDemo) {
     throw new AppError('Invalid credentials.', 401);
   }
@@ -177,9 +178,17 @@ export async function changePassword(id, currentPassword, newPassword, ip, userA
 
   logAction({ userId: id, action: 'PASSWORD_CHANGED', details: {}, ip, userAgent, severity: 'high' });
   logger.info({ userId: id }, 'Password changed');
+  const userEmail = await db.prepare('SELECT email FROM users WHERE id = ?').get(id);
+  if (userEmail) {
+    stubEmail(userEmail.email, 'Your password was changed', 'Your BillXpress account password was changed successfully. If you did not make this change, please contact support immediately.');
+  }
   return { success: true };
 }
 
+function stubEmail(email, subject, body) {
+  logger.info({ emailTo: email, subject }, `[EMAIL STUB] ${body}`);
+}
+
 function stubEmailReset(email, resetToken) {
-  logger.info({ emailTo: email }, `[EMAIL STUB] Password reset token: ${resetToken}`);
+  stubEmail(email, 'Password Reset', `Password reset token: ${resetToken}`);
 }

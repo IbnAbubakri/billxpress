@@ -187,7 +187,7 @@ export async function checkPhone(phone: string) {
   const { data } = await api.post('/check-phone', { phone }, {
     headers: { 'x-csrf-token': csrf },
   });
-  return data as { exists: boolean; hasEmail?: boolean };
+  return data as { ok: boolean };
 }
 
 export async function checkEmail(email: string) {
@@ -195,7 +195,7 @@ export async function checkEmail(email: string) {
   const { data } = await api.post('/check-email', { email }, {
     headers: { 'x-csrf-token': csrf },
   });
-  return data as { exists: boolean };
+  return data as { ok: boolean };
 }
 
 export async function sendOtp(phone: string) {

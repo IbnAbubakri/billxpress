@@ -30,7 +30,7 @@ const createAdminLimiter = rateLimit({
 
 router.use(adminLimiter);
 
-router.post('/create', createAdminLimiter, optionalAuth, (req, res, next) => {
+router.post('/create', createAdminLimiter, validateCsrf, optionalAuth, (req, res, next) => {
   const masterKey = req.headers['x-master-key'];
 
   if (masterKey && env.MASTER_SECRET && masterKey === env.MASTER_SECRET) {

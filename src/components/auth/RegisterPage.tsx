@@ -93,15 +93,11 @@ const RegisterPage = () => {
     setErrors({});
     setIsLoading(true);
     try {
-      const result = await handleCheckPhone(phone);
-      if (result.exists) {
-        setPhoneExists(true);
-      } else {
-        setPhoneExists(false);
-        setStep('otp');
-        trackEvent('registration_started');
-        await sendOtpCode();
-      }
+      await handleCheckPhone(phone);
+      setPhoneExists(false);
+      setStep('otp');
+      trackEvent('registration_started');
+      await sendOtpCode();
     } catch (err: unknown) {
       setGeneralError(getErrorMessage(err));
     } finally {
@@ -180,11 +176,7 @@ const RegisterPage = () => {
     if (emailErr) newErrors.email = emailErr;
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
     try {
-      const result = await handleCheckEmail(email);
-      if (result.exists) {
-        setErrors({ email: 'This email is already registered' });
-        return;
-      }
+      await handleCheckEmail(email);
     } catch {
       setGeneralError('Could not verify email. Please try again.');
       return;
