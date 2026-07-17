@@ -26,8 +26,8 @@ jobs:
           ls -t backups/billxpress_*.sql.gz 2>/dev/null | tail -n +15 | xargs -r rm
       - name: Commit and push backup
         run: |
-          git config user.name "backup-bot"
-          git config user.email "actions@github.com"
+          git config user.name "IbnAbubakri-BOT"
+          git config user.email "faruqsuzay@gmail.com"
           git add backups/
           git diff --staged --quiet || git commit -m "chore: automated backup $(date -u +%Y-%m-%d)"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
