@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install && cd server && npm install",
+  "installCommand": "npm ci --include=dev && cd server && npm install",
   "buildCommand": "npm run build",
   "functions": {
     "api/index.js": { "maxDuration": 30 }
