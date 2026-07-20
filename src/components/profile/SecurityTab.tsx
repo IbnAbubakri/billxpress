@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 
 interface SecurityTabProps {
   formData: {
