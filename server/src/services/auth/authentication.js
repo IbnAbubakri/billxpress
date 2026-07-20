@@ -20,10 +20,11 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
   let user;
   if (isPhone) {
     const db = getDb();
-    user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(identifier);
-    if (!user) {
-      user = await db.prepare('SELECT * FROM users WHERE phone = ?').get(login.trim());
+    let row = await db.prepare('SELECT * FROM users WHERE phone = ?').get(identifier);
+    if (!row) {
+      row = await db.prepare('SELECT * FROM users WHERE phone = ?').get(login.trim());
     }
+    user = rowToUser(row);
   } else {
     user = await getUserByEmailRaw(identifier);
   }
