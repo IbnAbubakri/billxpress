@@ -3,8 +3,9 @@
 
 import crypto from 'crypto';
 import randomToken from '../utils/randomToken.js';
+import env from '../config/env.js';
 
-const COOKIE_NAME = process.env.NODE_ENV === 'production' ? '__Host-csrf-token' : 'csrf-token';
+const COOKIE_NAME = env.isProd() ? '__Host-csrf-token' : 'csrf-token';
 const HEADER_NAME = 'x-csrf-token';
 const CSRF_TOKEN_LENGTH = 32;
 

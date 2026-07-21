@@ -9,7 +9,7 @@ import logger from '../utils/logger.js';
 import { getDb } from '../utils/db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = env.isProd() ? '/tmp/billxpress/data' : resolve(__dirname, '../../data');
+const DATA_DIR = resolve(__dirname, '../../data');
 const ARCHIVE_DIR = resolve(DATA_DIR, 'audit-archive');
 
 function ensureArchiveDir() {
@@ -19,6 +19,7 @@ function ensureArchiveDir() {
 }
 
 async function rotateIfNeeded() {
+  if (env.isProd()) return;
   const db = getDb();
   const { count } = await db.prepare('SELECT COUNT(*) as count FROM audit_logs').get();
   if (count <= 10000) return;

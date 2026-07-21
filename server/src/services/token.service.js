@@ -25,12 +25,14 @@ export function verifyAccessToken(token) {
 
 export async function rotateRefreshToken(oldToken, userId) {
   const db = getDb();
-  const deleted = await db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(oldToken);
-  if (deleted.changes === 0) return null;
-  const newToken = uuidv4();
-  const expiresAt = new Date(Date.now() + env.JWT_REFRESH_EXPIRES_MS).toISOString();
-  await db.prepare('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)').run(newToken, userId, expiresAt);
-  return newToken;
+  return await db.transaction(async (tx) => {
+    const deleted = await tx.run('DELETE FROM refresh_tokens WHERE token = ?', oldToken);
+    if (deleted.changes === 0) return null;
+    const newToken = uuidv4();
+    const expiresAt = new Date(Date.now() + env.JWT_REFRESH_EXPIRES_MS).toISOString();
+    await tx.run('INSERT INTO refresh_tokens (token, userId, expiresAt) VALUES (?, ?, ?)', newToken, userId, expiresAt);
+    return newToken;
+  });
 }
 
 export async function revokeRefreshToken(token) {

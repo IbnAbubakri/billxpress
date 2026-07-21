@@ -2,6 +2,7 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import { Router } from 'express';
+import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { authenticate, optionalAuth } from '../middleware/auth.middleware.js';
 import { validateCsrf } from '../middleware/csrf.middleware.js';
@@ -33,9 +34,13 @@ router.use(adminLimiter);
 router.post('/create', createAdminLimiter, validateCsrf, optionalAuth, (req, res, next) => {
   const masterKey = req.headers['x-master-key'];
 
-  if (masterKey && env.MASTER_SECRET && masterKey === env.MASTER_SECRET) {
-    logger.info('Admin creation authorized via master key');
-    return handleCreateAdmin(req, res, next);
+  if (masterKey && env.MASTER_SECRET) {
+    const keyBuf = Buffer.from(masterKey, 'utf8');
+    const secretBuf = Buffer.from(env.MASTER_SECRET, 'utf8');
+    if (keyBuf.length === secretBuf.length && crypto.timingSafeEqual(keyBuf, secretBuf)) {
+      logger.info('Admin creation authorized via master key');
+      return handleCreateAdmin(req, res, next);
+    }
   }
 
   if (req.user?.role === 'admin') {

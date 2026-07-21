@@ -77,7 +77,6 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use('/api/webhook', express.json({ limit: '10kb' }));
 app.use('/api/webhook', webhookRoutes);
 
 app.use(express.json({ limit: '10kb' }));

@@ -60,13 +60,12 @@ function createRetryInterceptor(instance: typeof api) {
     if (status === 401 || status === 403) {
       csrfTokenPromise = null;
     }
+    const EXCLUDED_URLS = ['/refresh', '/csrf-token', '/me', '/login', '/admin-login', '/register', '/forgot-password', '/reset-password'];
     if (
       status === 401 &&
       originalRequest &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/refresh') &&
-      !originalRequest.url?.includes('/csrf-token') &&
-      !originalRequest.url?.includes('/me')
+      !EXCLUDED_URLS.some(url => originalRequest.url?.includes(url))
     ) {
       originalRequest._retry = true;
       try {

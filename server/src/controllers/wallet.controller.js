@@ -12,6 +12,11 @@ import { creditWallet } from '../services/wallet.service.js';
 const MAX_AMOUNT = 500_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
 
+function maskAccountNumber(num) {
+  if (!num || num.length < 4) return '****';
+  return '*'.repeat(num.length - 4) + num.slice(-4);
+}
+
 const METHOD_CHANNEL_MAP = {
   card: ['card'],
   bank_transfer: ['bank_transfer'],
@@ -170,7 +175,7 @@ export async function handleWithdraw(req, res, next) {
       await tx.run('UPDATE users SET balance = balance - ?, updatedAt = ? WHERE id = ?', amount, now, userId);
       await tx.run(
         'INSERT INTO transactions (userId, type, amount, status, description, recipient, date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        userId, 'withdrawal', -amount, 'completed', `Withdrawal to ${bank} (${accountNumber})`, accountName, now
+        userId, 'withdrawal', -amount, 'completed', `Withdrawal to ${bank} (${maskAccountNumber(accountNumber)})`, accountName, now
       );
     });
 

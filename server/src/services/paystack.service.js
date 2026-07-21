@@ -60,7 +60,10 @@ export async function verifyTransaction(reference) {
 
 export function verifyWebhookSignature(payload, signature) {
   if (!signature || !payload) return false;
-  if (!env.PAYSTACK_WEBHOOK_SECRET) return false;
+  if (!env.PAYSTACK_WEBHOOK_SECRET) {
+    logger.error('PAYSTACK_WEBHOOK_SECRET not configured — rejecting webhook');
+    return false;
+  }
   const hash = crypto
     .createHmac('sha512', env.PAYSTACK_WEBHOOK_SECRET)
     .update(payload)
