@@ -586,7 +586,7 @@ describe('handleDisableMfa', () => {
 describe('handleDeleteAccount', () => {
   it('deletes account', async () => {
     mockAuthService.deleteAccount.mockResolvedValue({ message: 'Account deleted.' });
-    const req = mockReq({ user: { id: 'user-1' }, body: { password: 'ValidP@ss1' } });
+    const req = mockReq({ user: { id: 'user-1' }, body: { password: 'ValidP@ss1', confirmText: 'DELETE' } });
     const res = mockRes();
 
     await handleDeleteAccount(req, res, mockNext);
@@ -603,6 +603,16 @@ describe('handleDeleteAccount', () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: 'Password is required to delete your account.' });
+  });
+
+  it('returns 400 when confirmText is not DELETE', async () => {
+    const req = mockReq({ user: { id: 'user-1' }, body: { password: 'ValidP@ss1', confirmText: 'wrong' } });
+    const res = mockRes();
+
+    await handleDeleteAccount(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Please type DELETE to confirm account deletion.' });
   });
 });
 

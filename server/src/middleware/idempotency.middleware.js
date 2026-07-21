@@ -2,6 +2,15 @@ import crypto from 'node:crypto';
 import { getDb } from '../utils/db.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
+
+export async function cleanupStaleIdempotencyKeys() {
+  try {
+    const db = getDb();
+    const cutoff = new Date(Date.now() - STALE_THRESHOLD_MS).toISOString();
+    await db.prepare('DELETE FROM idempotency_keys WHERE created_at < ?').run(cutoff);
+  } catch {}
+}
 
 function hashBody(body) {
   return crypto.createHash('sha256').update(JSON.stringify(body ?? {})).digest('hex');

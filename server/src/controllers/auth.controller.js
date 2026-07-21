@@ -312,8 +312,11 @@ export async function handleDisableMfa(req, res, next) {
 
 export async function handleDeleteAccount(req, res, next) {
   try {
-    const { password } = req.body;
+    const { password, confirmText } = req.body;
     if (!password) return res.status(400).json({ error: 'Password is required to delete your account.' });
+    if (confirmText !== 'DELETE') {
+      return res.status(400).json({ error: 'Please type DELETE to confirm account deletion.' });
+    }
     await deleteAccount(req.user.id, password, req.clientIp, req.clientUA);
     clearAuthCookies(res);
     res.json({ message: 'Account deleted.' });

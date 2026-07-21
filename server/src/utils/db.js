@@ -202,6 +202,12 @@ export async function initDatabase() {
   `);
 
   await runMigrations(pool);
+
+  try {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    await pool.query('DELETE FROM idempotency_keys WHERE created_at < $1', [cutoff]);
+  } catch {}
+
   logger.info('Database initialized (PostgreSQL)');
 }
 
