@@ -7,7 +7,7 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run` (187 tests across 14 files)
+Run tests: `npx vitest run` (197 tests across 15 files)
 
 ## Production Environment Variables (Vercel)
 Set these in Vercel Dashboard → Settings → Environment Variables (Production):
@@ -160,6 +160,14 @@ Replaced `primary-*` (purple) classes with `slate-*` on decorative/non-CTA eleme
 | `GET /api/charts/weekly` | Weekly transaction amounts by day |
 | `GET /api/charts/monthly` | Monthly spending by month |
 | `GET /api/transactions` | Authenticated user's transactions |
+
+## Idempotency
+
+- Middleware at `server/src/middleware/idempotency.middleware.js` — optional `Idempotency-Key: <uuid>` header
+- Applied to: `POST /wallet/fund/initialize`, `/wallet/fund`, `/wallet/withdraw`, `/auth/register`
+- Flow: pre-inserts a `pending` row → on success updates to `completed`; on duplicate returns cached response
+- Concurrent duplicate → 409; body mismatch → 422; invalid UUID → 400
+- Keys stored in `idempotency_keys` table. No automatic cleanup yet — TBD: periodic DELETE of keys older than 24h
 
 ## Design Context
 

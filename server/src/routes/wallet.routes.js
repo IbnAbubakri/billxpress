@@ -4,6 +4,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authenticate } from '../middleware/auth.middleware.js';
+import { idempotency } from '../middleware/idempotency.middleware.js';
 import { validateCsrf } from '../middleware/csrf.middleware.js';
 import { handleFundWallet, handleWithdraw, handleInitializeFunding, handleVerifyFunding } from '../controllers/wallet.controller.js';
 
@@ -29,8 +30,8 @@ const verifyLimiter = rateLimit({
 
 router.get('/fund/verify', authenticate, verifyLimiter, handleVerifyFunding);
 
-router.post('/fund/initialize', authenticate, initializationLimiter, validateCsrf, handleInitializeFunding);
-router.post('/fund', authenticate, walletLimiter, validateCsrf, handleFundWallet);
-router.post('/withdraw', authenticate, walletLimiter, validateCsrf, handleWithdraw);
+router.post('/fund/initialize', authenticate, idempotency, initializationLimiter, validateCsrf, handleInitializeFunding);
+router.post('/fund', authenticate, idempotency, walletLimiter, validateCsrf, handleFundWallet);
+router.post('/withdraw', authenticate, idempotency, walletLimiter, validateCsrf, handleWithdraw);
 
 export default router;

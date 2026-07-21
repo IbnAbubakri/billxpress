@@ -153,6 +153,18 @@ export async function initDatabase() {
       createdAt TEXT DEFAULT NOW(),
       usedAt TEXT
     );
+    CREATE TABLE IF NOT EXISTS idempotency_keys (
+      id SERIAL PRIMARY KEY,
+      key TEXT UNIQUE NOT NULL,
+      user_id TEXT,
+      method TEXT NOT NULL,
+      path TEXT NOT NULL,
+      request_body_hash TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      response_status INTEGER NOT NULL DEFAULT 0,
+      response_body TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT DEFAULT NOW()
+    );
   `);
 
   await pool.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -185,6 +197,8 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_users_createdAt ON users(createdAt);
     CREATE INDEX IF NOT EXISTS idx_audit_logs_userId ON audit_logs(userId);
     CREATE INDEX IF NOT EXISTS idx_otps_code ON otps(code);
+    CREATE INDEX IF NOT EXISTS idx_idempotency_keys_key ON idempotency_keys(key);
+    CREATE INDEX IF NOT EXISTS idx_idempotency_keys_created_at ON idempotency_keys(created_at);
   `);
 
   await runMigrations(pool);

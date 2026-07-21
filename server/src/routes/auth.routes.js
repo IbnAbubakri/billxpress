@@ -14,6 +14,7 @@ import {
   handleDeleteAccount,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
+import { idempotency } from '../middleware/idempotency.middleware.js';
 import { validateLogin, validateRegister, validatePasswordReset } from '../middleware/validate.middleware.js';
 import { csrfToken, validateCsrf } from '../middleware/csrf.middleware.js';
 
@@ -65,7 +66,7 @@ const adminLoginLimiter = rateLimit({
   message: { error: 'Too many admin login attempts. Please wait before trying again.' },
 });
 
-router.post('/register', registerLimiter, validateCsrf, validateRegister, handleRegister);
+router.post('/register', idempotency, registerLimiter, validateCsrf, validateRegister, handleRegister);
 router.post('/login', loginLimiter, validateCsrf, validateLogin, handleLogin);
 router.post('/admin-login', adminLoginLimiter, validateCsrf, validateLogin, handleAdminLogin);
 router.post('/logout', authenticate, validateCsrf, handleLogout);

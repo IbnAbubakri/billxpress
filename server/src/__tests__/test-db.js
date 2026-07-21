@@ -185,6 +185,18 @@ export function createTestDb() {
       createdAt TEXT DEFAULT (datetime('now')),
       usedAt TEXT
     );
+    CREATE TABLE IF NOT EXISTS idempotency_keys (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT UNIQUE NOT NULL,
+      user_id TEXT,
+      method TEXT NOT NULL,
+      path TEXT NOT NULL,
+      request_body_hash TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      response_status INTEGER NOT NULL DEFAULT 0,
+      response_body TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 
   raw.exec(`
@@ -201,6 +213,8 @@ export function createTestDb() {
     CREATE INDEX IF NOT EXISTS idx_otps_phone ON otps(phone);
     CREATE INDEX IF NOT EXISTS idx_transactions_userId ON transactions(userId);
     CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
+    CREATE INDEX IF NOT EXISTS idx_idempotency_keys_key ON idempotency_keys(key);
+    CREATE INDEX IF NOT EXISTS idx_idempotency_keys_created_at ON idempotency_keys(created_at);
   `);
 
   return createCompat(raw);
