@@ -9,6 +9,7 @@ import {
   Phone, Wifi, Tv, Zap, GraduationCap, Target, ArrowRightLeft,
   Shield, Lock, CheckCircle, Smartphone, BarChart3,
   Users, Star, ChevronRight, Menu, X, ArrowRight, Sparkles,
+  CreditCard, Clock, HeadphonesIcon, ChevronDown,
 } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 import mtnIcon from '../../assets/icons/mtn.svg';
@@ -58,9 +59,26 @@ const partners = [
   { name: 'SportyBet', icon: sportybetIcon },
 ];
 
+const steps = [
+  { icon: Users, title: 'Create Account', desc: 'Sign up for free in under a minute. No credit card required.' },
+  { icon: CreditCard, title: 'Fund Wallet', desc: 'Add money via bank transfer, card, or USSD.' },
+  { icon: Smartphone, title: 'Pick a Service', desc: 'Choose airtime, data, TV, electricity, education, or betting.' },
+  { icon: CheckCircle, title: 'Instant Delivery', desc: 'Pay and get your service delivered in seconds.' },
+];
+
+const faqs = [
+  { q: 'What is BillXpress?', a: 'BillXpress is a digital VTU platform in Nigeria that lets you buy airtime, data bundles, pay cable TV subscriptions (DSTV, GOtv, Startimes), electricity bills, fund betting wallets, pay education fees, and convert airtime to cash — all from one app.' },
+  { q: 'How do I buy airtime on BillXpress?', a: 'Create a free account, fund your wallet, select your network (MTN, Glo, Airtel, or 9mobile), enter the phone number and amount, and confirm. Your airtime is delivered instantly.' },
+  { q: 'Is BillXpress safe to use?', a: 'Yes. BillXpress uses 256-bit SSL encryption, two-factor authentication (2FA), and bank-grade security protocols to protect every transaction and your personal data.' },
+  { q: 'What payment methods does BillXpress accept?', a: 'You can fund your BillXpress wallet via bank transfer, card payment, or USSD. Once your wallet is funded, you can use it to pay for any service on the platform.' },
+  { q: 'How fast are transactions on BillXpress?', a: 'All transactions on BillXpress are processed instantly. Airtime and data top-ups are delivered within seconds. Electricity token purchases and cable TV activations are confirmed in real time.' },
+  { q: 'Can I use BillXpress to pay electricity bills?', a: 'Yes. BillXpress supports both prepaid and postpaid electricity bill payments for all major distribution companies (DisCos) in Nigeria. Simply select your provider, enter your meter number, and pay.' },
+];
+
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const { scrollY } = useScroll();
@@ -89,7 +107,8 @@ export default function LandingPage() {
             <Logo />
             <nav className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Features</a>
-              <a href="#trust" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Trust</a>
+              <a href="#how-it-works" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">How It Works</a>
+              <a href="#faq" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">FAQ</a>
               <Link to="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Sign In</Link>
               <Link to="/register" className="inline-flex items-center px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-2xl hover:bg-primary-600 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 Create Free Account
@@ -104,7 +123,8 @@ export default function LandingPage() {
         <div className={`md:hidden border-t dark:border-dark-700 bg-white dark:bg-dark-900 transition-all duration-300 overflow-hidden ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="px-4 py-4 space-y-3">
               <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Features</a>
-              <a href="#trust" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">Trust</a>
+              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">How It Works</a>
+              <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">FAQ</a>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-gray-600 dark:text-gray-300">Sign In</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-3 bg-primary text-white text-sm font-semibold rounded-2xl">
                 Create Free Account
@@ -207,6 +227,68 @@ export default function LandingPage() {
                 </button>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 lg:py-28 bg-gray-50 dark:bg-dark-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              How BillXpress works
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Four simple steps to pay any bill in Nigeria.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <div key={step.title} className="relative bg-white dark:bg-dark-900 rounded-2xl p-6 border border-gray-100 dark:border-dark-700 text-center">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-sm font-bold mb-4">{i + 1}</div>
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-dark-700 flex items-center justify-center">
+                    <Icon className="w-7 h-7 text-slate-600 dark:text-slate-300" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
+                  {i < steps.length - 1 && (
+                    <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gray-200 dark:bg-dark-600" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-20 lg:py-28">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Frequently asked questions
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Everything you need to know about BillXpress.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div key={i} className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-5 text-left"
+                >
+                  <span className="text-base font-semibold text-gray-900 dark:text-white pr-4">{faq.q}</span>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40' : 'max-h-0'}`}>
+                  <p className="px-6 pb-5 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{faq.a}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
