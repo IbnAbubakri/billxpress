@@ -142,7 +142,7 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4">
-      <Seo title="Reset Password" />
+      <Seo title="Reset Password" noIndex />
       <div className="max-w-md w-full">
           <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
           <div className="text-center mb-6">

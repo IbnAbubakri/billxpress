@@ -238,7 +238,7 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 flex items-center justify-center px-4 py-8">
-      <Seo title="Create Account" description="Create your BillXpress account to start paying bills, buying airtime and data at the best rates in Nigeria." />
+      <Seo title="Create Account" description="Create your BillXpress account to start paying bills, buying airtime and data at the best rates in Nigeria." noIndex />
       <div className="max-w-md w-full">
         <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6" role="region" aria-label="Registration form">
           <div className="text-center mb-6">

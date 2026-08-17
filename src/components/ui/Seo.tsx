@@ -4,13 +4,14 @@ interface SeoProps {
   title: string;
   description?: string;
   path?: string;
+  noIndex?: boolean;
 }
 
 const SITE_NAME = 'BillXpress';
 const BASE_URL = 'https://billxpress1.vercel.app';
 const DEFAULT_DESC = 'Pay bills, buy airtime, data, TV subscriptions, electricity, and more with BillXpress. Fast, secure VTU services in Nigeria.';
 
-export default function Seo({ title, description = DEFAULT_DESC, path = '/' }: SeoProps) {
+export default function Seo({ title, description = DEFAULT_DESC, path = '/', noIndex }: SeoProps) {
   const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
   const url = `${BASE_URL}${path}`;
 
@@ -18,6 +19,7 @@ export default function Seo({ title, description = DEFAULT_DESC, path = '/' }: S
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {noIndex && <meta name="robots" content="noindex, nofollow" />}
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
