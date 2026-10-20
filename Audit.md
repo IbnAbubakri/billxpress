@@ -170,6 +170,22 @@ However, the audit uncovered **7 critical**, **10 high**, **15 medium**, and **1
 - **Missing all HTTP security headers** — the most significant security gap in the deployment configuration
 - No `maxDuration` or `functions` configuration for serverless timeout
 
+> **Clickjacking remediation deviates from finding 5.** The headers listed above
+> were added, but `X-Frame-Options: DENY` was replaced with
+> `Content-Security-Policy: frame-ancestors 'self' https://abubakrifaaruqadebowaleresume.vercel.app`
+> so the portfolio entry can embed the live dashboard. `DENY` has no
+> per-origin form that works in modern browsers, so an allowlist is the only
+> way to permit exactly one embedder. Every other origin is still refused, so
+> finding 6 is resolved in substance rather than by blanket denial. The CSP
+> deliberately declares no `default-src` and so constrains nothing beyond
+> framing. The Express API keeps `frameAncestors: ["'none'"]` via helmet, since
+> an API response should never be renderable as a document.
+>
+> Residual risk: a page served from the resume's origin can frame the dashboard
+> and a user could be tricked into clicking it. That origin is under the same
+> control as this repository, and the card is sandboxed, so the exposure is
+> limited to the resume's own operator.
+
 ### Dockerfile
 
 - **Running as root** — no `USER` directive

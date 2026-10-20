@@ -203,12 +203,33 @@ export async function initDatabase() {
 
   await runMigrations(pool);
 
-  try {
-    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    await pool.query('DELETE FROM idempotency_keys WHERE created_at < $1', [cutoff]);
-  } catch {}
+  await runCleanup(pool);
 
   logger.info('Database initialized (PostgreSQL)');
+}
+
+async function runCleanup(pool) {
+  const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const cutoff7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  try {
+    await pool.query('DELETE FROM idempotency_keys WHERE created_at < $1', [cutoff24h]);
+  } catch {}
+  try {
+    await pool.query("UPDATE wallet_funding_transactions SET status='failed', updated_at=NOW()::TEXT WHERE status='pending' AND created_at::TIMESTAMPTZ < NOW() - INTERVAL '24 hours'");
+  } catch {}
+  try {
+    await pool.query('DELETE FROM refresh_tokens WHERE expiresat::TIMESTAMPTZ <= NOW()');
+  } catch {}
+  try {
+    await pool.query('DELETE FROM sessions WHERE lastactivity::TIMESTAMPTZ <= NOW() - INTERVAL \'7 days\'');
+  } catch {}
+  try {
+    await pool.query('DELETE FROM otps WHERE expiresat::TIMESTAMPTZ <= NOW()');
+  } catch {}
+  try {
+    await pool.query("DELETE FROM login_attempts WHERE lockeduntil IS NULL OR lockeduntil::TIMESTAMPTZ <= NOW()");
+  } catch {}
 }
 
 const MIGRATIONS = [
@@ -217,6 +238,12 @@ const MIGRATIONS = [
     sql: [
       `ALTER TABLE users ALTER COLUMN balance TYPE NUMERIC(12,2) USING balance::NUMERIC(12,2)`,
       `ALTER TABLE transactions ALTER COLUMN amount TYPE NUMERIC(12,2) USING amount::NUMERIC(12,2)`,
+    ],
+  },
+  {
+    name: '002_balance_non_negative',
+    sql: [
+      `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='users_balance_non_negative') THEN ALTER TABLE users ADD CONSTRAINT users_balance_non_negative CHECK (balance >= 0); END IF; END $$;`,
     ],
   },
 ];
