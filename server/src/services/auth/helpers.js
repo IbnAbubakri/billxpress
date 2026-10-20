@@ -12,6 +12,8 @@ export function normalizePhone(phone) {
     cleaned = '+234' + cleaned.slice(1);
   } else if (cleaned.startsWith('234') && !cleaned.startsWith('+234')) {
     cleaned = '+' + cleaned;
+  } else if (/^[7-9][01]\d{8}$/.test(cleaned)) {
+    cleaned = '+234' + cleaned;
   }
   return cleaned;
 }

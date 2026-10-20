@@ -2,7 +2,7 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import { describe, it, expect } from 'vitest';
-import { validateEmail, validateBVN, validateAccountNumber, validatePassword, validateStrongPassword, validatePhone, validateName } from './validation';
+import { validateEmail, validateBVN, validateAccountNumber, validatePassword, validateStrongPassword, validatePhone, validateName, normalizePhone } from './validation';
 
 describe('validateEmail', () => {
   it('returns empty string for valid emails', () => {
@@ -102,12 +102,22 @@ describe('validatePhone', () => {
     expect(validatePhone('+2348012345678')).toBe('');
     expect(validatePhone('2348012345678')).toBe('');
     expect(validatePhone('08012345678')).toBe('');
+    expect(validatePhone('8012345678')).toBe('');
   });
 
   it('returns error for invalid phone numbers', () => {
     expect(validatePhone('')).toBeTruthy();
     expect(validatePhone('12345')).toBeTruthy();
     expect(validatePhone('+2340012345678')).toBeTruthy();
+  });
+});
+
+describe('normalizePhone', () => {
+  it('normalizes all Nigerian formats to +234', () => {
+    expect(normalizePhone('8012345678')).toBe('+2348012345678');
+    expect(normalizePhone('08012345678')).toBe('+2348012345678');
+    expect(normalizePhone('2348012345678')).toBe('+2348012345678');
+    expect(normalizePhone('+2348012345678')).toBe('+2348012345678');
   });
 });
 

@@ -26,8 +26,16 @@ export function validateStrongPassword(password: string): { isValid: boolean; me
 
 export function validatePhone(phone: string): string {
   if (!phone) return 'Phone number is required';
-  if (!/^(\+234|234|0)[7-9][01]\d{8}$/.test(phone)) return 'Please enter a valid Nigerian phone number';
+  if (!/^(\+234|234|0)?[7-9][01]\d{8}$/.test(phone)) return 'Please enter a valid Nigerian phone number';
   return '';
+}
+
+export function normalizePhone(phone: string): string {
+  const cleaned = phone.replace(/[\s\-()]/g, '');
+  if (cleaned.startsWith('+234')) return cleaned;
+  if (cleaned.startsWith('234')) return '+' + cleaned;
+  if (cleaned.startsWith('0')) return '+234' + cleaned.slice(1);
+  return '+234' + cleaned;
 }
 
 export function validateName(name: string, field: string): string {

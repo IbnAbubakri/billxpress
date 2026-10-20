@@ -6,7 +6,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Wallet, Mail, Lock, User, Phone, ArrowLeft, CheckCircle2, Smartphone, PartyPopper, Sparkles } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { validateName, validateEmail, validatePhone, validatePassword } from '../../utils/validation';
+import { validateName, validateEmail, validatePhone, validatePassword, normalizePhone } from '../../utils/validation';
 import { trackEvent } from '../../utils/analytics';
 import { getErrorMessage } from '../../utils/errors';
 
@@ -93,7 +93,7 @@ const RegisterPage = () => {
     setErrors({});
     setIsLoading(true);
     try {
-      await handleCheckPhone(phone);
+      await handleCheckPhone(normalizePhone(phone));
       setPhoneExists(false);
       setStep('otp');
       trackEvent('registration_started');
@@ -108,7 +108,7 @@ const RegisterPage = () => {
   const sendOtpCode = async () => {
     setIsLoading(true);
     try {
-      const result = await handleSendOtp(phone);
+      const result = await handleSendOtp(normalizePhone(phone));
       setCountdown(60);
       if (result.code) setOtpDebugCode(result.code);
       setGeneralError('');
@@ -155,7 +155,7 @@ const RegisterPage = () => {
     setErrors({});
     setIsLoading(true);
     try {
-      await handleVerifyOtp(phone, code);
+      await handleVerifyOtp(normalizePhone(phone), code);
       setStep('kyc');
       trackEvent('registration_step_completed', { step: 'otp' });
     } catch (err: unknown) {
@@ -198,7 +198,7 @@ const RegisterPage = () => {
 
     setIsLoading(true);
     try {
-      await handleRegister({ email, password, phone, name: `${firstName} ${lastName}` });
+      await handleRegister({ email, password, phone: normalizePhone(phone), name: `${firstName} ${lastName}` });
       clearProgress();
       trackEvent('registration_completed');
       setShowWelcome(true);
