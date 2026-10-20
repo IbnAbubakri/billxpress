@@ -74,14 +74,6 @@ export async function authenticate(login, password, totpCode, ip, userAgent) {
   const db = getDb();
   const now = new Date().toISOString();
 
-  if (user.passwordChangedAt) {
-    const changed = new Date(user.passwordChangedAt).getTime();
-    const elapsed = Date.now() - changed;
-    if (elapsed > PASSWORD_POLICY.expiryDays * 24 * 60 * 60 * 1000) {
-      throw new AppError('Your password has expired. Please reset it.', 403);
-    }
-  }
-
   await db.prepare('UPDATE users SET lastLogin = ?, failedLoginAttempts = 0, lockedUntil = NULL WHERE id = ?').run(now, user.id);
   logAction({ userId: user.id, action: 'LOGIN', details: { email: user.email }, ip, userAgent });
   logger.info({ userId: user.id }, 'User authenticated');

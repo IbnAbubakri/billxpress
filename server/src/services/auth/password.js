@@ -11,7 +11,6 @@ const PASSWORD_POLICY = {
   minNumbers: 1,
   minSpecialChars: 1,
   historySize: 5,
-  expiryDays: 90,
 };
 
 const HIBP_TIMEOUT_MS = 2000;
@@ -25,7 +24,6 @@ export function getPasswordPolicy() {
     minNumbers: PASSWORD_POLICY.minNumbers,
     minSpecialChars: PASSWORD_POLICY.minSpecialChars,
     historySize: PASSWORD_POLICY.historySize,
-    expiryDays: PASSWORD_POLICY.expiryDays,
   };
 }
 
