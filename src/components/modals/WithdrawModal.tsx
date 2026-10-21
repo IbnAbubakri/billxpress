@@ -1,19 +1,23 @@
 // © 2026 Abubakri Faaruq Adebowale (IbnAbubakri). All rights reserved.
 // Faruqsuzay@gmail.com | +2349061345507
 
-import { useState, useEffect, useRef } from 'react';
-import { X, Banknote, Check, Lock } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { X, Check, Lock, Loader2 } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { withdrawFunds } from '../../api/client';
+import { withdrawFunds, getBanks, resolveAccountNumber } from '../../api/client';
 import { useToast } from '../../hooks/useToast';
 
 interface Errors {
   amount?: string | null;
-  bankName?: string | null;
+  bank?: string | null;
   accountNumber?: string | null;
-  accountName?: string | null;
   transactionPin?: string | null;
+}
+
+interface Bank {
+  name: string;
+  code: string;
 }
 
 interface WithdrawModalProps {
@@ -25,14 +29,25 @@ interface WithdrawModalProps {
 const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const containerRef = useFocusTrap(true, onClose);
   const { addToast } = useToast();
-  const [amount, setAmount] = useState('');
-  const [bankName, setBankName] = useState('');
+
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [banksLoading, setBanksLoading] = useState(true);
+  const [banksError, setBanksError] = useState<string | null>(null);
+
   const [accountNumber, setAccountNumber] = useState('');
+  const [bankCode, setBankCode] = useState('');
   const [accountName, setAccountName] = useState('');
+  const [resolving, setResolving] = useState(false);
+  const [resolveError, setResolveError] = useState<string | null>(null);
+
+  const [amount, setAmount] = useState('');
   const [transactionPin, setTransactionPin] = useState('');
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<Errors>({});
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const selectedBank = banks.find((b) => b.code === bankCode) || null;
+  const requiresPin = !!user?.hasTransactionPin;
 
   useEffect(() => {
     return () => {
@@ -40,66 +55,94 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     };
   }, []);
 
-  const banks = [
-    'Access Bank', 'Citibank', 'Diamond Bank', 'Ecobank Nigeria', 'Fidelity Bank',
-    'First Bank of Nigeria', 'First City Monument Bank', 'Guaranty Trust Bank',
-    'Heritage Bank', 'Keystone Bank', 'Polaris Bank', 'Providus Bank',
-    'Stanbic IBTC Bank', 'Standard Chartered Bank', 'Sterling Bank',
-    'Union Bank of Nigeria', 'United Bank For Africa', 'Unity Bank',
-    'Wema Bank', 'Zenith Bank'
-  ];
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { banks: list } = await getBanks();
+        if (!cancelled) setBanks(list);
+      } catch (err) {
+        if (!cancelled) {
+          setBanksError(err instanceof Error ? err.message : 'Could not load banks. Please try again.');
+        }
+      } finally {
+        if (!cancelled) setBanksLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const resolveName = useCallback(async (accNum: string, code: string) => {
+    setResolving(true);
+    setResolveError(null);
+    setAccountName('');
+    try {
+      const { accountName: name } = await resolveAccountNumber(accNum, code);
+      setAccountName(name);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Could not resolve account name.';
+      setResolveError(msg);
+      setAccountName('');
+    } finally {
+      setResolving(false);
+    }
+  }, []);
+
+  const handleAccountNumberChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, '').substring(0, 10);
+    setAccountNumber(cleaned);
+    setAccountName('');
+    setResolveError(null);
+    setErrors((prev) => ({ ...prev, accountNumber: null }));
+    if (cleaned.length === 10 && bankCode) {
+      resolveName(cleaned, bankCode);
+    }
+  };
+
+  const handleBankChange = (code: string) => {
+    setBankCode(code);
+    setErrors((prev) => ({ ...prev, bank: null }));
+    setAccountName('');
+    setResolveError(null);
+    if (code && accountNumber.length === 10) {
+      resolveName(accountNumber, code);
+    }
+  };
 
   const validateAmount = (amt: string) => {
     if (!amt) return 'Amount is required';
     const numAmount = Number(amt);
     if (isNaN(numAmount) || numAmount < 1000) return 'Minimum withdrawal is ₦1,000';
-    if (numAmount > user.balance) return 'Insufficient balance';
-    return null;
-  };
-
-  const validateAccountNumber = (accNum: string) => {
-    if (!accNum) return 'Account number is required';
-    if (accNum.length !== 10) return 'Account number must be 10 digits';
+    if (numAmount > Number(user?.balance || 0)) return 'Insufficient balance';
     return null;
   };
 
   const handleAmountChange = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     setAmount(cleaned);
-    
-    const error = validateAmount(cleaned);
-    setErrors(prev => ({ ...prev, amount: error }));
+    setErrors((prev) => ({ ...prev, amount: validateAmount(cleaned) }));
   };
 
-  const handleAccountNumberChange = (value: string) => {
-    const cleaned = value.replace(/\D/g, '').substring(0, 10);
-    setAccountNumber(cleaned);
-    const error = validateAccountNumber(cleaned);
-    setErrors(prev => ({ ...prev, accountNumber: error }));
-  };
-
-  const requiresPin = !!user?.hasTransactionPin;
-
-  const handleContinue = () => {
-    const amountError = validateAmount(amount);
-    const accountError = validateAccountNumber(accountNumber);
-    
+  const handleContinueToAmount = () => {
     const newErrors: Errors = {};
-    if (amountError) newErrors.amount = amountError;
-    if (!bankName) newErrors.bankName = 'Please select a bank';
-    if (accountError) newErrors.accountNumber = accountError;
-    if (!accountName) newErrors.accountName = 'Account name not found';
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      setStep(2);
+    if (accountNumber.length !== 10) newErrors.accountNumber = 'Account number must be 10 digits';
+    if (!bankCode) newErrors.bank = 'Please select a bank';
+    if (!newErrors.accountNumber && !newErrors.bank && !accountName) {
+      newErrors.accountNumber = resolveError || 'Enter a valid account number and bank to continue';
     }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) setStep(2);
   };
 
-  const handleConfirm = () => {
+  const handleConfirmAmount = () => {
+    const amountError = validateAmount(amount);
+    if (amountError) {
+      setErrors({ amount: amountError });
+      return;
+    }
+    setErrors({});
     if (requiresPin) {
-      setStep(2.5);
+      setStep(3);
     } else {
       handleWithdraw();
     }
@@ -107,24 +150,36 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
 
   const handleWithdraw = async () => {
     if (requiresPin && transactionPin.length !== 6) {
-      setErrors(prev => ({ ...prev, transactionPin: 'PIN must be 6 digits' }));
+      setErrors((prev) => ({ ...prev, transactionPin: 'PIN must be 6 digits' }));
       return;
     }
-    setStep(3);
+    setStep(4);
     try {
-      await withdrawFunds(Number(amount), bankName, accountNumber, accountName, requiresPin ? transactionPin : undefined);
+      await withdrawFunds(
+        Number(amount),
+        selectedBank?.name || '',
+        accountNumber,
+        accountName,
+        requiresPin ? transactionPin : undefined,
+      );
       onSuccess?.();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Withdrawal failed. Please try again.';
       addToast(msg, 'error');
-      setErrors({ transactionPin: msg });
-      setTransactionPin('');
-      setStep(requiresPin ? 2.5 : 1);
+      if (requiresPin) {
+        setErrors({ transactionPin: msg });
+        setTransactionPin('');
+        setStep(3);
+      } else {
+        setErrors({ amount: msg });
+        setStep(2);
+      }
     }
   };
 
   const withdrawalFee = amount ? Math.max(50, Number(amount) * 0.01) : 0;
   const totalDeduction = Number(amount) + withdrawalFee;
+  const canProceed = accountNumber.length === 10 && !!bankCode && !!accountName && !resolving;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-dark-900/80 flex items-center justify-center p-4 z-50">
@@ -149,57 +204,11 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
 
         {step === 1 && (
           <div className="p-4">
-            {/* Available Balance */}
             <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/30 rounded-2xl">
               <p className="text-sm text-green-700">Available Balance</p>
-              <p className="text-xl font-bold text-green-800">₦{Number(user.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-            </div>
-
-            {/* Amount Input */}
-            <div className="mb-4">
-              <label htmlFor="withdrawAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
-                Withdrawal Amount
-              </label>
-              <input
-                id="withdrawAmount"
-                type="text"
-                value={amount}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder="Enter amount to withdraw"
-                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-base dark:bg-dark-900 dark:text-neutral-100 ${
-                   errors.amount ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
-                 }`}
-                aria-invalid={!!errors.amount}
-                aria-describedby={errors.amount ? 'withdrawAmount-error' : undefined}
-              />
-              {errors.amount && (
-                <p id="withdrawAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>
-              )}
-            </div>
-
-            {/* Bank Selection */}
-            <div className="mb-4">
-              <label htmlFor="selectBank" className="block text-sm font-medium text-black dark:text-white mb-2">
-                Select Bank
-              </label>
-              <select
-                id="selectBank"
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
-                   errors.bankName ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
-                 }`}
-                aria-invalid={!!errors.bankName}
-                aria-describedby={errors.bankName ? 'selectBank-error' : undefined}
-              >
-                <option value="">Choose your bank</option>
-                {banks.map((bank) => (
-                  <option key={bank} value={bank}>{bank}</option>
-                ))}
-              </select>
-              {errors.bankName && (
-                <p id="selectBank-error" role="alert" className="text-red-500 text-sm mt-1">{errors.bankName}</p>
-              )}
+              <p className="text-xl font-bold text-green-800">
+                ₦{Number(user?.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
             </div>
 
             {/* Account Number */}
@@ -210,12 +219,13 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               <input
                 id="withdrawAccountNumber"
                 type="text"
+                inputMode="numeric"
                 value={accountNumber}
                 onChange={(e) => handleAccountNumberChange(e.target.value)}
                 placeholder="Enter 10-digit account number"
-                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
-                   errors.accountNumber ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
-                 }`}
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-base dark:bg-dark-900 dark:text-neutral-100 ${
+                  errors.accountNumber ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
+                }`}
                 aria-invalid={!!errors.accountNumber}
                 aria-describedby={errors.accountNumber ? 'withdrawAccountNumber-error' : undefined}
               />
@@ -224,29 +234,112 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               )}
             </div>
 
-            {/* Account Name */}
+            {/* Bank Selection */}
             <div className="mb-4">
-              <label htmlFor="withdrawAccountName" className="block text-sm font-medium text-black dark:text-white mb-2">
-                Account Name
+              <label htmlFor="selectBank" className="block text-sm font-medium text-black dark:text-white mb-2">
+                Bank
               </label>
-              <input
-                id="withdrawAccountName"
-                type="text"
-                value={accountName}
-                onChange={(e) => setAccountName(e.target.value)}
-                placeholder="Enter the account holder's name"
-                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 ${
-                   errors.accountName ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
-                 }`}
-                aria-invalid={!!errors.accountName}
-                aria-describedby={errors.accountName ? 'withdrawAccountName-error' : undefined}
-              />
-              {errors.accountName && (
-                <p id="withdrawAccountName-error" role="alert" className="text-red-500 text-sm mt-1">{errors.accountName}</p>
+              <select
+                id="selectBank"
+                value={bankCode}
+                onChange={(e) => handleBankChange(e.target.value)}
+                disabled={banksLoading || !!banksError}
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 disabled:opacity-60 ${
+                  errors.bank ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
+                }`}
+                aria-invalid={!!errors.bank}
+                aria-describedby={errors.bank ? 'selectBank-error' : undefined}
+              >
+                <option value="">{banksLoading ? 'Loading banks…' : 'Choose your bank'}</option>
+                {banks.map((bank) => (
+                  <option key={bank.code} value={bank.code}>{bank.name}</option>
+                ))}
+              </select>
+              {banksError && (
+                <p className="text-red-500 text-sm mt-1">{banksError}</p>
+              )}
+              {errors.bank && (
+                <p id="selectBank-error" role="alert" className="text-red-500 text-sm mt-1">{errors.bank}</p>
               )}
             </div>
 
-            {/* Fee Information */}
+            {/* Resolved Account Name */}
+            {(resolving || accountName || resolveError) && (
+              <div className="mb-4">
+                <span className="block text-sm font-medium text-black dark:text-white mb-2">Account Name</span>
+                <div
+                  className={`flex items-center gap-2 w-full px-4 py-3 rounded-2xl border ${
+                    resolveError
+                      ? 'border-red-300 bg-red-50 dark:bg-red-900/20'
+                      : 'border-green-300 bg-green-50 dark:bg-green-900/20'
+                  }`}
+                >
+                  {resolving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-500" aria-hidden="true" />
+                      <span className="text-sm text-slate-600 dark:text-slate-300">Verifying account…</span>
+                    </>
+                  ) : resolveError ? (
+                    <span role="alert" className="text-sm text-red-600 dark:text-red-400">{resolveError}</span>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 text-green-600" aria-hidden="true" />
+                      <span className="font-medium text-green-800 dark:text-green-300">{accountName}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleContinueToAmount}
+              disabled={!canProceed}
+              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              Continue
+            </button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="p-4">
+            <div className="mb-4 p-4 bg-slate-50 dark:bg-dark-700/50 rounded-2xl">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-slate-600 dark:text-slate-300">To</span>
+                <span className="font-medium text-black dark:text-white">{accountName}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600 dark:text-slate-300">Bank</span>
+                <span className="font-medium text-black dark:text-white">{selectedBank?.name}</span>
+              </div>
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-slate-600 dark:text-slate-300">Account No.</span>
+                <span className="font-medium text-black dark:text-white tracking-wide">{accountNumber}</span>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="withdrawAmount" className="block text-sm font-medium text-black dark:text-white mb-2">
+                Withdrawal Amount
+              </label>
+              <input
+                id="withdrawAmount"
+                type="text"
+                inputMode="numeric"
+                value={amount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder="Enter amount to withdraw"
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-base dark:bg-dark-900 dark:text-neutral-100 ${
+                  errors.amount ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
+                }`}
+                aria-invalid={!!errors.amount}
+                aria-describedby={errors.amount ? 'withdrawAmount-error' : undefined}
+              />
+              {errors.amount && (
+                <p id="withdrawAmount-error" role="alert" className="text-red-500 text-sm mt-1">{errors.amount}</p>
+              )}
+            </div>
+
             {amount && (
               <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-2xl">
                 <div className="flex justify-between text-sm mb-1">
@@ -265,54 +358,6 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               </div>
             )}
 
-            {/* Continue Button */}
-            <button
-              onClick={handleContinue}
-              className="w-full bg-primary text-white py-4 rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
-            >
-              Continue
-            </button>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="p-4">
-            <div className="text-center mb-4">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Banknote className="w-8 h-8 text-blue-600" aria-hidden="true" />
-              </div>
-              <h3 className="text-base font-bold text-black dark:text-white mb-2">Confirm Withdrawal</h3>
-              <p id="withdraw-desc-2" className="text-black dark:text-white">Review your withdrawal details</p>
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="flex justify-between">
-                <span className="text-black dark:text-white">Amount</span>
-                <span className="font-medium">₦{Number(amount).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-black dark:text-white">Bank</span>
-                <span className="font-medium">{bankName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-black dark:text-white">Account Number</span>
-                <span className="font-medium">{accountNumber}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-black dark:text-white">Account Name</span>
-                <span className="font-medium">{accountName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-black dark:text-white">Processing Fee</span>
-                <span className="font-medium">₦{withdrawalFee.toLocaleString()}</span>
-              </div>
-              <hr className="dark:border-dark-700" />
-              <div className="flex justify-between font-bold">
-                <span>Total Deduction</span>
-                <span>₦{totalDeduction.toLocaleString()}</span>
-              </div>
-            </div>
-
             <div className="flex space-x-3">
               <button
                 onClick={() => setStep(1)}
@@ -321,23 +366,24 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 Back
               </button>
               <button
-                onClick={handleConfirm}
-                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                onClick={handleConfirmAmount}
+                disabled={!amount || !!validateAmount(amount)}
+                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                Withdraw
+                Confirm
               </button>
             </div>
           </div>
         )}
 
-        {step === 2.5 && (
+        {step === 3 && (
           <div className="p-4">
             <div className="text-center mb-4">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-8 h-8 text-blue-600" aria-hidden="true" />
               </div>
               <h3 className="text-base font-bold text-black dark:text-white mb-2">Enter Transaction PIN</h3>
-              <p id="withdraw-desc-2.5" className="text-sm text-black dark:text-white">
+              <p id="withdraw-desc-3" className="text-sm text-black dark:text-white">
                 Authorize this withdrawal of ₦{Number(amount).toLocaleString()} with your 6-digit PIN
               </p>
             </div>
@@ -355,11 +401,11 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 onChange={(e) => {
                   const cleaned = e.target.value.replace(/\D/g, '').substring(0, 6);
                   setTransactionPin(cleaned);
-                  setErrors(prev => ({ ...prev, transactionPin: null }));
+                  setErrors((prev) => ({ ...prev, transactionPin: null }));
                 }}
                 placeholder="Enter 6-digit PIN"
                 className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-center tracking-widest text-base dark:bg-dark-900 dark:text-neutral-100 ${
-                  errors.transactionPin ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
+                  errors.transactionPin ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
                 }`}
                 aria-invalid={!!errors.transactionPin}
                 aria-describedby={errors.transactionPin ? 'withdrawPin-error' : undefined}
@@ -371,7 +417,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
 
             <div className="flex space-x-3">
               <button
-                onClick={() => { setErrors(prev => ({ ...prev, transactionPin: null })); setStep(2); }}
+                onClick={() => { setErrors((prev) => ({ ...prev, transactionPin: null })); setStep(2); }}
                 className="flex-1 py-3 border border-gray-300 dark:border-dark-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-dark-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Back
@@ -387,17 +433,17 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div className="p-4 text-center">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
             <h3 className="text-base font-bold text-black dark:text-white mb-2">Withdrawal Initiated!</h3>
-            <p id="withdraw-desc-3" className="text-black dark:text-white mb-4">
+            <p id="withdraw-desc-4" className="text-black dark:text-white mb-4">
               Your withdrawal of ₦{Number(amount).toLocaleString()} is being processed
             </p>
             <p className="text-sm text-black dark:text-white mb-4">
-              Funds will be credited to your account within 24 hours
+              Funds will be credited to {accountName} within 24 hours
             </p>
             <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
             <button

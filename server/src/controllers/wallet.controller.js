@@ -6,7 +6,7 @@ import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
-import { initializeTransaction, verifyTransaction, generateReference } from '../services/paystack.service.js';
+import { initializeTransaction, verifyTransaction, generateReference, listBanks, resolveAccountNumber } from '../services/paystack.service.js';
 import { creditWallet } from '../services/wallet.service.js';
 
 const MAX_AMOUNT = 500_000;
@@ -136,6 +136,58 @@ export async function handleFundWallet(req, res, next) {
     const updated = await db.prepare('SELECT balance FROM users WHERE id = ?').get(targetUserId);
     logger.info({ adminId: req.user.id, targetUserId, amount }, 'Wallet funded by admin');
     res.json({ balance: Number(updated.balance), message: 'Wallet funded successfully.' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function handleGetBanks(req, res, next) {
+  try {
+    if (!env.PAYSTACK_SECRET_KEY) {
+      return res.status(503).json({ error: 'Payment gateway not configured.' });
+    }
+    const result = await listBanks();
+    const banks = (result.data || [])
+      .map((b) => ({ name: b.name, code: b.code }))
+      .filter((b) => b.name && b.code);
+    res.json({ banks });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function handleResolveAccount(req, res, next) {
+  try {
+    if (!env.PAYSTACK_SECRET_KEY) {
+      return res.status(503).json({ error: 'Payment gateway not configured.' });
+    }
+    const accountNumber = String(req.query.accountNumber || '').trim();
+    const bankCode = String(req.query.bankCode || '').trim();
+
+    if (!ACCOUNT_NUMBER_REGEX.test(accountNumber)) {
+      return res.status(400).json({ error: 'Invalid account number. Must be 10 digits.' });
+    }
+    if (!bankCode) {
+      return res.status(400).json({ error: 'Bank is required to resolve the account name.' });
+    }
+
+    let result;
+    try {
+      result = await resolveAccountNumber(accountNumber, bankCode);
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 422 || status === 404) {
+        return res.status(404).json({ error: 'Could not resolve account name. Check the account number and bank.' });
+      }
+      throw err;
+    }
+
+    const accountName = result?.data?.account_name;
+    if (!accountName) {
+      return res.status(404).json({ error: 'Could not resolve account name. Check the account number and bank.' });
+    }
+
+    res.json({ accountName, accountNumber });
   } catch (err) {
     next(err);
   }

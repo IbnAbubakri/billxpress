@@ -58,6 +58,28 @@ export async function verifyTransaction(reference) {
   }
 }
 
+export async function listBanks() {
+  try {
+    const response = await paystackApi.get('/bank', { params: { country: 'nigeria', currency: 'NGN' } });
+    return response.data;
+  } catch (error) {
+    logger.error({ error: error.response?.data }, 'Paystack bank list failed');
+    throw error;
+  }
+}
+
+export async function resolveAccountNumber(accountNumber, bankCode) {
+  try {
+    const response = await paystackApi.get('/bank/resolve', {
+      params: { account_number: accountNumber, bank_code: bankCode },
+    });
+    return response.data;
+  } catch (error) {
+    logger.error({ error: error.response?.data }, 'Paystack account resolution failed');
+    throw error;
+  }
+}
+
 export function verifyWebhookSignature(payload, signature) {
   if (!signature || !payload) return false;
   if (!env.PAYSTACK_WEBHOOK_SECRET) {

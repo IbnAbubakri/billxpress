@@ -7,7 +7,7 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run` (203 tests across 16 files)
+Run tests: `npx vitest run` (209 tests across 16 files)
 
 ## Production Environment Variables (Vercel)
 Set these in Vercel Dashboard → Settings → Environment Variables (Production):
@@ -54,6 +54,19 @@ The local `server/.env` is gitignored and only used for development. Never commi
 - `src/components/ui/SpendingChart.tsx` - Monthly spending area chart
 - `src/components/modals/FundWalletModal.tsx` - Wallet funding
 - `src/components/modals/WithdrawModal.tsx` - Withdrawals
+
+## Session Summary (Jul 21 — Withdraw flow redesign: account-first)
+
+Withdraw now follows: **account number → bank → auto-resolved account name → amount → PIN**. The account name is fetched from Paystack `/bank/resolve` (no manual entry; blocked if it can't be verified).
+
+| Area | Change | Files |
+|---|---|---|
+| Bank list | `GET /api/wallet/banks` proxies Paystack `/bank?country=nigeria` → `[{name, code}]` | `paystack.service.js` (`listBanks`), `wallet.controller.js` (`handleGetBanks`), `wallet.routes.js` |
+| Name resolution | `GET /api/wallet/resolve-account?accountNumber=&bankCode=` proxies Paystack `/bank/resolve`; 422/404 → 404 "could not resolve" | `paystack.service.js` (`resolveAccountNumber`), `wallet.controller.js` (`handleResolveAccount`) |
+| Frontend | Modal steps: account number + bank → name auto-resolves (read-only) → amount → PIN → success | `WithdrawModal.tsx`, `src/api/client.ts` (`getBanks`, `resolveAccountNumber`) |
+| Tests | +6 (bank list mapping, empty list, name resolution, invalid account/bank, unresolved 404) | `server/src/__tests__/wallet.controller.test.js` |
+
+Note: Paystack has no reverse lookup (account number → bank), so the bank is chosen from a dropdown; the name then resolves automatically.
 
 ## Session Summary (Jul 21 — Case-folding root cause + PIN + hardening)
 
@@ -177,7 +190,9 @@ Replaced `primary-*` (purple) classes with `slate-*` on decorative/non-CTA eleme
 | `GET /api/admin/users` | All users |
 | `GET /api/admin/analytics` | Daily performance, service stats, user growth |
 | `POST /api/wallet/fund` | Fund wallet (body: `amount`, `method`) |
-| `POST /api/wallet/withdraw` | Withdraw (body: `amount`, `bank`, `accountNumber`, `accountName`) |
+| `POST /api/wallet/withdraw` | Withdraw (body: `amount`, `bank`, `accountNumber`, `accountName`, `transactionPin?`) |
+| `GET /api/wallet/banks` | List Nigerian banks `[{name, code}]` (Paystack `/bank`) |
+| `GET /api/wallet/resolve-account` | Resolve account name (`?accountNumber=&bankCode=`) via Paystack `/bank/resolve` |
 | `GET /api/charts/weekly` | Weekly transaction amounts by day |
 | `GET /api/charts/monthly` | Monthly spending by month |
 | `GET /api/transactions` | Authenticated user's transactions |

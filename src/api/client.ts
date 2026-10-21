@@ -277,6 +277,18 @@ export async function verifyWalletFunding(reference: string) {
   return data as { status: string; message: string; balance?: number; amountFunded?: number };
 }
 
+export async function getBanks() {
+  const { data } = await walletApi.get('/wallet/banks');
+  return data as { banks: { name: string; code: string }[] };
+}
+
+export async function resolveAccountNumber(accountNumber: string, bankCode: string) {
+  const { data } = await walletApi.get('/wallet/resolve-account', {
+    params: { accountNumber, bankCode },
+  });
+  return data as { accountName: string; accountNumber: string };
+}
+
 export async function withdrawFunds(amount: number, bank: string, accountNumber: string, accountName: string, transactionPin?: string) {
   const csrf = await ensureCSRF();
   const { data } = await walletApi.post('/wallet/withdraw', { amount, bank, accountNumber, accountName, transactionPin }, {

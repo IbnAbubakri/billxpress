@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { idempotency } from '../middleware/idempotency.middleware.js';
 import { validateCsrf } from '../middleware/csrf.middleware.js';
-import { handleFundWallet, handleWithdraw, handleInitializeFunding, handleVerifyFunding } from '../controllers/wallet.controller.js';
+import { handleFundWallet, handleWithdraw, handleInitializeFunding, handleVerifyFunding, handleGetBanks, handleResolveAccount } from '../controllers/wallet.controller.js';
 
 const router = Router();
 
@@ -28,7 +28,16 @@ const verifyLimiter = rateLimit({
   message: { error: 'Too many verification attempts. Please wait.' },
 });
 
+const resolveLimiter = rateLimit({
+  windowMs: 60 * 1000, max: 20,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many account lookups. Please wait before trying again.' },
+});
+
 router.get('/fund/verify', authenticate, verifyLimiter, handleVerifyFunding);
+
+router.get('/banks', authenticate, handleGetBanks);
+router.get('/resolve-account', authenticate, resolveLimiter, handleResolveAccount);
 
 router.post('/fund/initialize', authenticate, idempotency, initializationLimiter, validateCsrf, handleInitializeFunding);
 router.post('/fund', authenticate, idempotency, walletLimiter, validateCsrf, handleFundWallet);

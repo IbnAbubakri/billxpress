@@ -17,14 +17,39 @@ vi.mock('../utils/logger.js', () => ({
   info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(),
 }));
 
+const paystackRef = vi.hoisted(() => ({
+  listBanks: vi.fn(),
+  resolveAccountNumber: vi.fn(),
+}));
+
+vi.mock('../config/env.js', () => ({
+  default: {
+    PAYSTACK_SECRET_KEY: 'sk_test_dummy',
+    APP_URL: 'http://localhost:5173',
+    isDev: () => false,
+    isProd: () => false,
+  },
+}));
+
+vi.mock('../services/paystack.service.js', () => ({
+  initializeTransaction: vi.fn(),
+  verifyTransaction: vi.fn(),
+  generateReference: () => 'ref_test',
+  listBanks: paystackRef.listBanks,
+  resolveAccountNumber: paystackRef.resolveAccountNumber,
+}));
+
 import { createTestDb } from './test-db.js';
-import { handleFundWallet, handleWithdraw } from '../controllers/wallet.controller.js';
+import { handleFundWallet, handleWithdraw, handleGetBanks, handleResolveAccount } from '../controllers/wallet.controller.js';
 
 const Database = (await import('better-sqlite3')).default;
 
 beforeEach(() => {
+  process.env.PAYSTACK_SECRET_KEY = 'sk_test_dummy';
   dbRef.current = createTestDb();
   dbRef.current.exec('CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, userId TEXT, type TEXT, amount REAL, status TEXT, description TEXT, recipient TEXT, date TEXT)');
+  paystackRef.listBanks.mockReset();
+  paystackRef.resolveAccountNumber.mockReset();
 });
 
 function mockReq(body = {}, user = { id: 'user-1' }) {
@@ -201,6 +226,83 @@ describe('wallet.controller', () => {
       } else {
         expect(next).toHaveBeenCalled();
       }
+    });
+  });
+
+  describe('handleGetBanks', () => {
+    it('should return a mapped bank list', async () => {
+      paystackRef.listBanks.mockResolvedValue({
+        data: [
+          { name: 'Guaranty Trust Bank', code: '058', id: 1, slug: 'gtb' },
+          { name: 'Zenith Bank', code: '057', id: 2 },
+          { name: 'No Code Bank' },
+        ],
+      });
+      const req = mockReq({}, { id: 'user-1' });
+      const res = mockRes();
+
+      await handleGetBanks(req, res, vi.fn());
+
+      expect(res.json).toHaveBeenCalledWith({
+        banks: [
+          { name: 'Guaranty Trust Bank', code: '058' },
+          { name: 'Zenith Bank', code: '057' },
+        ],
+      });
+    });
+
+    it('should return an empty list when Paystack returns no banks', async () => {
+      paystackRef.listBanks.mockResolvedValue({ data: null });
+      const req = mockReq({}, { id: 'user-1' });
+      const res = mockRes();
+
+      await handleGetBanks(req, res, vi.fn());
+
+      expect(res.json).toHaveBeenCalledWith({ banks: [] });
+    });
+  });
+
+  describe('handleResolveAccount', () => {
+    it('should resolve and return the account name', async () => {
+      paystackRef.resolveAccountNumber.mockResolvedValue({
+        data: { account_name: 'JOHN DOE', account_number: '0123456789' },
+      });
+      const req = { query: { accountNumber: '0123456789', bankCode: '058' } };
+      const res = mockRes();
+
+      await handleResolveAccount(req, res, vi.fn());
+
+      expect(paystackRef.resolveAccountNumber).toHaveBeenCalledWith('0123456789', '058');
+      expect(res.json).toHaveBeenCalledWith({ accountName: 'JOHN DOE', accountNumber: '0123456789' });
+    });
+
+    it('should reject an invalid account number', async () => {
+      const req = { query: { accountNumber: '123', bankCode: '058' } };
+      const res = mockRes();
+
+      await handleResolveAccount(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(paystackRef.resolveAccountNumber).not.toHaveBeenCalled();
+    });
+
+    it('should reject a missing bank code', async () => {
+      const req = { query: { accountNumber: '0123456789' } };
+      const res = mockRes();
+
+      await handleResolveAccount(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('should return 404 when Paystack cannot resolve the account', async () => {
+      paystackRef.resolveAccountNumber.mockRejectedValue({ response: { status: 422 } });
+      const req = { query: { accountNumber: '0123456789', bankCode: '058' } };
+      const res = mockRes();
+
+      await handleResolveAccount(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(404);
     });
   });
 });
