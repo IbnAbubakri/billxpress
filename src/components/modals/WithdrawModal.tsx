@@ -2,7 +2,7 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Check, Lock, Loader2 } from 'lucide-react';
+import { X, Check, Lock, Loader2, Search, ChevronDown } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { withdrawFunds, getBanks, resolveAccountNumber } from '../../api/client';
@@ -36,6 +36,10 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
 
   const [accountNumber, setAccountNumber] = useState('');
   const [bankCode, setBankCode] = useState('');
+  const [bankQuery, setBankQuery] = useState('');
+  const [bankDropdownOpen, setBankDropdownOpen] = useState(false);
+  const bankBoxRef = useRef<HTMLDivElement>(null);
+  const bankSearchRef = useRef<HTMLInputElement>(null);
   const [accountName, setAccountName] = useState('');
   const [resolving, setResolving] = useState(false);
   const [resolveError, setResolveError] = useState<string | null>(null);
@@ -49,11 +53,26 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const selectedBank = banks.find((b) => b.code === bankCode) || null;
   const requiresPin = !!user?.hasTransactionPin;
 
+  const filteredBanks = bankQuery.trim()
+    ? banks.filter((b) => b.name.toLowerCase().includes(bankQuery.trim().toLowerCase()))
+    : banks;
+
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!bankDropdownOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (bankBoxRef.current && !bankBoxRef.current.contains(e.target as Node)) {
+        setBankDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [bankDropdownOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,13 +118,15 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     }
   };
 
-  const handleBankChange = (code: string) => {
-    setBankCode(code);
+  const handleBankSelect = (bank: Bank) => {
+    setBankCode(bank.code);
+    setBankQuery('');
+    setBankDropdownOpen(false);
     setErrors((prev) => ({ ...prev, bank: null }));
     setAccountName('');
     setResolveError(null);
-    if (code && accountNumber.length === 10) {
-      resolveName(accountNumber, code);
+    if (accountNumber.length === 10) {
+      resolveName(accountNumber, bank.code);
     }
   };
 
@@ -234,27 +255,86 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
               )}
             </div>
 
-            {/* Bank Selection */}
-            <div className="mb-4">
-              <label htmlFor="selectBank" className="block text-sm font-medium text-black dark:text-white mb-2">
+            {/* Bank Selection (searchable) */}
+            <div className="mb-4" ref={bankBoxRef}>
+              <label htmlFor="bankSearch" className="block text-sm font-medium text-black dark:text-white mb-2">
                 Bank
               </label>
-              <select
-                id="selectBank"
-                value={bankCode}
-                onChange={(e) => handleBankChange(e.target.value)}
-                disabled={banksLoading || !!banksError}
-                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 disabled:opacity-60 ${
-                  errors.bank ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
-                }`}
-                aria-invalid={!!errors.bank}
-                aria-describedby={errors.bank ? 'selectBank-error' : undefined}
-              >
-                <option value="">{banksLoading ? 'Loading banks…' : 'Choose your bank'}</option>
-                {banks.map((bank) => (
-                  <option key={bank.code} value={bank.code}>{bank.name}</option>
-                ))}
-              </select>
+
+              {selectedBank ? (
+                <div
+                  className={`flex items-center justify-between w-full px-4 py-3 border rounded-2xl dark:bg-dark-900 ${
+                    errors.bank ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
+                  }`}
+                >
+                  <span className="text-black dark:text-neutral-100 truncate">{selectedBank.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBankCode('');
+                      setAccountName('');
+                      setResolveError(null);
+                      setBankDropdownOpen(true);
+                      setTimeout(() => bankSearchRef.current?.focus(), 0);
+                    }}
+                    aria-label="Change bank"
+                    className="ml-2 shrink-0 text-sm font-medium text-primary hover:underline"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden="true" />
+                  <input
+                    id="bankSearch"
+                    ref={bankSearchRef}
+                    type="text"
+                    value={bankQuery}
+                    onChange={(e) => { setBankQuery(e.target.value); setBankDropdownOpen(true); }}
+                    onFocus={() => setBankDropdownOpen(true)}
+                    disabled={banksLoading || !!banksError}
+                    placeholder={banksLoading ? 'Loading banks…' : 'Search for your bank'}
+                    autoComplete="off"
+                    role="combobox"
+                    aria-expanded={bankDropdownOpen}
+                    aria-controls="bank-listbox"
+                    aria-invalid={!!errors.bank}
+                    aria-describedby={errors.bank ? 'selectBank-error' : undefined}
+                    className={`w-full pl-9 pr-9 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent dark:bg-dark-900 dark:text-neutral-100 disabled:opacity-60 ${
+                      errors.bank ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'
+                    }`}
+                  />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden="true" />
+
+                  {bankDropdownOpen && !banksLoading && !banksError && (
+                    <ul
+                      id="bank-listbox"
+                      role="listbox"
+                      className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-600 rounded-2xl shadow-lg"
+                    >
+                      {filteredBanks.length === 0 ? (
+                        <li className="px-4 py-3 text-sm text-slate-500">No bank matches "{bankQuery}"</li>
+                      ) : (
+                        filteredBanks.slice(0, 100).map((bank) => (
+                          <li key={bank.code}>
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={false}
+                              onClick={() => handleBankSelect(bank)}
+                              className="w-full text-left px-4 py-3 text-black dark:text-neutral-100 hover:bg-slate-100 dark:hover:bg-dark-700 transition-colors"
+                            >
+                              {bank.name}
+                            </button>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  )}
+                </div>
+              )}
+
               {banksError && (
                 <p className="text-red-500 text-sm mt-1">{banksError}</p>
               )}
