@@ -31,12 +31,13 @@ export async function idempotency(req, res, next) {
   const bodyHash = hashBody(req.body);
   const db = getDb();
   const now = new Date().toISOString();
+  const userId = req.user?.id || null;
 
   try {
     await db.prepare(`
       INSERT INTO idempotency_keys (key, user_id, method, path, request_body_hash, status, response_status, response_body, created_at)
       VALUES (?, ?, ?, ?, ?, 'pending', 0, '{}', ?)
-    `).run(key, null, req.method, req.originalUrl || req.path, bodyHash, now);
+    `).run(key, userId, req.method, req.originalUrl || req.path, bodyHash, now);
   } catch (err) {
     const existing = await db.prepare('SELECT * FROM idempotency_keys WHERE key = ?').get(key);
     if (!existing) {
@@ -46,30 +47,39 @@ export async function idempotency(req, res, next) {
       return res.status(422).json({ error: 'Idempotency key already used with a different request body.' });
     }
     if (existing.status === 'pending') {
+      // A pending row whose owner request is still in flight → genuine concurrent duplicate.
       return res.status(409).json({ error: 'Request is already being processed.' });
     }
     return res.status(existing.response_status).json(JSON.parse(existing.response_body));
   }
 
+  let finalized = false;
+  const finalize = (statusCode, responseBody) => {
+    if (finalized) return;
+    finalized = true;
+    const job = db.prepare(`
+      UPDATE idempotency_keys
+      SET user_id = ?, response_status = ?, response_body = ?, status = 'completed'
+      WHERE key = ?
+    `).run(userId, statusCode, responseBody, key);
+    if (job && typeof job.catch === 'function') job.catch(() => {});
+  };
+
   const originalJson = res.json.bind(res);
   res.json = function (body) {
-    const statusCode = res.statusCode;
-    const responseBody = JSON.stringify(body);
-    const userId = req.user?.id || null;
-
-    try {
-      const result = db.prepare(`
-        UPDATE idempotency_keys
-        SET user_id = ?, response_status = ?, response_body = ?, status = 'completed'
-        WHERE key = ?
-      `).run(userId, statusCode, responseBody, key);
-      if (result && typeof result.catch === 'function') {
-        result.catch(() => {});
-      }
-    } catch {}
-
+    finalize(res.statusCode, JSON.stringify(body));
     return originalJson(body);
   };
+
+  // Safety net: if the handler responds without res.json (res.send/res.end/stream),
+  // still mark the key completed so retries do not 409 forever.
+  if (typeof res.end === 'function') {
+    const originalEnd = res.end.bind(res);
+    res.end = function (...args) {
+      finalize(res.statusCode, JSON.stringify({}));
+      return originalEnd(...args);
+    };
+  }
 
   next();
 }

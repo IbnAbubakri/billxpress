@@ -26,6 +26,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
+// Behind Vercel's proxy `req.ip` is the proxy address, so every request shares
+// one address unless Express is told to trust the proxy headers. Without this,
+// the global rate limiter keyed on req.ip buckets all users together (one
+// client could exhaust the limit for everyone). Vercel sets X-Forwarded-For.
+app.set('trust proxy', 1);
+
 app.use(helmet({
   xContentTypeOptions: { nosniff: true },
   xFrameOptions: { action: 'deny' },

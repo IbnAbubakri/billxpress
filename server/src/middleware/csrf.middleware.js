@@ -3,6 +3,7 @@
 
 import crypto from 'crypto';
 import randomToken from '../utils/randomToken.js';
+import env from '../config/env.js';
 
 const COOKIE_NAME = 'csrf-token';
 const HEADER_NAME = 'x-csrf-token';
@@ -12,7 +13,7 @@ function setCsrfCookie(res, token) {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: false,
     sameSite: 'lax',
-    secure: true,
+    secure: env.isProd(),
     path: '/',
     maxAge: 15 * 60 * 1000,
   });

@@ -23,8 +23,24 @@ const DEMO_TRANSACTIONS = [
 ];
 
 export default async function seed() {
-  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
-    logger.info('Skipping seed in production');
+  // Only ever seed on an explicit, local development environment. Vercel
+  // preview deployments used to seed a known-password admin account at a public
+  // URL, which is a credential-exposure risk. Require SEED_DEMO_DATA=true and
+  // forbid the run on any Vercel deployment or when NODE_ENV is production.
+  const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+  const explicitlyEnabled = process.env.SEED_DEMO_DATA === 'true';
+
+  if (isProduction || isVercel || !explicitlyEnabled) {
+    logger.info(
+      { isVercel, isProduction, explicitlyEnabled },
+      'Skipping seed (requires local env and SEED_DEMO_DATA=true)',
+    );
+    return;
+  }
+
+  if (!process.env.SEED_ADMIN_PASSWORD || !process.env.SEED_DEMO_PASSWORD) {
+    logger.warn('SEED_ADMIN_PASSWORD / SEED_DEMO_PASSWORD not set — refusing to seed with default credentials');
     return;
   }
 
@@ -33,7 +49,7 @@ export default async function seed() {
   const existingUser = await db.prepare('SELECT id FROM users WHERE email = ?').get(DEMO_EMAIL);
   if (!existingUser) {
     const now = new Date().toISOString();
-    const DEMO_PASSWORD = process.env.SEED_DEMO_PASSWORD || 'DemoXy7!kqmn92';
+    const DEMO_PASSWORD = process.env.SEED_DEMO_PASSWORD;
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, SALT_ROUNDS);
 
     const id = uuidv4();
@@ -58,7 +74,7 @@ export default async function seed() {
       now, now, now,
     );
 
-    const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'Admin@123Xpress';
+    const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
     const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS);
     await db.prepare(`
       INSERT INTO users (id, email, password, role, name, phone, emailVerified, createdAt, passwordChangedAt, passwordHistory)

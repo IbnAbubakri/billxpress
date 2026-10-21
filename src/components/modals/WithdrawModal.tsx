@@ -2,7 +2,7 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import { useState, useEffect, useRef } from 'react';
-import { X, Banknote, Check } from 'lucide-react';
+import { X, Banknote, Check, Lock } from 'lucide-react';
 import type { User } from '../../types';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { withdrawFunds } from '../../api/client';
@@ -13,6 +13,7 @@ interface Errors {
   bankName?: string | null;
   accountNumber?: string | null;
   accountName?: string | null;
+  transactionPin?: string | null;
 }
 
 interface WithdrawModalProps {
@@ -28,6 +29,7 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
+  const [transactionPin, setTransactionPin] = useState('');
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<Errors>({});
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -76,6 +78,8 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     setErrors(prev => ({ ...prev, accountNumber: error }));
   };
 
+  const requiresPin = !!user?.hasTransactionPin;
+
   const handleContinue = () => {
     const amountError = validateAmount(amount);
     const accountError = validateAccountNumber(accountNumber);
@@ -93,15 +97,29 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
     }
   };
 
+  const handleConfirm = () => {
+    if (requiresPin) {
+      setStep(2.5);
+    } else {
+      handleWithdraw();
+    }
+  };
+
   const handleWithdraw = async () => {
+    if (requiresPin && transactionPin.length !== 6) {
+      setErrors(prev => ({ ...prev, transactionPin: 'PIN must be 6 digits' }));
+      return;
+    }
     setStep(3);
     try {
-      await withdrawFunds(Number(amount), bankName, accountNumber, accountName);
+      await withdrawFunds(Number(amount), bankName, accountNumber, accountName, requiresPin ? transactionPin : undefined);
       onSuccess?.();
-    } catch {
-      addToast('Withdrawal failed. Please try again.', 'error');
-      setErrors({ amount: 'Withdrawal failed. Please try again.' });
-      setStep(1);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Withdrawal failed. Please try again.';
+      addToast(msg, 'error');
+      setErrors({ transactionPin: msg });
+      setTransactionPin('');
+      setStep(requiresPin ? 2.5 : 1);
     }
   };
 
@@ -303,10 +321,67 @@ const WithdrawModal = ({ user, onClose, onSuccess }: WithdrawModalProps) => {
                 Back
               </button>
               <button
-                onClick={handleWithdraw}
+                onClick={handleConfirm}
                 className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Withdraw
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 2.5 && (
+          <div className="p-4">
+            <div className="text-center mb-4">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-blue-600" aria-hidden="true" />
+              </div>
+              <h3 className="text-base font-bold text-black dark:text-white mb-2">Enter Transaction PIN</h3>
+              <p id="withdraw-desc-2.5" className="text-sm text-black dark:text-white">
+                Authorize this withdrawal of ₦{Number(amount).toLocaleString()} with your 6-digit PIN
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="withdrawPin" className="block text-sm font-medium text-black dark:text-white mb-2">
+                Transaction PIN
+              </label>
+              <input
+                id="withdrawPin"
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                value={transactionPin}
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/\D/g, '').substring(0, 6);
+                  setTransactionPin(cleaned);
+                  setErrors(prev => ({ ...prev, transactionPin: null }));
+                }}
+                placeholder="Enter 6-digit PIN"
+                className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent text-center tracking-widest text-base dark:bg-dark-900 dark:text-neutral-100 ${
+                  errors.transactionPin ? 'border-red-500' : 'border-gray-300 dark:border-dark-600 dark:bg-dark-900 dark:text-neutral-100'
+                }`}
+                aria-invalid={!!errors.transactionPin}
+                aria-describedby={errors.transactionPin ? 'withdrawPin-error' : undefined}
+              />
+              {errors.transactionPin && (
+                <p id="withdrawPin-error" role="alert" className="text-red-500 text-sm mt-1">{errors.transactionPin}</p>
+              )}
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => { setErrors(prev => ({ ...prev, transactionPin: null })); setStep(2); }}
+                className="flex-1 py-3 border border-gray-300 dark:border-dark-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-dark-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleWithdraw}
+                disabled={transactionPin.length !== 6}
+                className="flex-1 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                Confirm Withdrawal
               </button>
             </div>
           </div>

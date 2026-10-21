@@ -27,7 +27,7 @@ function toUser(data: Record<string, unknown>): User {
     name: (data.name as string) || '',
     email: data.email as string,
     phone: (data.phone as string) || '',
-    balance: (data.balance as number) ?? 0,
+    balance: Number(data.balance) || 0,
     hasTransactionPin: (data.hasTransactionPin as boolean) ?? false,
     emailVerified: (data.emailVerified as boolean) ?? false,
     bvn: (data.bvn as string) || '',
@@ -70,8 +70,13 @@ export function useAuth() {
           saveStoredAuth(u, isAdmin);
           return { user: u, isAdmin, isAuthenticated: true };
         }
-      } catch {
-        /* 401 or network error, not logged in */
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        // Only a definitive auth rejection means "not logged in".
+        // Transient errors (network/timeout/5xx) must not evict an authenticated session.
+        if (status !== 401 && status !== 403) {
+          throw err;
+        }
       }
       clearStoredAuth();
       return { user: null, isAdmin: false, isAuthenticated: false };
@@ -110,7 +115,8 @@ export function useAuth() {
     onSettled: () => {
       clearStoredAuth();
       queryClient.setQueryData(['auth', 'me'], { user: null, isAdmin: false, isAuthenticated: false });
-      queryClient.removeQueries({ queryKey: ['auth'] });
+      // Purge all cached personal/admin data so a subsequent session never sees stale data.
+      queryClient.clear();
     },
   });
 
@@ -147,8 +153,8 @@ export function useAuth() {
     return apiChangePassword(currentPassword, newPassword);
   }, []);
 
-  const handleSetTransactionPin = useCallback(async (pin: string) => {
-    return apiSetTransactionPin(pin);
+  const handleSetTransactionPin = useCallback(async (pin: string, currentPin?: string) => {
+    return apiSetTransactionPin(pin, currentPin);
   }, []);
 
   const handleSendVerification = useCallback(async () => {

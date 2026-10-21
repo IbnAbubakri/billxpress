@@ -3,6 +3,7 @@
 
 import pg from 'pg';
 import logger from './logger.js';
+import { normalizeRow as mapRow } from './columnNames.js';
 
 let pool = null;
 
@@ -269,15 +270,6 @@ function convertSql(sql) {
   return sql.replace(/\?/g, () => `$${++i}`);
 }
 
-function mapRow(row) {
-  if (!row || typeof row !== 'object') return row;
-  const out = {};
-  for (const key of Object.keys(row)) {
-    out[key] = row[key];
-  }
-  return out;
-}
-
 function makeTx(client) {
   return {
     get(sql, ...params) {
@@ -322,6 +314,8 @@ const compat = {
     }
   },
 };
+
+export { mapRow as normalizeRow };
 
 export function getDb() {
   return compat;

@@ -5,8 +5,10 @@ interface SecurityTabProps {
     newPassword: string;
     confirmPassword: string;
     transactionPin: string;
+    currentPin: string;
   };
   errors: Record<string, string | null>;
+  hasTransactionPin: boolean;
   handleInputChange: (field: string, value: string) => void;
   handlePasswordChange: () => void;
   handlePinChange: () => void;
@@ -14,7 +16,7 @@ interface SecurityTabProps {
 }
 
 const SecurityTab: React.FC<SecurityTabProps> = ({
-  formData, errors, handleInputChange,
+  formData, errors, hasTransactionPin, handleInputChange,
   handlePasswordChange, handlePinChange, setShowAccountDeletionModal,
 }) => (
   <div>
@@ -51,15 +53,36 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
     </div>
 
     <div>
-      <h3 className="text-base font-medium text-black dark:text-white mb-4">Change Transaction PIN</h3>
+      <h3 className="text-base font-medium text-black dark:text-white mb-4">
+        {hasTransactionPin ? 'Change Transaction PIN' : 'Set Transaction PIN'}
+      </h3>
       <div className="space-y-3">
+        {hasTransactionPin && (
+          <div>
+            <label htmlFor="currentPin" className="block text-sm font-medium text-black dark:text-white mb-2">Current Transaction PIN</label>
+            <input
+              id="currentPin" type="password" maxLength={6} inputMode="numeric"
+              value={formData.currentPin}
+              onChange={(e) => handleInputChange('currentPin', e.target.value.replace(/\D/g, '').substring(0, 6))}
+              placeholder="Enter current 6-digit PIN"
+              className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800 ${
+                errors.currentPin ? 'border-red-500' : 'border-gray-300 dark:border-dark-700'
+              }`}
+              aria-invalid={!!errors.currentPin}
+              aria-describedby={errors.currentPin ? 'currentPin-error' : undefined}
+            />
+            {errors.currentPin && (
+              <p id="currentPin-error" role="alert" className="text-red-500 text-sm mt-1">{errors.currentPin}</p>
+            )}
+          </div>
+        )}
         <div>
           <label htmlFor="transactionPin" className="block text-sm font-medium text-black dark:text-white mb-2">New Transaction PIN</label>
           <input
-            id="transactionPin" type="password" maxLength={4}
+            id="transactionPin" type="password" maxLength={6} inputMode="numeric"
             value={formData.transactionPin}
-            onChange={(e) => handleInputChange('transactionPin', e.target.value.replace(/\D/g, '').substring(0, 4))}
-            placeholder="Enter 4-digit PIN"
+            onChange={(e) => handleInputChange('transactionPin', e.target.value.replace(/\D/g, '').substring(0, 6))}
+            placeholder="Enter 6-digit PIN"
             className={`w-full px-4 py-3 border rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 text-black dark:text-white bg-white dark:bg-dark-800 ${
               errors.transactionPin ? 'border-red-500' : 'border-gray-300 dark:border-dark-700'
             }`}

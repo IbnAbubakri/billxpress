@@ -32,11 +32,9 @@ describe('API Integration Tests', () => {
     expect(data.checks).toHaveProperty('paystack');
   });
 
-  it('openapi spec is accessible without MASTER_SECRET set', async () => {
+  it('openapi spec is not public without the master secret', async () => {
     const res = await fetch(`http://localhost:${server.address().port}/api/openapi.json`);
-    const data = await res.json();
-    expect(res.status).toBe(200);
-    expect(data).toHaveProperty('openapi', '3.0.3');
+    expect(res.status).toBe(404);
   });
 
   it('returns 404 for unknown API route', async () => {

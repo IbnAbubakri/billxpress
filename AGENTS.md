@@ -7,7 +7,7 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run` (197 tests across 15 files)
+Run tests: `npx vitest run` (203 tests across 16 files)
 
 ## Production Environment Variables (Vercel)
 Set these in Vercel Dashboard → Settings → Environment Variables (Production):
@@ -54,6 +54,27 @@ The local `server/.env` is gitignored and only used for development. Never commi
 - `src/components/ui/SpendingChart.tsx` - Monthly spending area chart
 - `src/components/modals/FundWalletModal.tsx` - Wallet funding
 - `src/components/modals/WithdrawModal.tsx` - Withdrawals
+
+## Session Summary (Jul 21 — Case-folding root cause + PIN + hardening)
+
+**Root cause class**: DDL uses unquoted identifiers → Postgres folds them to lowercase (`lockeduntil`, `hastransactionpin`, `mfasecret`, `resetTokenExpires`, …), while SQLite preserved case so tests passed. Fixed centrally on the read side (Option B — no prod DB migration, no hand-quoting 99 SQL sites).
+
+| Area | Fix | Files |
+|---|---|---|
+| Case-folding | Central `normalizeRow()` adds camelCase aliases for folded keys; used by `mapRow` in db.js and by the test SQLite layer | `server/src/utils/columnNames.js` (NEW), `server/src/utils/db.js`, `server/src/__tests__/test-db.js` |
+| Regression guard | Folding regression test (lockedUntil) — verified to fail if the alias is removed | `server/src/__tests__/case-folding.regression.test.js` (NEW) |
+| Cache | `memoize` keys namespaced by function id (no `"[]"` collisions); default TTL 60s | `server/src/utils/cache.js` |
+| Seeding | Only when `SEED_DEMO_DATA==='true'` AND not Vercel/prod; no hardcoded creds | `server/src/seed.js` |
+| OpenAPI | Fail closed: 404 unless `env.isDev()` or valid `MASTER_SECRET` | `server/src/routes/openapi.routes.js`, `server/src/__tests__/integration.test.js` |
+| Proxy | `app.set('trust proxy', 1)` so rate-limit buckets use real client IP | `server/src/app.js` |
+| CSRF cookie | `secure` now `env.isProd()` (dev over http works) | `server/src/middleware/csrf.middleware.js` |
+| Idempotency | `user_id` captured at insert; completion finalized via `res.json`/`res.end` safety net (no stuck `pending` → 409) | `server/src/middleware/idempotency.middleware.js` |
+| Token/OTP logging | Prod logs a warning instead of the token/OTP when no provider configured | `server/src/services/auth/authentication.js`, `registration.js` |
+| PIN | Standardized on **6 digits** (backend authoritative); current-PIN required to change; withdraw now collects PIN | `SetPinModal.tsx`, `SecurityTab.tsx`, `ProfilePage.tsx`, `WithdrawModal.tsx`, `useAuth.ts` |
+| Auth UX | Only 401/403 clears session (transient errors no longer log users out); logout `queryClient.clear()` | `src/hooks/useAuth.ts` |
+| Withdraw | Server enforces ₦1,000 minimum | `server/src/controllers/wallet.controller.js` |
+| Types/validation | `balance: number` (coerced); phone regex aligned front/back (prefix required) | `shared/types.ts`, `src/utils/validation.ts` |
+| Route guard | `/wallet/fund/verify` wrapped in `ProtectedRoute` | `src/App.tsx` |
 
 ## Audit Items Addressed (Batch 1 — prior)
 | ID | Fix | Files |

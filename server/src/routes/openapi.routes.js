@@ -8,9 +8,13 @@ import openapiSpec from '../openapi.js';
 const router = Router();
 
 router.get('/openapi.json', (req, res) => {
-  if (env.MASTER_SECRET) {
+  // The API spec must never be served publicly. Require the master secret
+  // everywhere except local development, and fail closed when it is missing
+  // (previously an unset MASTER_SECRET exposed the full spec to anyone).
+  if (!env.isDev()) {
+    const masterSecret = env.MASTER_SECRET;
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.slice(7) !== env.MASTER_SECRET) {
+    if (!masterSecret || !authHeader || !authHeader.startsWith('Bearer ') || authHeader.slice(7) !== masterSecret) {
       return res.status(404).json({ error: 'Not found.' });
     }
   }

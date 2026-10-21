@@ -210,4 +210,30 @@ describe('idempotency middleware', () => {
     const stored = dbRef.current.prepare('SELECT * FROM idempotency_keys WHERE key = ?').get(key);
     expect(stored.user_id).toBe('user-42');
   });
+
+  it('marks the key completed even when the handler responds via res.end (no res.json)', async () => {
+    const key = '550e8400-e29b-41d4-a716-446655440010';
+    const req = mockReq({ headers: { 'idempotency-key': key } });
+    const res = mockRes();
+    res.end = vi.fn();
+    const next = mockNext();
+
+    await idempotency(req, res, next);
+    expect(next).toHaveBeenCalledOnce();
+
+    res.statusCode = 204;
+    res.end();
+
+    const stored = dbRef.current.prepare('SELECT * FROM idempotency_keys WHERE key = ?').get(key);
+    expect(stored.status).toBe('completed');
+    expect(stored.response_status).toBe(204);
+
+    // A retry must NOT be stuck at "already being processed".
+    const req2 = mockReq({ headers: { 'idempotency-key': key } });
+    const res2 = mockRes();
+    const next2 = mockNext();
+    await idempotency(req2, res2, next2);
+    expect(next2).not.toHaveBeenCalled();
+    expect(res2.statusCode).toBe(204);
+  });
 });

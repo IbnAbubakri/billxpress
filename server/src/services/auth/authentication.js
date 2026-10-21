@@ -179,6 +179,10 @@ export async function changePassword(id, currentPassword, newPassword, ip, userA
 }
 
 function stubEmail(email, subject, body) {
+  if (env.isProd()) {
+    logger.warn({ emailTo: email, subject }, '[EMAIL] No email provider configured; message not delivered.');
+    return;
+  }
   logger.info({ emailTo: email, subject }, `[EMAIL STUB] ${body}`);
 }
 

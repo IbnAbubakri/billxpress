@@ -10,10 +10,13 @@ interface SetPinModalProps {
   onClose: () => void;
 }
 
+const PIN_LENGTH = 6;
+const emptyPin = () => Array(PIN_LENGTH).fill("");
+
 const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
   const containerRef = useFocusTrap(true, onClose);
-  const [pin, setPin] = useState(["", "", "", ""]);
-  const [confirmPin, setConfirmPin] = useState(["", "", "", ""]);
+  const [pin, setPin] = useState(emptyPin());
+  const [confirmPin, setConfirmPin] = useState(emptyPin());
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState("");
   const [isPinSet, setIsPinSet] = useState(false);
@@ -28,7 +31,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
     newPin[index] = value;
     if (isConfirm) setConfirmPin(newPin);
     else setPin(newPin);
-    if (value && index < 3) {
+    if (value && index < PIN_LENGTH - 1) {
       document.getElementById(`${isConfirm ? "confirm-pin-" : "pin-"}${index + 1}`)?.focus();
     }
     setErrors("");
@@ -39,13 +42,13 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
       document.getElementById(`${isConfirm ? "confirm-pin-" : "pin-"}${index - 1}`)?.focus();
     }
     if (e.key === "Enter") {
-      if (!isConfirm && pin.join("").length === 4 && step === 1) handleContinue();
-      else if (isConfirm && confirmPin.join("").length === 4 && step === 2) handleConfirm();
+      if (!isConfirm && pin.join("").length === PIN_LENGTH && step === 1) handleContinue();
+      else if (isConfirm && confirmPin.join("").length === PIN_LENGTH && step === 2) handleConfirm();
     }
   };
 
   const handleContinue = () => {
-    if (pin.join("").length !== 4) { setErrors("Please enter a 4-digit PIN"); return; }
+    if (pin.join("").length !== PIN_LENGTH) { setErrors(`Please enter a ${PIN_LENGTH}-digit PIN`); return; }
     setStep(2);
     setErrors("");
     setTimeout(() => document.getElementById("confirm-pin-0")?.focus(), 100);
@@ -54,10 +57,10 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
   const handleConfirm = async () => {
     const pinString = pin.join("");
     const confirmPinString = confirmPin.join("");
-    if (confirmPinString.length !== 4) { setErrors("Please enter your 4-digit PIN"); return; }
+    if (confirmPinString.length !== PIN_LENGTH) { setErrors(`Please enter your ${PIN_LENGTH}-digit PIN`); return; }
     if (pinString !== confirmPinString) {
       setErrors("PINs do not match. Please try again.");
-      setConfirmPin(["", "", "", ""]);
+      setConfirmPin(emptyPin());
       setTimeout(() => document.getElementById("confirm-pin-0")?.focus(), 100);
       return;
     }
@@ -115,7 +118,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             <Lock className="w-8 h-8 text-secondary dark:text-white" aria-hidden="true" />
           </div>
           <p id="pin-desc" className="text-black dark:text-white">
-            {step === 1 ? "Create a 4-digit PIN to secure your transactions" : "Re-enter your PIN to confirm"}
+            {step === 1 ? `Create a ${PIN_LENGTH}-digit PIN to secure your transactions` : "Re-enter your PIN to confirm"}
           </p>
         </div>
 
@@ -129,7 +132,7 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             )}
             <button
               onClick={handleContinue}
-              disabled={pin.join("").length !== 4}
+              disabled={pin.join("").length !== PIN_LENGTH}
               className="w-full bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Continue
@@ -145,14 +148,14 @@ const SetPinModal = ({ onSetPin, onClose }: SetPinModalProps) => {
             )}
             <div className="flex space-x-3">
               <button
-                onClick={() => { setStep(1); setConfirmPin(["", "", "", ""]); setErrors(""); }}
+                onClick={() => { setStep(1); setConfirmPin(emptyPin()); setErrors(""); }}
                 className="flex-1 bg-gray-100 dark:bg-dark-700 text-black dark:text-white py-4 px-4 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-dark-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Back
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={confirmPin.join("").length !== 4}
+                disabled={confirmPin.join("").length !== PIN_LENGTH}
                 className="flex-1 bg-secondary text-white py-4 px-4 rounded-2xl font-medium hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 Confirm PIN

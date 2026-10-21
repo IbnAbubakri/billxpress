@@ -76,6 +76,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
     newPassword: "",
     confirmPassword: "",
     transactionPin: "",
+    currentPin: "",
   });
   const [errors, setErrors] = useState<Record<string, string | null>>({});
 
@@ -188,21 +189,32 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
 
   const handlePinChange = async () => {
     const newErrors: Record<string, string | null> = {};
+    const PIN_LENGTH = 6;
 
     if (!formData.transactionPin)
       newErrors.transactionPin = "Transaction PIN is required";
-    if (formData.transactionPin.length !== 4)
-      newErrors.transactionPin = "PIN must be 4 digits";
-    if (!/^\d+$/.test(formData.transactionPin))
+    else if (formData.transactionPin.length !== PIN_LENGTH)
+      newErrors.transactionPin = `PIN must be ${PIN_LENGTH} digits`;
+    else if (!/^\d+$/.test(formData.transactionPin))
       newErrors.transactionPin = "PIN must contain only numbers";
+
+    if (user?.hasTransactionPin) {
+      if (!formData.currentPin)
+        newErrors.currentPin = "Current PIN is required";
+      else if (formData.currentPin.length !== PIN_LENGTH)
+        newErrors.currentPin = `Current PIN must be ${PIN_LENGTH} digits`;
+    }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
       try {
-        await handleSetTransactionPin(formData.transactionPin);
+        await handleSetTransactionPin(
+          formData.transactionPin,
+          user?.hasTransactionPin ? formData.currentPin : undefined,
+        );
         setShowSuccess(true);
-        setFormData((prev) => ({ ...prev, transactionPin: "" }));
+        setFormData((prev) => ({ ...prev, transactionPin: "", currentPin: "" }));
         setTimeout(() => setShowSuccess(false), 3000);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Failed to set PIN.';
@@ -670,6 +682,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
                 <SecurityTab
                   formData={formData}
                   errors={errors}
+                  hasTransactionPin={!!user?.hasTransactionPin}
                   handleInputChange={handleInputChange}
                   handlePasswordChange={handlePasswordChange}
                   handlePinChange={handlePinChange}

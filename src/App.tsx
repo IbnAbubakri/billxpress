@@ -165,7 +165,11 @@ function AppContent() {
               <PageErrorBoundary pageName="Betting"><BettingPage user={user} onLogout={handleLogout} /></PageErrorBoundary>
             </ProtectedRoute>
           } />
-          <Route path="/wallet/fund/verify" element={<FundCallback />} />
+          <Route path="/wallet/fund/verify" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
+              <FundCallback />
+            </ProtectedRoute>
+          } />
           <Route path="/wallet" element={
             <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin}>
               <PageErrorBoundary pageName="Wallet"><WalletPage user={user} onLogout={handleLogout} /></PageErrorBoundary>

@@ -10,7 +10,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
-  balance: string;
+  balance: number;
   hasTransactionPin: boolean;
   emailVerified?: boolean;
   bvn?: string;

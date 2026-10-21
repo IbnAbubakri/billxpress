@@ -2,6 +2,20 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import Database from 'better-sqlite3';
+import { normalizeRow } from '../utils/columnNames.js';
+
+// PostgreSQL folds unquoted identifiers to lowercase; SQLite preserves them.
+// Every row returned here is folded to lowercase and then normalized back
+// through the same normalizer production uses, so tests exercise identical
+// behaviour to production. Without this, camelCase reads work in tests but
+// silently return undefined in production (account lockout, reset-token expiry,
+// password history, transaction-PIN gate and MFA were all affected).
+function foldRow(row) {
+  if (!row || typeof row !== 'object') return row;
+  const folded = {};
+  for (const key of Object.keys(row)) folded[key.toLowerCase()] = row[key];
+  return normalizeRow(folded);
+}
 
 function createCompat(raw) {
   const stmtCache = {};
@@ -10,9 +24,9 @@ function createCompat(raw) {
     const stmt = {
       get: (...params) => {
         const row = raw.prepare(sql).get(...params);
-        return row || undefined;
+        return row ? foldRow(row) : undefined;
       },
-      all: (...params) => raw.prepare(sql).all(...params),
+      all: (...params) => raw.prepare(sql).all(...params).map(foldRow),
       run: (...params) => {
         const info = raw.prepare(sql).run(...params);
         return { changes: info.changes };
@@ -26,7 +40,7 @@ function createCompat(raw) {
       get(sql, ...params) {
         const cleaned = sql.replace(/\s+FOR\s+UPDATE\s*$/i, '');
         const row = rawTx.prepare(cleaned).get(...params);
-        return row || undefined;
+        return row ? foldRow(row) : undefined;
       },
       run(sql, ...params) {
         const info = rawTx.prepare(sql).run(...params);

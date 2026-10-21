@@ -157,9 +157,9 @@ export async function changePassword(currentPassword: string, newPassword: strin
   return data;
 }
 
-export async function setTransactionPin(pin: string) {
+export async function setTransactionPin(pin: string, currentPin?: string) {
   const csrf = await ensureCSRF();
-  const { data } = await api.put('/transaction-pin', { pin }, {
+  const { data } = await api.put('/transaction-pin', { pin, currentPin }, {
     headers: { 'x-csrf-token': csrf },
   });
   return data;

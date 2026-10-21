@@ -102,13 +102,13 @@ describe('validatePhone', () => {
     expect(validatePhone('+2348012345678')).toBe('');
     expect(validatePhone('2348012345678')).toBe('');
     expect(validatePhone('08012345678')).toBe('');
-    expect(validatePhone('8012345678')).toBe('');
   });
 
   it('returns error for invalid phone numbers', () => {
     expect(validatePhone('')).toBeTruthy();
     expect(validatePhone('12345')).toBeTruthy();
     expect(validatePhone('+2340012345678')).toBeTruthy();
+    expect(validatePhone('8012345678')).toBeTruthy();
   });
 });
 

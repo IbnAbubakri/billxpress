@@ -11,10 +11,18 @@ import { normalizePhone, SALT_ROUNDS } from './helpers.js';
 import { validatePasswordComplexity, checkHIBP } from './password.js';
 
 function stubEmail(to, subject, body) {
+  if (env.isProd()) {
+    logger.warn({ emailTo: to, subject }, '[EMAIL] No email provider configured; message not delivered.');
+    return;
+  }
   logger.info({ emailTo: to, subject }, `[EMAIL STUB] ${body}`);
 }
 
 function stubSms(to, body) {
+  if (env.isProd()) {
+    logger.warn({ smsTo: to }, '[SMS] No SMS provider configured; message not delivered.');
+    return;
+  }
   logger.info({ smsTo: to }, `[DEV SMS] ${body}`);
 }
 

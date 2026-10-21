@@ -112,8 +112,8 @@ describe('wallet.controller', () => {
   describe('handleWithdraw', () => {
     it('should withdraw successfully when no PIN set', async () => {
       const db = dbRef.current;
-      seedUser(db, { balance: 1000 });
-      const req = mockReq({ amount: 300, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test User' });
+      seedUser(db, { balance: 2000 });
+      const req = mockReq({ amount: 1000, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test User' });
       const res = mockRes();
 
       await handleWithdraw(req, res, vi.fn());
@@ -122,13 +122,13 @@ describe('wallet.controller', () => {
         expect.objectContaining({ message: 'Withdrawal successful.' })
       );
       const user = db.prepare('SELECT balance FROM users WHERE id = ?').get('user-1');
-      expect(Number(user.balance)).toBe(700);
+      expect(Number(user.balance)).toBe(1000);
     });
 
     it('should reject withdrawal with insufficient balance', async () => {
       const db = dbRef.current;
-      seedUser(db, { balance: 100 });
-      const req = mockReq({ amount: 999, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test User' });
+      seedUser(db, { balance: 500 });
+      const req = mockReq({ amount: 1000, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test User' });
       const res = mockRes();
 
       const next = vi.fn();
@@ -152,9 +152,20 @@ describe('wallet.controller', () => {
       expect(res.status).toHaveBeenCalledWith(400);
     });
 
+    it('should reject amounts below the minimum withdrawal', async () => {
+      seedUser(dbRef.current, { balance: 1000 });
+      const req = mockReq({ amount: 999, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test User' });
+      const res = mockRes();
+
+      await handleWithdraw(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Minimum withdrawal is ₦1,000' });
+    });
+
     it('should reject missing bank details', async () => {
       seedUser(dbRef.current, { balance: 1000 });
-      const req = mockReq({ amount: 100 });
+      const req = mockReq({ amount: 1000 });
       const res = mockRes();
 
       await handleWithdraw(req, res, vi.fn());
@@ -164,7 +175,7 @@ describe('wallet.controller', () => {
 
     it('should reject invalid account number', async () => {
       seedUser(dbRef.current, { balance: 1000 });
-      const req = mockReq({ amount: 100, bank: 'GTBank', accountNumber: '123', accountName: 'Test' });
+      const req = mockReq({ amount: 1000, bank: 'GTBank', accountNumber: '123', accountName: 'Test' });
       const res = mockRes();
 
       await handleWithdraw(req, res, vi.fn());
@@ -178,7 +189,7 @@ describe('wallet.controller', () => {
       db.prepare('UPDATE users SET hasTransactionPin = 1, transactionPin = ? WHERE id = ?')
         .run('$2a$10$hashedpindemo1234567890123456789012345678901234567890', 'user-1');
 
-      const req = mockReq({ amount: 100, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test' });
+      const req = mockReq({ amount: 1000, bank: 'GTBank', accountNumber: '0123456789', accountName: 'Test' });
       const res = mockRes();
 
       const next = vi.fn();

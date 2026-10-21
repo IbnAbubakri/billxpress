@@ -9,7 +9,7 @@ import {
   Phone, Wifi, Tv, Zap, GraduationCap, Target, ArrowRightLeft,
   Shield, Lock, CheckCircle, Smartphone, BarChart3,
   Users, Star, ChevronRight, Menu, X, ArrowRight, Sparkles,
-  CreditCard, Clock, HeadphonesIcon, ChevronDown,
+  CreditCard, ChevronDown,
 } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 import mtnIcon from '../../assets/icons/mtn.svg';

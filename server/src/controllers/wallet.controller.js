@@ -10,6 +10,7 @@ import { initializeTransaction, verifyTransaction, generateReference } from '../
 import { creditWallet } from '../services/wallet.service.js';
 
 const MAX_AMOUNT = 500_000;
+const MIN_WITHDRAW_AMOUNT = 1_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
 
 function maskAccountNumber(num) {
@@ -149,6 +150,9 @@ export async function handleWithdraw(req, res, next) {
 
     const inputError = validateWalletInputs(amount, bank, accountNumber);
     if (inputError) return res.status(400).json({ error: inputError });
+    if (!Number.isFinite(amount) || amount < MIN_WITHDRAW_AMOUNT) {
+      return res.status(400).json({ error: `Minimum withdrawal is ₦${MIN_WITHDRAW_AMOUNT.toLocaleString()}` });
+    }
     if (!bank) return res.status(400).json({ error: 'Bank name is required.' });
     if (!accountName) return res.status(400).json({ error: 'Account name is required.' });
 
