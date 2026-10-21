@@ -54,11 +54,11 @@ const formatDate = (dateString: string) => {
 interface RowProps {
   index: number;
   style: React.CSSProperties;
-  data: TransactionItem[];
+  transactions: TransactionItem[];
 }
 
-const Row = ({ index, style, data }: RowProps) => {
-  const transaction = data[index];
+const Row = ({ index, style, transactions }: RowProps) => {
+  const transaction = transactions[index];
   return (
     <div
       style={style}
@@ -116,17 +116,13 @@ const VirtualTransactionList = ({
 
   return (
     <List
-      height={height}
-      itemCount={transactions.length}
-      itemSize={itemSize}
-      width="100%"
-      itemData={transactions}
-      role="grid"
-      aria-label="Transaction list"
-      ariaRowCount={transactions.length}
-    >
-      {Row}
-    </List>
+      style={{ height }}
+      rowCount={transactions.length}
+      rowHeight={itemSize}
+      rowComponent={Row}
+      rowProps={{ transactions }}
+      tagName="div"
+    />
   );
 };
 
