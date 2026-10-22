@@ -7,7 +7,7 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run` (217 tests across 16 files)
+Run tests: `npx vitest run` (220 tests across 16 files)
 
 ## Production Environment Variables (Vercel)
 Set these in Vercel Dashboard → Settings → Environment Variables (Production):
@@ -19,6 +19,8 @@ Set these in Vercel Dashboard → Settings → Environment Variables (Production
 | `DATABASE_URL` | Supabase connection string |
 | `PAYSTACK_SECRET_KEY` | Paystack dashboard |
 | `PAYSTACK_PUBLIC_KEY` | Paystack dashboard |
+| `DOJAH_APP_ID` | Dojah dashboard (`https://dashboard.dojah.io`) — KYC/BVN verification |
+| `DOJAH_SECRET_KEY` | Dojah dashboard — KYC/BVN verification |
 | `APP_URL` | `https://billxpress1.vercel.app` |
 | `CORS_ORIGIN` | `https://billxpress1.vercel.app` |
 | `NODE_ENV` | `production` |
@@ -55,18 +57,19 @@ The local `server/.env` is gitignored and only used for development. Never commi
 - `src/components/modals/FundWalletModal.tsx` - Wallet funding
 - `src/components/modals/WithdrawModal.tsx` - Withdrawals
 
-## Session Summary (Jul 21 — BVN verification via Paystack)
+## Session Summary (Jul 21 — BVN verification via Dojah)
 
-BVN submission previously only format-validated 11 digits and stored the raw value. It now performs a **real verification** against Paystack's `/bank/resolve_bvn/{bvn}` endpoint (same provider already integrated, no new credentials), returning and displaying the BVN holder's registered name. Invalid/unknown BVNs are blocked.
+BVN submission previously only format-validated 11 digits and stored the raw value. It now performs a **real verification** against **Dojah** KYC (`GET /api/v1/kyc/bvn/full`), returning and displaying the BVN holder's registered name. Invalid/unknown BVNs are blocked.
 
 | Area | Change | Files |
 |---|---|---|
-| Service | `verifyBVN(bvn)` proxies Paystack `GET /bank/resolve_bvn/{bvn}` | `paystack.service.js` |
-| Endpoint | `GET /api/wallet/verify-bvn?bvn=` (authenticate + `resolveLimiter`); 400 invalid format, 404 unverified (4xx), 502 gateway unreachable | `wallet.controller.js` (`handleVerifyBvn`), `wallet.routes.js` |
+| Service | `verifyBVN(bvn, {firstName,lastName,dateOfBirth})` → Dojah `GET /api/v1/kyc/bvn/full` (headers `Authorization: <secret>`, `AppId`); `isKycConfigured()` | `kyc.service.js` (NEW) |
+| Config | `DOJAH_APP_ID`, `DOJAH_SECRET_KEY`, `DOJAH_BASE_URL` | `server/src/config/env.js`, `server/.env.example` |
+| Endpoint | `GET /api/wallet/verify-bvn?bvn=` (authenticate + `resolveLimiter`); 400 invalid format, 503 not configured, 404 unverified (4xx / no entity / no name), 502 gateway unreachable | `wallet.controller.js` (`handleVerifyBvn`), `wallet.routes.js` |
 | Frontend | `verifyBVN()` client method; `ProfilePage.handleBVNVerify` verifies first then saves; modal shows spinner + disables while verifying; success banner shows resolved name | `src/api/client.ts`, `ProfilePage.tsx`, `BVNModal.tsx` |
-| Tests | +6 (verify success, bad format, missing, 4xx→404, non-success→404, network→502) | `server/src/__tests__/wallet.controller.test.js` |
+| Tests | +8 (verify success, single-name, bad format, missing, 503 unconfigured, 4xx→404, no entity→404, no name→404, network→502) | `server/src/__tests__/wallet.controller.test.js` |
 
-Note: Paystack `/bank/resolve_bvn` costs ~₦10/call (10 free/month). Verification judged as "BVN exists & resolves" (not name-matching).
+Note: Dojah keys are issued instantly on signup (no Paystack-style activation wait). Set `DOJAH_APP_ID` + `DOJAH_SECRET_KEY` in Vercel → the endpoint resolves real BVNs immediately.
 
 ## Session Summary (Jul 21 — Withdraw flow redesign: account-first)
 
@@ -206,7 +209,7 @@ Replaced `primary-*` (purple) classes with `slate-*` on decorative/non-CTA eleme
 | `POST /api/wallet/withdraw` | Withdraw (body: `amount`, `bank`, `accountNumber`, `accountName`, `transactionPin?`) |
 | `GET /api/wallet/banks` | List Nigerian banks `[{name, code}]` (Paystack `/bank`) |
 | `GET /api/wallet/resolve-account` | Resolve account name (`?accountNumber=&bankCode=`) via Paystack `/bank/resolve` |
-| `GET /api/wallet/verify-bvn` | Verify a BVN (`?bvn=`) via Paystack `/bank/resolve_bvn/{bvn}`; returns `{verified, bvn, fullName, firstName, lastName, dateOfBirth, phone}` |
+| `GET /api/wallet/verify-bvn` | Verify a BVN (`?bvn=`) via **Dojah** `/api/v1/kyc/bvn/full`; returns `{verified, bvn, fullName, firstName, lastName, dateOfBirth, phone}` |
 | `GET /api/charts/weekly` | Weekly transaction amounts by day |
 | `GET /api/charts/monthly` | Monthly spending by month |
 | `GET /api/transactions` | Authenticated user's transactions |

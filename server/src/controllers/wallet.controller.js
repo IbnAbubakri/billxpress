@@ -6,7 +6,8 @@ import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
-import { initializeTransaction, verifyTransaction, generateReference, listBanks, resolveAccountNumber, verifyBVN } from '../services/paystack.service.js';
+import { initializeTransaction, verifyTransaction, generateReference, listBanks, resolveAccountNumber } from '../services/paystack.service.js';
+import { verifyBVN as verifyBvnWithDojah, isKycConfigured } from '../services/kyc.service.js';
 import { creditWallet } from '../services/wallet.service.js';
 
 const MAX_AMOUNT = 500_000;
@@ -196,18 +197,19 @@ export async function handleResolveAccount(req, res, next) {
 
 export async function handleVerifyBvn(req, res, next) {
   try {
-    if (!env.PAYSTACK_SECRET_KEY) {
-      return res.status(503).json({ error: 'Payment gateway not configured.' });
-    }
     const bvn = String(req.query.bvn || '').trim();
 
     if (!BVN_REGEX.test(bvn)) {
       return res.status(400).json({ error: 'Invalid BVN. Must be 11 digits.' });
     }
 
+    if (!isKycConfigured()) {
+      return res.status(503).json({ error: 'BVN verification is not configured.' });
+    }
+
     let result;
     try {
-      result = await verifyBVN(bvn);
+      result = await verifyBvnWithDojah(bvn);
     } catch (err) {
       const status = err.response?.status;
       if (typeof status === 'number' && status >= 400 && status < 500) {
@@ -216,21 +218,30 @@ export async function handleVerifyBvn(req, res, next) {
       return res.status(502).json({ error: 'Could not reach the BVN verification service. Please try again.' });
     }
 
-    const data = result?.data;
-    if (!result?.status || !data) {
+    const data = result?.entity || result?.data;
+    if (!data) {
       return res.status(404).json({ error: 'Could not verify this BVN. Please check it and try again.' });
     }
 
-    const fullName = [data.first_name, data.middle_name, data.last_name].filter(Boolean).join(' ').trim();
+    const firstName = data.first_name || data.firstName || '';
+    const lastName = data.last_name || data.lastName || '';
+    const middleName = data.middle_name || data.middleName || '';
+    const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ').trim()
+      || data.name
+      || '';
+
+    if (!fullName) {
+      return res.status(404).json({ error: 'Could not verify this BVN. Please check it and try again.' });
+    }
 
     res.json({
       verified: true,
       bvn,
       fullName,
-      firstName: data.first_name || '',
-      lastName: data.last_name || '',
-      dateOfBirth: data.date_of_birth || '',
-      phone: data.phone_number || data.phone || '',
+      firstName,
+      lastName,
+      dateOfBirth: data.date_of_birth || data.dateOfBirth || data.dob || '',
+      phone: data.phone_number || data.phone || data.phoneNumber || '',
     });
   } catch (err) {
     next(err);
