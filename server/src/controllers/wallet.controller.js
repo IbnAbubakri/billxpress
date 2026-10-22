@@ -6,12 +6,13 @@ import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
-import { initializeTransaction, verifyTransaction, generateReference, listBanks, resolveAccountNumber } from '../services/paystack.service.js';
+import { initializeTransaction, verifyTransaction, generateReference, listBanks, resolveAccountNumber, verifyBVN } from '../services/paystack.service.js';
 import { creditWallet } from '../services/wallet.service.js';
 
 const MAX_AMOUNT = 500_000;
 const MIN_WITHDRAW_AMOUNT = 1_000;
 const ACCOUNT_NUMBER_REGEX = /^\d{10}$/;
+const BVN_REGEX = /^\d{11}$/;
 
 function maskAccountNumber(num) {
   if (!num || num.length < 4) return '****';
@@ -188,6 +189,49 @@ export async function handleResolveAccount(req, res, next) {
     }
 
     res.json({ accountName, accountNumber });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function handleVerifyBvn(req, res, next) {
+  try {
+    if (!env.PAYSTACK_SECRET_KEY) {
+      return res.status(503).json({ error: 'Payment gateway not configured.' });
+    }
+    const bvn = String(req.query.bvn || '').trim();
+
+    if (!BVN_REGEX.test(bvn)) {
+      return res.status(400).json({ error: 'Invalid BVN. Must be 11 digits.' });
+    }
+
+    let result;
+    try {
+      result = await verifyBVN(bvn);
+    } catch (err) {
+      const status = err.response?.status;
+      if (typeof status === 'number' && status >= 400 && status < 500) {
+        return res.status(404).json({ error: 'Could not verify this BVN. Please check it and try again.' });
+      }
+      return res.status(502).json({ error: 'Could not reach the BVN verification service. Please try again.' });
+    }
+
+    const data = result?.data;
+    if (!result?.status || !data) {
+      return res.status(404).json({ error: 'Could not verify this BVN. Please check it and try again.' });
+    }
+
+    const fullName = [data.first_name, data.middle_name, data.last_name].filter(Boolean).join(' ').trim();
+
+    res.json({
+      verified: true,
+      bvn,
+      fullName,
+      firstName: data.first_name || '',
+      lastName: data.last_name || '',
+      dateOfBirth: data.date_of_birth || '',
+      phone: data.phone_number || data.phone || '',
+    });
   } catch (err) {
     next(err);
   }

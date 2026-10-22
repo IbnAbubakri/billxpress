@@ -80,6 +80,16 @@ export async function resolveAccountNumber(accountNumber, bankCode) {
   }
 }
 
+export async function verifyBVN(bvn) {
+  try {
+    const response = await paystackApi.get(`/bank/resolve_bvn/${encodeURIComponent(bvn)}`);
+    return response.data;
+  } catch (error) {
+    logger.error({ error: error.response?.data }, 'Paystack BVN verification failed');
+    throw error;
+  }
+}
+
 export function verifyWebhookSignature(payload, signature) {
   if (!signature || !payload) return false;
   if (!env.PAYSTACK_WEBHOOK_SECRET) {

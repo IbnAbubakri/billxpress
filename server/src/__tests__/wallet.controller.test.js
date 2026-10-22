@@ -20,6 +20,7 @@ vi.mock('../utils/logger.js', () => ({
 const paystackRef = vi.hoisted(() => ({
   listBanks: vi.fn(),
   resolveAccountNumber: vi.fn(),
+  verifyBVN: vi.fn(),
 }));
 
 vi.mock('../config/env.js', () => ({
@@ -37,10 +38,11 @@ vi.mock('../services/paystack.service.js', () => ({
   generateReference: () => 'ref_test',
   listBanks: paystackRef.listBanks,
   resolveAccountNumber: paystackRef.resolveAccountNumber,
+  verifyBVN: paystackRef.verifyBVN,
 }));
 
 import { createTestDb } from './test-db.js';
-import { handleFundWallet, handleWithdraw, handleGetBanks, handleResolveAccount } from '../controllers/wallet.controller.js';
+import { handleFundWallet, handleWithdraw, handleGetBanks, handleResolveAccount, handleVerifyBvn } from '../controllers/wallet.controller.js';
 
 const Database = (await import('better-sqlite3')).default;
 
@@ -50,6 +52,7 @@ beforeEach(() => {
   dbRef.current.exec('CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, userId TEXT, type TEXT, amount REAL, status TEXT, description TEXT, recipient TEXT, date TEXT)');
   paystackRef.listBanks.mockReset();
   paystackRef.resolveAccountNumber.mockReset();
+  paystackRef.verifyBVN.mockReset();
 });
 
 function mockReq(body = {}, user = { id: 'user-1' }) {
@@ -321,6 +324,80 @@ describe('wallet.controller', () => {
       const res = mockRes();
 
       await handleResolveAccount(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(502);
+    });
+  });
+
+  describe('handleVerifyBvn', () => {
+    it('should verify a BVN and return the registered name', async () => {
+      paystackRef.verifyBVN.mockResolvedValue({
+        status: true,
+        data: {
+          bvn: '22212345678',
+          first_name: 'FAARUQ',
+          middle_name: 'ADEBOWALE',
+          last_name: 'ABUBAKRI',
+          date_of_birth: '01-Jan-1990',
+          phone_number: '08012345678',
+        },
+      });
+      const req = { query: { bvn: '22212345678' } };
+      const res = mockRes();
+
+      await handleVerifyBvn(req, res, vi.fn());
+
+      expect(paystackRef.verifyBVN).toHaveBeenCalledWith('22212345678');
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ verified: true, bvn: '22212345678', fullName: 'FAARUQ ADEBOWALE ABUBAKRI' })
+      );
+    });
+
+    it('should reject a BVN that is not 11 digits', async () => {
+      const req = { query: { bvn: '123' } };
+      const res = mockRes();
+
+      await handleVerifyBvn(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(paystackRef.verifyBVN).not.toHaveBeenCalled();
+    });
+
+    it('should reject a missing BVN', async () => {
+      const req = { query: {} };
+      const res = mockRes();
+
+      await handleVerifyBvn(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('should return 404 when the BVN cannot be verified (Paystack 4xx)', async () => {
+      paystackRef.verifyBVN.mockRejectedValue({ response: { status: 400 } });
+      const req = { query: { bvn: '00000000000' } };
+      const res = mockRes();
+
+      await handleVerifyBvn(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('should return 404 when Paystack returns a non-success status', async () => {
+      paystackRef.verifyBVN.mockResolvedValue({ status: false, message: 'Could not resolve BVN' });
+      const req = { query: { bvn: '22212345678' } };
+      const res = mockRes();
+
+      await handleVerifyBvn(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('should return 502 when the verification service is unreachable', async () => {
+      paystackRef.verifyBVN.mockRejectedValue(new Error('network timeout'));
+      const req = { query: { bvn: '22212345678' } };
+      const res = mockRes();
+
+      await handleVerifyBvn(req, res, vi.fn());
 
       expect(res.status).toHaveBeenCalledWith(502);
     });

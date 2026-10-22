@@ -36,6 +36,8 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
   const [showBVNModal, setShowBVNModal] = useState(false);
   const [bvn, setBVN] = useState(user?.bvn || "");
   const [bvnError, setBVNError] = useState("");
+  const [bvnVerifying, setBvnVerifying] = useState(false);
+  const [bvnVerifiedName, setBvnVerifiedName] = useState("");
 
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankDetails, setBankDetails] = useState({
@@ -237,15 +239,22 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
       return;
     }
     setBVNError("");
+    setBvnVerifying(true);
     try {
+      const { verifyBVN } = await import('../../api/client');
+      const result = await verifyBVN(bvn);
+      setBvnVerifiedName(result.fullName || '');
       if (onUpdateProfile) {
         await onUpdateProfile({ bvn });
       }
       setShowBVNModal(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-    } catch {
-      setBVNError("Failed to save BVN. Try again.");
+    } catch (err) {
+      const msg = (err as { message?: string })?.message;
+      setBVNError(msg && msg !== 'Network Error' ? msg : "Could not verify this BVN. Please check it and try again.");
+    } finally {
+      setBvnVerifying(false);
     }
   };
 
@@ -375,7 +384,9 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
         {showSuccess && (
           <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-center">
             <Check className="w-5 h-5 text-green-600 mr-3" aria-hidden="true" />
-            <p className="text-green-800">Changes saved successfully!</p>
+            <p className="text-green-800">
+              {bvnVerifiedName ? `BVN verified — ${bvnVerifiedName}` : 'Changes saved successfully!'}
+            </p>
           </div>
         )}
 
@@ -729,6 +740,7 @@ const ProfilePage: React.FC<PageProps> = ({ user, onLogout, onUpdateProfile }) =
         open={showBVNModal}
         bvn={bvn}
         error={bvnError}
+        verifying={bvnVerifying}
         onClose={() => setShowBVNModal(false)}
         onBVNChange={setBVN}
         onVerify={handleBVNVerify}

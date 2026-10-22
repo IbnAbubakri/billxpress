@@ -289,6 +289,21 @@ export async function resolveAccountNumber(accountNumber: string, bankCode: stri
   return data as { accountName: string; accountNumber: string };
 }
 
+export interface BVNVerification {
+  verified: boolean;
+  bvn: string;
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  phone: string;
+}
+
+export async function verifyBVN(bvn: string) {
+  const { data } = await walletApi.get('/wallet/verify-bvn', { params: { bvn } });
+  return data as BVNVerification;
+}
+
 export async function withdrawFunds(amount: number, bank: string, accountNumber: string, accountName: string, transactionPin?: string) {
   const csrf = await ensureCSRF();
   const { data } = await walletApi.post('/wallet/withdraw', { amount, bank, accountNumber, accountName, transactionPin }, {

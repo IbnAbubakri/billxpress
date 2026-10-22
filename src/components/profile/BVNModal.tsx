@@ -2,12 +2,13 @@
 // Faruqsuzay@gmail.com | +2349061345507
 
 import { useEffect, useRef } from "react";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 
 interface BVNModalProps {
   open: boolean;
   bvn: string;
   error: string;
+  verifying?: boolean;
   onClose: () => void;
   onBVNChange: (value: string) => void;
   onVerify: () => void;
@@ -17,6 +18,7 @@ const BVNModal = ({
   open,
   bvn,
   error,
+  verifying = false,
   onClose,
   onBVNChange,
   onVerify,
@@ -91,15 +93,18 @@ const BVNModal = ({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="w-1/2 bg-gray-200 dark:bg-dark-700 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 dark:hover:bg-dark-600 transition-colors"
+            disabled={verifying}
+            className="w-1/2 bg-gray-200 dark:bg-dark-700 text-black dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-300 dark:hover:bg-dark-600 transition-colors disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             onClick={onVerify}
-            className="w-1/2 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors"
+            disabled={verifying || bvn.length !== 11}
+            className="w-1/2 inline-flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors disabled:opacity-60"
           >
-            Verify BVN
+            {verifying && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
+            {verifying ? "Verifying…" : "Verify BVN"}
           </button>
         </div>
       </div>
