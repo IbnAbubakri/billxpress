@@ -176,10 +176,10 @@ export async function handleResolveAccount(req, res, next) {
       result = await resolveAccountNumber(accountNumber, bankCode);
     } catch (err) {
       const status = err.response?.status;
-      if (status === 422 || status === 404) {
+      if (typeof status === 'number' && status >= 400 && status < 500) {
         return res.status(404).json({ error: 'Could not resolve account name. Check the account number and bank.' });
       }
-      throw err;
+      return res.status(502).json({ error: 'Could not reach the account verification service. Please try again.' });
     }
 
     const accountName = result?.data?.account_name;

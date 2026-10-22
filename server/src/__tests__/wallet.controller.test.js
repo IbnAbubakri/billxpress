@@ -304,5 +304,25 @@ describe('wallet.controller', () => {
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
+
+    it('should treat any Paystack 4xx as unresolved (404)', async () => {
+      paystackRef.resolveAccountNumber.mockRejectedValue({ response: { status: 400 } });
+      const req = { query: { accountNumber: '0123456789', bankCode: '999992' } };
+      const res = mockRes();
+
+      await handleResolveAccount(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('should return 502 when the verification service is unreachable', async () => {
+      paystackRef.resolveAccountNumber.mockRejectedValue(new Error('network timeout'));
+      const req = { query: { accountNumber: '0123456789', bankCode: '058' } };
+      const res = mockRes();
+
+      await handleResolveAccount(req, res, vi.fn());
+
+      expect(res.status).toHaveBeenCalledWith(502);
+    });
   });
 });

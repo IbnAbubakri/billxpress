@@ -7,7 +7,7 @@
 ```bash
 npm run build && git add -A && git commit -m "..." && git push
 ```
-Run tests: `npx vitest run` (209 tests across 16 files)
+Run tests: `npx vitest run` (211 tests across 16 files)
 
 ## Production Environment Variables (Vercel)
 Set these in Vercel Dashboard → Settings → Environment Variables (Production):
